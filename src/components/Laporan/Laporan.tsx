@@ -19,7 +19,7 @@ const Laporan: React.FC = () => {
   // fetch jenis list once and on event
   useEffect(()=>{
     const loadJenis=()=>{
-      fetch('http://66.96.230.177:3000/api/jenis-laporan').then(r=>r.json()).then(setJenisList).catch(console.error);
+      fetch('http://193.70.34.25:20096/api/jenis-laporan').then(r=>r.json()).then(setJenisList).catch(console.error);
     };
     loadJenis();
     const handler=(e: any)=>{
@@ -32,7 +32,7 @@ const Laporan: React.FC = () => {
 
   useEffect(() => {
     const fetchData = () => {
-      fetch('http://66.96.230.177:3000/api/laporan')
+      fetch('http://193.70.34.25:20096/api/laporan')
         .then(res => res.json())
         .then(setItems)
         .catch(console.error);
@@ -40,7 +40,7 @@ const Laporan: React.FC = () => {
     fetchData();
     const id = setInterval(fetchData, 5000);
         // also fetch accounts once
-    fetch('http://66.96.230.177:3000/api/accounts')
+    fetch('http://193.70.34.25:20096/api/accounts')
       .then(res => res.json())
       .then(setAccounts)
       .catch(console.error);
@@ -50,7 +50,7 @@ const Laporan: React.FC = () => {
 
   const handleDelete = (item:LaporanItem) => {
     if(!confirm('Hapus laporan ini?')) return;
-    fetch(`http://66.96.230.177:3000/api/laporan/${item.deviceId}/${item.id}`, {method:'DELETE'})
+    fetch(`http://193.70.34.25:20096/api/laporan/${item.deviceId}/${item.id}`, {method:'DELETE'})
       .then(res=>{
         if(!res.ok) throw new Error('Failed');
         setItems(prev=>prev.filter(p=>p.id!==item.id));
@@ -60,7 +60,7 @@ const Laporan: React.FC = () => {
 
   const handleDownload = async (item:LaporanItem) => {
     for(const img of item.images){
-      const url = `http://66.96.230.177:3000/laporan-images/${item.deviceId}/${img}`;
+      const url = `http://193.70.34.25:20096/laporan-images/${item.deviceId}/${img}`;
       try{
         const res = await fetch(url);
         const blob = await res.blob();
@@ -125,7 +125,7 @@ const Laporan: React.FC = () => {
           <p className="text-sm mb-3">{item.description}</p>
           <div className="flex space-x-2 overflow-x-auto mb-4 pb-2">
             {item.images.map((img, idx) => (
-              <img onClick={()=>setPreview(`http://66.96.230.177:3000/laporan-images/${item.deviceId}/${img}`)} key={idx} src={`http://66.96.230.177:3000/laporan-images/${item.deviceId}/${img}`} alt="laporan" className="h-24 w-24 object-cover rounded-lg border border-purple-700 cursor-pointer hover:opacity-80" />
+              <img onClick={()=>setPreview(`http://193.70.34.25:20096/laporan-images/${item.deviceId}/${img}`)} key={idx} src={`http://193.70.34.25:20096/laporan-images/${item.deviceId}/${img}`} alt="laporan" className="h-24 w-24 object-cover rounded-lg border border-purple-700 cursor-pointer hover:opacity-80" />
             ))}
           </div>
           <div className="flex space-x-3">

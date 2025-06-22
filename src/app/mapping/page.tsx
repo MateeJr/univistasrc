@@ -37,7 +37,7 @@ const generateCircle = (lng: number, lat: number, radiusMeters: number, points =
 
 interface Area { lng: number; lat: number; radius: number }
 
-const API_BASE = "http://66.96.230.177:3000"; // adjust if needed
+const API_BASE = "http://193.70.34.25:20096"; // adjust if needed
 
 const AreaLaranganPanel: React.FC = () => {
   const { map } = useMap();

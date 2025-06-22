@@ -18,7 +18,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
 
     const fetchInfo = async () => {
       try {
-        const res = await fetch(`http://66.96.230.177:3000/api/accounts/${deviceId}`);
+        const res = await fetch(`http://193.70.34.25:20096/api/accounts/${deviceId}`);
         if (res.ok) {
           const data = await res.json();
           setInfo(data);

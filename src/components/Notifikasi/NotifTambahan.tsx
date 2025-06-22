@@ -13,7 +13,7 @@ interface TambahanNotif {
   timestamp: string;
 }
 
-const API_BASE = "http://66.96.230.177:3000";
+const API_BASE = "http://193.70.34.25:20096";
 
 // format dd/mm/yyyy hh:mm
 const formatTs = (ts: string) => {

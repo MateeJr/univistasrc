@@ -15,7 +15,7 @@ const MasterInfo: React.FC<MasterInfoProps> = ({ onBack }) => {
   useEffect(() => {
     const fetchDrivers = async () => {
       try {
-        const res = await fetch("http://66.96.230.177:3000/api/accounts");
+        const res = await fetch("http://193.70.34.25:20096/api/accounts");
         if (res.ok) {
           const data = await res.json();
           setDrivers(data);

@@ -15,7 +15,7 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
     const load = async ()=>{
       setLoading(true);
       try{
-        const res = await fetch(`http://66.96.230.177:3000/api/tasks/${task.id}`);
+        const res = await fetch(`http://193.70.34.25:20096/api/tasks/${task.id}`);
         if(res.ok){
           const data = await res.json();
           setImages(data.images || []);
@@ -54,7 +54,7 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
     return (
       <div key={label} className="flex flex-col bg-zinc-900 rounded-lg overflow-hidden border border-zinc-700 shadow-sm">
         {file ? (
-          <img src={`http://66.96.230.177:3000/task-images/${file}`} alt={label} className="w-full h-60 object-cover" />
+          <img src={`http://193.70.34.25:20096/task-images/${file}`} alt={label} className="w-full h-60 object-cover" />
         ) : (
           <div className="w-full h-60 bg-zinc-800 flex items-center justify-center text-gray-500 text-sm">Tidak ada gambar</div>
         )}

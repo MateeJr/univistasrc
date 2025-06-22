@@ -249,7 +249,7 @@ const BuatTugas: React.FC = () => {
   useEffect(() => {
     const loadDrivers = async () => {
       try {
-        const res = await fetch("http://66.96.230.177:3000/api/accounts");
+        const res = await fetch("http://193.70.34.25:20096/api/accounts");
         const data: Driver[] = res.ok ? await res.json() : [];
 
         // Store drivers
@@ -260,7 +260,7 @@ const BuatTugas: React.FC = () => {
         await Promise.all(
           data.map(async (d) => {
             try {
-              const detailRes = await fetch(`http://66.96.230.177:3000/api/accounts/${d.deviceId}`);
+              const detailRes = await fetch(`http://193.70.34.25:20096/api/accounts/${d.deviceId}`);
               if (!detailRes.ok) return;
               const detail = await detailRes.json();
               const last = detail.track?.timestampMs ?? (detail.track?.lastUpdated ? Date.parse(detail.track.lastUpdated.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')) : 0);
@@ -368,7 +368,7 @@ const BuatTugas: React.FC = () => {
   useEffect(() => {
     const loadFoto = async () => {
       try {
-        const res = await fetch('http://66.96.230.177:3000/api/jenis-foto');
+        const res = await fetch('http://193.70.34.25:20096/api/jenis-foto');
         const data: string[] = res.ok ? await res.json() : [];
         setPhotoTypes(data);
         const init: Record<string, boolean> = {};
@@ -383,11 +383,11 @@ const BuatTugas: React.FC = () => {
   useEffect(()=>{
     const fetchAll = async () => {
       try{
-        const r1 = await fetch('http://66.96.230.177:3000/api/area-larangan');
+        const r1 = await fetch('http://193.70.34.25:20096/api/area-larangan');
         if(r1.ok){ setAreas(await r1.json()); }
-        const r2 = await fetch('http://66.96.230.177:3000/api/keluar-jalur');
+        const r2 = await fetch('http://193.70.34.25:20096/api/keluar-jalur');
         if(r2.ok){ const d=await r2.json(); setKeluarJalurRadius(Number(d.value)||0); }
-        const r3 = await fetch('http://66.96.230.177:3000/api/target-radius');
+        const r3 = await fetch('http://193.70.34.25:20096/api/target-radius');
         if(r3.ok){ const d=await r3.json(); setTargetRadius(Math.max(100,Number(d.value)||100)); }
       }catch{}
     };
@@ -769,7 +769,7 @@ const BuatTugas: React.FC = () => {
                 etaMin,
                 waypoints,
               };
-              await fetch('http://66.96.230.177:3000/api/tasks', {
+              await fetch('http://193.70.34.25:20096/api/tasks', {
                 method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
               });
               alert('Task created');

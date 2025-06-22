@@ -66,12 +66,12 @@ const Maps: React.FC<Props> = ({ selected, showTraffic }) => {
     const fetchAll = async () => {
       if (!map) return;
       try {
-        const res = await fetch("http://66.96.230.177:3000/api/accounts");
+        const res = await fetch("http://193.70.34.25:20096/api/accounts");
         if (!res.ok) return;
         const accounts = await res.json();
 
         for (const acc of accounts) {
-          const detailRes = await fetch(`http://66.96.230.177:3000/api/accounts/${acc.deviceId}`);
+          const detailRes = await fetch(`http://193.70.34.25:20096/api/accounts/${acc.deviceId}`);
           if (!detailRes.ok) continue;
           const detail = await detailRes.json();
 

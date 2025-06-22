@@ -2,7 +2,7 @@
 import React, { useEffect, useState, FormEvent, ChangeEvent } from "react";
 import { FiTrash2, FiSettings } from "react-icons/fi";
 
-const API_BASE = "http://66.96.230.177:3000";
+const API_BASE = "http://193.70.34.25:20096";
 
 interface Jenis {
   name: string;

@@ -66,7 +66,7 @@ const TaskDetailModal:React.FC<Props> = ({task, accounts, onClose})=>{
       let reachedB=false;
       for(const devId of task.drivers || []){
         try{
-          const res = await fetch(`http://66.96.230.177:3000/api/accounts/${devId}`);
+          const res = await fetch(`http://193.70.34.25:20096/api/accounts/${devId}`);
           if(!res.ok) continue;
           const detail = await res.json();
           const lat = detail.track?.latitude;
@@ -99,14 +99,14 @@ const TaskDetailModal:React.FC<Props> = ({task, accounts, onClose})=>{
 
       if(reachedA && taskStatus.startsWith('DIPROSES') && !taskStatus.includes('TITIK A')){
         try{
-          await fetch(`http://66.96.230.177:3000/api/tasks/${task.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'DIPROSES - TELAH SAMPAI DI TITIK A'})});
+          await fetch(`http://193.70.34.25:20096/api/tasks/${task.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'DIPROSES - TELAH SAMPAI DI TITIK A'})});
           setTaskStatus('DIPROSES - TELAH SAMPAI DI TITIK A');
         }catch{}
       }
 
       if(reachedB && taskStatus==='DIPROSES - TELAH SAMPAI DI TITIK A'){
         try{
-          await fetch(`http://66.96.230.177:3000/api/tasks/${task.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'DIPROSES - TELAH SAMPAI DI TITIK TUJUAN'})});
+          await fetch(`http://193.70.34.25:20096/api/tasks/${task.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'DIPROSES - TELAH SAMPAI DI TITIK TUJUAN'})});
           setTaskStatus('DIPROSES - TELAH SAMPAI DI TITIK TUJUAN');
         }catch{}
       }
@@ -121,7 +121,7 @@ const TaskDetailModal:React.FC<Props> = ({task, accounts, onClose})=>{
     let id:NodeJS.Timeout;
     const poll=async()=>{
       try{
-        const res=await fetch('http://66.96.230.177:3000/api/tasks');
+        const res=await fetch('http://193.70.34.25:20096/api/tasks');
         if(res.ok){ const list=await res.json(); const t=list.find((x:any)=>x.id===task.id); if(t && t.status) setTaskStatus(t.status); }
       }catch{}
     };
@@ -199,7 +199,7 @@ const TaskDetailModal:React.FC<Props> = ({task, accounts, onClose})=>{
 
   useEffect(()=>{
     if(task.travelReq?.areaLarangan){
-      fetch('http://66.96.230.177:3000/api/area-larangan').then(r=>r.ok?r.json():null).then(d=>{if(d) setAreas(d);}).catch(()=>{});
+      fetch('http://193.70.34.25:20096/api/area-larangan').then(r=>r.ok?r.json():null).then(d=>{if(d) setAreas(d);}).catch(()=>{});
     }
   },[task.travelReq]);
 

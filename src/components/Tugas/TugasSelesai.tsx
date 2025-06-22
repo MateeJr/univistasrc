@@ -30,11 +30,11 @@ const TugasSelesai: React.FC = () => {
   const [imagesTask, setImagesTask] = useState<Task|null>(null);
   const clearFilters=()=>{ setSearch(''); setDateFilter(''); setDriverFilter('all'); };
 
-  const load=async()=>{ try{ const r=await fetch('http://66.96.230.177:3000/api/tasks'); if(r.ok){const d=await r.json(); setTasks(d.filter((t:any)=>t.status==='DIBATALKAN' || t.status==='SELESAI'));}}catch{} };
+  const load=async()=>{ try{ const r=await fetch('http://193.70.34.25:20096/api/tasks'); if(r.ok){const d=await r.json(); setTasks(d.filter((t:any)=>t.status==='DIBATALKAN' || t.status==='SELESAI'));}}catch{} };
 
   const loadAccounts = async () => {
     try {
-      const res = await fetch('http://66.96.230.177:3000/api/accounts');
+      const res = await fetch('http://193.70.34.25:20096/api/accounts');
       if(res.ok){ const list:Account[]=await res.json(); const map:Record<string,Account>={}; list.forEach(a=>map[a.deviceId]=a); setAccounts(map); }
     }catch{}
   };
@@ -126,7 +126,7 @@ const TugasSelesai: React.FC = () => {
                 <button
                   onClick={async()=>{
                     if(!confirm('Hapus tugas ini secara permanen?')) return;
-                    await fetch(`http://66.96.230.177:3000/api/tasks/${t.id}`,{method:'DELETE'});
+                    await fetch(`http://193.70.34.25:20096/api/tasks/${t.id}`,{method:'DELETE'});
                     load();
                   }}
                   className="mt-2 px-3 py-1 rounded bg-red-600 hover:bg-red-500 text-white text-xs"

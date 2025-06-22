@@ -47,14 +47,14 @@ const TugasAktif: React.FC = () => {
 
   const load=async()=>{
     try{
-      const res=await fetch('http://66.96.230.177:3000/api/tasks');
+      const res=await fetch('http://193.70.34.25:20096/api/tasks');
       if(res.ok){ const data=await res.json(); setTasks(data); }
     }catch{}
   };
 
   const loadAccounts = async () => {
     try {
-      const res = await fetch('http://66.96.230.177:3000/api/accounts');
+      const res = await fetch('http://193.70.34.25:20096/api/accounts');
       if(res.ok){ const list:Account[]=await res.json(); const map:Record<string,Account>={} ; list.forEach(a=>map[a.deviceId]=a); setAccounts(map); }
     }catch{}
   };
@@ -143,7 +143,7 @@ const TugasAktif: React.FC = () => {
             {t.status!=='DIBATALKAN' && (
               <div className="flex justify-end gap-2 flex-wrap">
                 <button onClick={async()=>{
-                  await fetch(`http://66.96.230.177:3000/api/tasks/${t.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'DIBATALKAN'})});
+                  await fetch(`http://193.70.34.25:20096/api/tasks/${t.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'DIBATALKAN'})});
                   load();
                 }} className="mt-2 px-3 py-1 rounded bg-red-600 hover:bg-red-500 text-white text-xs">Batalkan Tugas</button>
                 <button onClick={()=>setDetailTask(t)} className="mt-2 px-3 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs">Lihat Detail</button>

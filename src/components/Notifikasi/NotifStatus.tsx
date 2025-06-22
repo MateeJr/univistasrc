@@ -12,7 +12,7 @@ interface StatusNotif {
   timestamp: string;
 }
 
-const API_BASE = "http://66.96.230.177:3000";
+const API_BASE = "http://193.70.34.25:20096";
 
 const NotifStatus: React.FC = () => {
   const [list, setList] = useState<StatusNotif[]>([]);

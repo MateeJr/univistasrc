@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 interface Notif { deviceId:string; nama:string; timestamp:string; lat?:number; lng?:number; type:string }
 
-const API_BASE = "http://66.96.230.177:3000";
+const API_BASE = "http://193.70.34.25:20096";
 
 const formatTs=(ts:string)=>{
   const parse=(str:string):Date|null=>{

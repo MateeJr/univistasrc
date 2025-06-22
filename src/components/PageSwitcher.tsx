@@ -70,7 +70,7 @@ export default function PageSwitcher() {
   useEffect(() => {
     const poll = async () => {
       try {
-        const res1 = await fetch('http://66.96.230.177:3000/api/status-notifs');
+        const res1 = await fetch('http://193.70.34.25:20096/api/status-notifs');
         if (res1.ok) {
           const data = await res1.json();
           if (data.length) {
@@ -84,7 +84,7 @@ export default function PageSwitcher() {
           setHasStatusNew(false);
         }
 
-        const res2 = await fetch('http://66.96.230.177:3000/api/penting-notifs');
+        const res2 = await fetch('http://193.70.34.25:20096/api/penting-notifs');
         if (res2.ok) {
           const data2 = await res2.json();
           if (data2.length) {
@@ -99,7 +99,7 @@ export default function PageSwitcher() {
         }
 
         // Laporan check
-        const res3 = await fetch('http://66.96.230.177:3000/api/laporan');
+        const res3 = await fetch('http://193.70.34.25:20096/api/laporan');
         if(res3.ok){
           const data3 = await res3.json();
           if(data3 && data3.length){

@@ -12,13 +12,13 @@ const Score: React.FC = () => {
   const [loading,setLoading]=useState(true);
 
   const fetchRatings=()=>{
-    fetch('http://66.96.230.177:3000/api/score').then(r=>r.json()).then(setRatings).catch(console.error);
+    fetch('http://193.70.34.25:20096/api/score').then(r=>r.json()).then(setRatings).catch(console.error);
   };
   
   useEffect(()=>{
     Promise.all([
-      fetch('http://66.96.230.177:3000/api/accounts').then(r=>r.json()),
-      fetch('http://66.96.230.177:3000/api/score').then(r=>r.json()).catch(()=>({}))
+      fetch('http://193.70.34.25:20096/api/accounts').then(r=>r.json()),
+      fetch('http://193.70.34.25:20096/api/score').then(r=>r.json()).catch(()=>({}))
     ]).then(([accs,scores])=>{ setAccounts(accs); setRatings(scores); }).catch(console.error).finally(()=>setLoading(false));
   },[]);
   const getRating=(id:string)=> ratings[id]??5;
@@ -59,14 +59,14 @@ const Score: React.FC = () => {
                       <button className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 rounded" onClick={()=>{
                         const delta=Number(adjust[acc.deviceId]||0); if(!delta) return;
                         const newRating=Math.min(5, getRating(acc.deviceId)+delta);
-                        fetch(`http://66.96.230.177:3000/api/score/${acc.deviceId}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({rating:newRating})})
+                        fetch(`http://193.70.34.25:20096/api/score/${acc.deviceId}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({rating:newRating})})
                           .then(r=>{if(r.ok){ setRatings(prev=>({...prev,[acc.deviceId]:newRating})); setAdjust(prev=>({...prev,[acc.deviceId]:''})); }})
                           .catch(console.error);
                       }}>+</button>
                       <button className="px-2 py-1 bg-rose-600 hover:bg-rose-700 rounded" onClick={()=>{
                         const delta=Number(adjust[acc.deviceId]||0); if(!delta) return;
                         const newRating=Math.max(1, getRating(acc.deviceId)-delta);
-                        fetch(`http://66.96.230.177:3000/api/score/${acc.deviceId}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({rating:newRating})})
+                        fetch(`http://193.70.34.25:20096/api/score/${acc.deviceId}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({rating:newRating})})
                           .then(r=>{if(r.ok){ setRatings(prev=>({...prev,[acc.deviceId]:newRating})); setAdjust(prev=>({...prev,[acc.deviceId]:''})); }})
                           .catch(console.error);
                       }}>-</button>
