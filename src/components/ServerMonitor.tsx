@@ -46,9 +46,9 @@ export default function ServerMonitor({ children }: { children: React.ReactNode 
               d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
             />
           </svg>
-          <h2 className="text-2xl font-bold mb-2">SERVER TIDAK AKTIF</h2>
-          <p className="text-center max-w-xs text-sm text-gray-300 mb-1">Periksa koneksi atau status server Univista.</p>
-          <p className="text-center max-w-xs text-sm text-gray-400">Menghubungkan kembali...</p>
+          <h2 className="text-2xl font-bold mb-2">JARINGAN TERPUTUS DARI SERVER</h2>
+          <p className="text-center max-w-xs text-sm text-gray-300 mb-1">Periksa koneksi atau server.</p>
+          <p className="text-center max-w-xs text-sm text-gray-400">Sedang mencoba Menghubungkan kembali...</p>
         </div>
       )}
       {children}

@@ -107,7 +107,7 @@ export default function InitialLoader({ children }: { children: React.ReactNode 
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
-              <h2 className="text-xl font-bold mb-4">{errorStep==='server'?'Server Univista Offline':'Mapbox API Bermasalah'}</h2>
+              <h2 className="text-xl font-bold mb-4">{errorStep==='server'?'Server Univista Offline':'Maps Bermasalah'}</h2>
               <button onClick={()=>{
                 // reset and rerun checks
                 setStatuses({ server:'pending', mapbox:'pending', next:'pending'});

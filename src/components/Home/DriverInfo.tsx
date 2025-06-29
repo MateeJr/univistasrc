@@ -60,15 +60,17 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
     };
   }, [info, map, setLastPos, styleIdx]);
 
-  // Cleanup marker when deviceId changes to MASTER or undefined
+  // Cleanup marker whenever the selected driver changes. This guarantees that
+  // the previous driver's marker (if any) is always removed, eliminating the
+  // possibility of duplicate truck icons appearing when switching between
+  // drivers or returning to the MASTER view.
   useEffect(() => {
-    if (deviceId && deviceId !== 'MASTER') return; // nothing to do for valid driver
-
-    // remove existing marker if any and clear info
     if (markerRef.current) {
       markerRef.current.remove();
       markerRef.current = null;
     }
+
+    // Clear the cached info so that a fresh fetch will run for the new deviceId.
     setInfo(null);
   }, [deviceId]);
 
@@ -135,9 +137,15 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
             rows.push({ label: 'Ping', value: `${ping ?? '-'} ms (${pingStatus})`, color: pingColor });
 
             // Last update – red if driver considered offline (>10min)
-              const lastMs = info.track?.timestampMs ?? (info.track?.lastUpdated ? Date.parse(info.track.lastUpdated.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')) : 0);
-              const diffMinLast = lastMs ? (Date.now() - lastMs) / 60000 : Infinity;
-              rows.push({ label: 'Last Update', value: info.track.lastUpdated ?? '-', color: diffMinLast >= 10 ? 'text-red-400' : undefined });
+            const lastMs = info.track?.timestampMs ?? (info.track?.lastUpdated ? Date.parse(info.track.lastUpdated.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')) : 0);
+            const diffMinLast = lastMs ? (Date.now() - lastMs) / 60000 : Infinity;
+
+            // Format using browser's local timezone
+            const lastStr = lastMs ? new Date(lastMs).toLocaleString('id-ID', {
+              hour12: false,
+            }) : '-';
+
+            rows.push({ label: 'Last Update', value: lastStr, color: diffMinLast >= 10 ? 'text-red-400' : undefined });
 
             return rows;
           })().map((row) => (
@@ -146,6 +154,21 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
               <span className={`font-medium ${row.color ?? 'text-white'}`}>{row.value}</span>
             </div>
           ))}
+
+          {/* Warning message when last update is outdated (red) */}
+          {(() => {
+            const lastMs = info.track?.timestampMs ?? (info.track?.lastUpdated ? Date.parse(info.track.lastUpdated.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')) : 0);
+            const diffMinLast = lastMs ? (Date.now() - lastMs) / 60000 : Infinity;
+
+            if (diffMinLast >= 10) {
+              return (
+                <div className="mt-3 p-2 bg-red-900/30 border border-red-500 rounded text-center">
+                  <span className="text-red-400 font-semibold text-sm">TIDAK TERHUBUNG</span>
+                </div>
+              );
+            }
+            return null;
+          })()}
         </div>
       ) : (
         <p className="text-sm text-gray-400">Belum ada data tracking</p>

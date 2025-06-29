@@ -12,8 +12,22 @@ const Laporan: React.FC = () => {
   const [search,setSearch]=useState('');
   const [dateFilter,setDateFilter]=useState('');
   const [driverFilter,setDriverFilter]=useState('all');
-  const clearFilters=()=>{ setSearch(''); setDateFilter(''); setDriverFilter('all'); };
+  const [loading, setLoading] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [offset, setOffset] = useState<number>(0);
+  const LIMIT = 5;
   const [jenisList,setJenisList]=useState<Jenis[]>([]);
+
+  const clearFilters=()=>{
+    setSearch('');
+    setDateFilter('');
+    setDriverFilter('all');
+    // Reset pagination when clearing filters
+    setItems([]);
+    setOffset(0);
+    setHasMore(true);
+    loadInitial();
+  };
 
   // fetch laporan list and accounts periodically
   // fetch jenis list once and on event
@@ -30,20 +44,75 @@ const Laporan: React.FC = () => {
     return ()=>window.removeEventListener('jenisColorUpdated',handler);
   },[]);
 
+  const buildApiUrl = (offset: number) => {
+    const params = new URLSearchParams();
+    params.append('limit', LIMIT.toString());
+    params.append('offset', offset.toString());
+
+    if (search.trim()) params.append('search', search.trim());
+    if (dateFilter) params.append('date', dateFilter);
+    if (driverFilter && driverFilter !== 'all') params.append('driver', driverFilter);
+
+    return `http://193.70.34.25:20096/api/laporan?${params.toString()}`;
+  };
+
+  const loadInitial = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(buildApiUrl(0));
+      if (res.ok) {
+        const response = await res.json();
+        if (response.laporan) {
+          setItems(response.laporan);
+          setHasMore(response.hasMore);
+          setOffset(LIMIT);
+        } else {
+          // Fallback for old API response format
+          setItems(response.slice(0, LIMIT));
+          setHasMore(response.length > LIMIT);
+          setOffset(LIMIT);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading laporan:', error);
+    }
+    setLoading(false);
+  };
+
+  const loadMore = async () => {
+    if (loading || !hasMore) return;
+    setLoading(true);
+    try {
+      const res = await fetch(buildApiUrl(offset));
+      if (res.ok) {
+        const response = await res.json();
+        if (response.laporan) {
+          setItems(prev => [...prev, ...response.laporan]);
+          setHasMore(response.hasMore);
+          setOffset(prev => prev + LIMIT);
+        } else {
+          // Fallback for old API response format
+          const newItems = response.slice(offset, offset + LIMIT);
+          setItems(prev => [...prev, ...newItems]);
+          setHasMore(offset + LIMIT < response.length);
+          setOffset(prev => prev + LIMIT);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading more laporan:', error);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchData = () => {
-      fetch('http://193.70.34.25:20096/api/laporan')
-        .then(res => res.json())
-        .then(setItems)
-        .catch(console.error);
-    };
-    fetchData();
-    const id = setInterval(fetchData, 5000);
-        // also fetch accounts once
+    loadInitial();
+    // also fetch accounts once
     fetch('http://193.70.34.25:20096/api/accounts')
       .then(res => res.json())
       .then(setAccounts)
       .catch(console.error);
+
+    const id = setInterval(loadInitial, 5000);
     return () => clearInterval(id);
   }, []);
   const getDriverInfo = (id:string) => accounts.find(a=>a.deviceId===id);
@@ -53,7 +122,11 @@ const Laporan: React.FC = () => {
     fetch(`http://193.70.34.25:20096/api/laporan/${item.deviceId}/${item.id}`, {method:'DELETE'})
       .then(res=>{
         if(!res.ok) throw new Error('Failed');
-        setItems(prev=>prev.filter(p=>p.id!==item.id));
+        // Reset and reload from beginning after deletion
+        setItems([]);
+        setOffset(0);
+        setHasMore(true);
+        loadInitial();
       })
       .catch(e=>alert('Gagal hapus: '+e));
   };
@@ -81,17 +154,17 @@ const Laporan: React.FC = () => {
   };
 
 
-  const filteredItems = items
-    .filter(it=> driverFilter==='all' || it.deviceId===driverFilter)
-    .filter(it=> {
-      if(!dateFilter) return true;
-      try{ return it.createdAt.slice(0,10)===dateFilter;}catch{return true;}
-    })
-    .filter(it=>{
-      if(!search.trim()) return true;
-      const q=search.toLowerCase();
-      return [it.title,it.description,it.type].some(f=>f?.toLowerCase().includes(q));
-    });
+  // No client-side filtering needed - server handles all filtering
+  const filteredItems = items;
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    // When filters change, reload from the beginning with new filters
+    setItems([]);
+    setOffset(0);
+    setHasMore(true);
+    loadInitial();
+  }, [search, dateFilter, driverFilter]);
 
   return (
     <div className="h-full rounded-lg bg-zinc-900 p-6 text-white overflow-y-auto space-y-6">
@@ -104,7 +177,13 @@ const Laporan: React.FC = () => {
         </select>
         <button onClick={clearFilters} className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 text-xs">Clear</button>
       </div>
-      {filteredItems.map(item => (
+
+      {filteredItems.length === 0 ? (
+        <div className="flex items-center justify-center h-64">
+          <p className="text-gray-400 text-lg">Belum ada laporan</p>
+        </div>
+      ) : (
+        filteredItems.map(item => (
         <div key={item.id} className="rounded-2xl border border-purple-600 bg-zinc-800 p-4 shadow-md">
           {(()=>{const info=getDriverInfo(item.deviceId);return (
             <div className="flex justify-between items-center mb-2">
@@ -133,8 +212,30 @@ const Laporan: React.FC = () => {
             <button onClick={()=>handleDelete(item)} className="px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-sm">Delete</button>
           </div>
         </div>
-      ))}
-          {preview && (
+        ))
+      )}
+
+      {/* Load More Button - only show if there's more data AND we have loaded some items */}
+      {hasMore && items.length > 0 && (
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={loadMore}
+            disabled={loading}
+            className="px-6 py-3 rounded-lg bg-purple-600 hover:bg-purple-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold transition-colors"
+          >
+            {loading ? 'Loading...' : 'LOAD MORE'}
+          </button>
+        </div>
+      )}
+
+      {/* Loading indicator for initial load */}
+      {loading && items.length === 0 && (
+        <div className="flex justify-center items-center py-8">
+          <div className="text-gray-400">Loading laporan...</div>
+        </div>
+      )}
+
+      {preview && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50" onClick={()=>setPreview(null)}>
           <img src={preview} className="max-h-[90%] max-w-[90%] rounded-2xl shadow-2xl" />
         </div>

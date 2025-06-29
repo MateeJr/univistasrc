@@ -96,20 +96,21 @@ const DriverList: React.FC<DriverListProps> = ({ onSelect, selectedId, onDeleted
       />
 
       <div className="w-full space-y-2 overflow-y-auto">
-        {/* Master button */}
-        <button
-          className={`w-full text-center py-2 rounded font-semibold text-white ${selectedId==='MASTER'?'bg-red-700':'bg-red-600'} hover:bg-red-500`}
-          onClick={() => onSelect('MASTER')}
-        >
-          MASTER
-        </button>
-        {/* Master Info button */}
-        <button
-          className={`w-full text-center py-2 rounded font-semibold text-white ${selectedId==='MASTER_INFO'?'bg-orange-700':'bg-orange-600'} hover:bg-orange-500`}
-          onClick={() => onSelect('MASTER_INFO')}
-        >
-          MASTER INFO
-        </button>
+        {/* Master buttons in two columns */}
+        <div className="w-full flex gap-2">
+          <button
+            className={`flex-1 text-center py-2 rounded font-semibold text-white ${selectedId==='MASTER'?'bg-red-700':'bg-red-600'} hover:bg-red-500`}
+            onClick={() => onSelect('MASTER')}
+          >
+            MASTER
+          </button>
+          <button
+            className={`flex-1 text-center py-2 rounded font-semibold text-white ${selectedId==='MASTER_INFO'?'bg-orange-700':'bg-orange-600'} hover:bg-orange-500`}
+            onClick={() => onSelect('MASTER_INFO')}
+          >
+            MASTER INFO
+          </button>
+        </div>
         {drivers
           .filter((d) => {
             if (!search.trim()) return true;

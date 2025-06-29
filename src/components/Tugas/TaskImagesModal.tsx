@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { getTaskCompletionTime } from "../../utils/timeUtils";
 
-interface Task { id:string; description:string; from:string; to:string; deadline:string; status?:string; photoReq?:string[]; }
+interface Task { id:string; description:string; from:string; to:string; deadline:string; status?:string; photoReq?:string[]; startTimestamp?:string; endTimestamp?:string; completionTimeMs?:number; }
 
 interface Props { task: Task; onClose: ()=>void; }
 
@@ -28,17 +29,44 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
   },[task.id]);
 
   // helper normalize
-  const norm = (s:string)=> decodeURIComponent(s).toLowerCase().replace(/[^a-z]/g,'');
+  const norm = (s:string)=> decodeURIComponent(s).toLowerCase().replace(/[^a-z0-9]/g,'');
 
   const mapped = photoReq.length ? photoReq.map(req=>{
-    const img = images.find(fn=> norm(fn).includes(norm(req)));
+    // More precise matching: find exact match first, then fallback to contains
+    const normalizedReq = norm(req);
+
+    // First try exact match (for cases like "fotosuratjalan" vs "fotosuratjalan2")
+    let img = images.find(fn=> {
+      const fnParts = fn.split('_');
+      if (fnParts.length >= 3) {
+        // Extract the label part from filename (remove timestamp, taskId, and extension)
+        const labelPart = fnParts.slice(2, -1).join('').toLowerCase();
+        const normalizedLabel = labelPart.replace(/[^a-z0-9]/g,'');
+        return normalizedLabel === normalizedReq;
+      }
+      return false;
+    });
+
+    // If no exact match found, fallback to contains (for backward compatibility)
+    if (!img) {
+      img = images.find(fn=> norm(fn).includes(normalizedReq));
+    }
+
     return { label:req, file:img };
   }) : images.map(i=>({label:i.split('_').slice(2,-1).join(' ')||i, file:i}));
 
-  // helper to format timestamp
+  // helper to format timestamp - force Indonesia (WIB) timezone
   const fmtDate=(ms:number)=>{
     const d=new Date(ms);
-    return d.toLocaleString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit', timeZone:'Asia/Jakarta'}).replace('.',':');
+    return d.toLocaleString('id-ID',{
+      day:'2-digit',
+      month:'2-digit',
+      year:'numeric',
+      hour:'2-digit',
+      minute:'2-digit',
+      second:'2-digit',
+      timeZone: 'Asia/Jakarta'
+    }).replace('.',':');
   };
 
   const card = (label:string,file?:string)=>{
@@ -76,30 +104,74 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
           <p className="text-center text-gray-400 py-10 w-full">Memuat...</p>
         ) : (
           <div className="flex flex-1 overflow-hidden">
-            {/* Left info panel */}
-            <div className="w-full md:w-1/3 border-r border-purple-800 p-4 overflow-auto space-y-2">
-              <p className="font-semibold text-purple-300">{task.description}</p>
-              <p className="text-sm text-gray-400">Status: <span className={task.status==='SELESAI' || task.status==='TELAH DIKONIFIRMASI' ? 'text-green-400' : task.status?.startsWith('DIPROSES')?'text-blue-400': task.status==='DIBATALKAN'?'text-red-400':'text-yellow-300'}>{task.status||'MENUNGGU KONFIRMASI'}</span></p>
-              <p className="text-sm text-gray-400">Berangkat: <span className="text-gray-200">{task.from}</span></p>
-              <p className="text-sm text-gray-400">Destinasi: <span className="text-gray-200">{task.to}</span></p>
-              <p className="text-sm text-gray-400">Deadline: <span className="text-red-400">{task.deadline}</span></p>
-              {photoReq.length>0 && (
-                <div className="mt-2">
-                  <p className="text-sm text-gray-400 mb-1">Syarat Foto:</p>
-                  <ul className="list-disc list-inside text-sm space-y-0.5">
-                    {photoReq.map((f,i)=>{
-                      const done = mapped.find(m=>m.label===f)?.file;
-                      return <li key={i} className={done?'text-green-400':'text-gray-200'}>{done?'✔️ ':''}{f}</li>;
-                    })}
-                  </ul>
-                </div>
-              )}
+            {/* Desktop layout: Left info panel, Right images grid */}
+            <div className="hidden md:flex flex-1 overflow-hidden">
+              {/* Left info panel */}
+              <div className="w-1/3 border-r border-purple-800 p-4 overflow-auto space-y-2">
+                <p className="font-semibold text-purple-300">{task.description}</p>
+                <p className="text-sm text-gray-400">Status: <span className={task.status==='SELESAI' || task.status==='TELAH DIKONIFIRMASI' ? 'text-green-400' : task.status?.startsWith('DIPROSES')?'text-blue-400': task.status==='DIBATALKAN'?'text-red-400':'text-yellow-300'}>{task.status||'MENUNGGU KONFIRMASI'}</span></p>
+                <p className="text-sm text-gray-400">Berangkat: <span className="text-gray-200">{task.from}</span></p>
+                <p className="text-sm text-gray-400">Destinasi: <span className="text-gray-200">{task.to}</span></p>
+                <p className="text-sm text-gray-400">Deadline: <span className="text-red-400">{task.deadline}</span></p>
+                {task.status === 'SELESAI' && (() => {
+                  const completionTime = getTaskCompletionTime(task);
+                  return completionTime ? (
+                    <p className="text-sm text-gray-400">Waktu Penyelesaian: <span className="text-green-400">{completionTime}</span></p>
+                  ) : null;
+                })()}
+                {photoReq.length>0 && (
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-400 mb-1">Syarat Foto:</p>
+                    <ul className="list-disc list-inside text-sm space-y-0.5">
+                      {photoReq.map((f,i)=>{
+                        const done = mapped.find(m=>m.label===f)?.file;
+                        return <li key={i} className={done?'text-green-400':'text-gray-200'}>{done?'✔️ ':''}{f}</li>;
+                      })}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {/* Right images grid */}
+              <div className="flex-1 overflow-auto p-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 auto-rows-max">
+                {mapped.length===0 && <p className="col-span-full text-center text-gray-500">Belum ada gambar</p>}
+                {mapped.map(({label,file})=> card(label,file))}
+              </div>
             </div>
 
-            {/* Right images grid */}
-            <div className="flex-1 overflow-auto p-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 auto-rows-max">
-              {mapped.length===0 && <p className="col-span-full text-center text-gray-500">Belum ada gambar</p>}
-              {mapped.map(({label,file})=> card(label,file))}
+            {/* Mobile layout: Images on top, Info on bottom */}
+            <div className="flex md:hidden flex-col flex-1 overflow-hidden">
+              {/* Top images grid */}
+              <div className="flex-1 overflow-auto p-4 grid gap-4 grid-cols-1 sm:grid-cols-2 auto-rows-max">
+                {mapped.length===0 && <p className="col-span-full text-center text-gray-500">Belum ada gambar</p>}
+                {mapped.map(({label,file})=> card(label,file))}
+              </div>
+
+              {/* Bottom info panel */}
+              <div className="border-t border-purple-800 p-4 space-y-2 bg-zinc-950">
+                <p className="font-semibold text-purple-300">{task.description}</p>
+                <p className="text-sm text-gray-400">Status: <span className={task.status==='SELESAI' || task.status==='TELAH DIKONIFIRMASI' ? 'text-green-400' : task.status?.startsWith('DIPROSES')?'text-blue-400': task.status==='DIBATALKAN'?'text-red-400':'text-yellow-300'}>{task.status||'MENUNGGU KONFIRMASI'}</span></p>
+                <p className="text-sm text-gray-400">Berangkat: <span className="text-gray-200">{task.from}</span></p>
+                <p className="text-sm text-gray-400">Destinasi: <span className="text-gray-200">{task.to}</span></p>
+                <p className="text-sm text-gray-400">Deadline: <span className="text-red-400">{task.deadline}</span></p>
+                {task.status === 'SELESAI' && (() => {
+                  const completionTime = getTaskCompletionTime(task);
+                  return completionTime ? (
+                    <p className="text-sm text-gray-400">Waktu Penyelesaian: <span className="text-green-400">{completionTime}</span></p>
+                  ) : null;
+                })()}
+                {photoReq.length>0 && (
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-400 mb-1">Syarat Foto:</p>
+                    <ul className="list-disc list-inside text-sm space-y-0.5">
+                      {photoReq.map((f,i)=>{
+                        const done = mapped.find(m=>m.label===f)?.file;
+                        return <li key={i} className={done?'text-green-400':'text-gray-200'}>{done?'✔️ ':''}{f}</li>;
+                      })}
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

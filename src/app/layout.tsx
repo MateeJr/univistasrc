@@ -14,6 +14,11 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title: "Univista Utama Dashboard",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

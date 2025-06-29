@@ -372,7 +372,7 @@ const BuatTugas: React.FC = () => {
         const data: string[] = res.ok ? await res.json() : [];
         setPhotoTypes(data);
         const init: Record<string, boolean> = {};
-        data.forEach(n=> init[n]=true);
+        data.forEach(n=> init[n]=false); // Changed to false (unchecked by default)
         setPhotoReq(init);
       } catch {}
     };
@@ -708,7 +708,21 @@ const BuatTugas: React.FC = () => {
       {/* Syarat Foto */}
       {photoTypes.length>0 && (
         <div className="w-full sm:max-w-sm md:max-w-none mt-3">
-          <label className="block mb-1 text-sm font-semibold text-gray-300">Syarat Foto</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-sm font-semibold text-gray-300">Syarat Foto</label>
+            <button
+              type="button"
+              onClick={() => {
+                const allChecked = photoTypes.every(pt => photoReq[pt]);
+                const newState: Record<string, boolean> = {};
+                photoTypes.forEach(pt => newState[pt] = !allChecked);
+                setPhotoReq(newState);
+              }}
+              className="px-3 py-1 text-xs rounded bg-purple-600 hover:bg-purple-500 text-white transition-colors"
+            >
+              {photoTypes.every(pt => photoReq[pt]) ? 'Hapus Semua' : 'Pilih Semua'}
+            </button>
+          </div>
           <div className="flex flex-col gap-1 max-h-32 overflow-auto border border-gray-700 rounded p-2">
             {photoTypes.map(pt => (
               <label key={pt} className="inline-flex items-center gap-2 text-sm">
