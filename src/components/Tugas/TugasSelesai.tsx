@@ -60,7 +60,7 @@ const TugasSelesai: React.FC = () => {
     if (dateFilter) params.append('date', dateFilter);
     if (driverFilter && driverFilter !== 'all') params.append('driver', driverFilter);
 
-    return `http://193.70.34.25:20096/api/tasks?${params.toString()}`;
+    return `/api/tasks?${params.toString()}`;
   };
 
   const loadInitial=async()=>{
@@ -111,41 +111,61 @@ const TugasSelesai: React.FC = () => {
 
   const loadAccounts = async () => {
     try {
-      const res = await fetch('http://193.70.34.25:20096/api/accounts');
+      const res = await fetch('/api/accounts');
       if(res.ok){ const list:Account[]=await res.json(); const map:Record<string,Account>={}; list.forEach(a=>map[a.deviceId]=a); setAccounts(map); }
     }catch{}
   };
 
-  useEffect(()=>{
-    loadInitial();
-    loadAccounts();
-    const id=setInterval(loadInitial,30000); // Reduced frequency for completed tasks
-    return()=>clearInterval(id);
-  },[]);
-
-  // No client-side filtering needed - server handles all filtering
-  const filteredTasks = tasks;
-
-  // Reset pagination when filters change
   useEffect(() => {
-    // When filters change, reload from the beginning with new filters
+    loadAccounts();
+  }, []);
+
+  useEffect(() => {
+    const refreshTasks = async () => {
+      if (loading || detailTask || imagesTask || playbackTask) return;
+      try {
+        const res = await fetch(buildApiUrl(0));
+        if (res.ok) {
+          const response = await res.json();
+          const fetchedTasks: Task[] = response.tasks || [];
+          if (fetchedTasks.length > 0) {
+            setTasks(prev => {
+              const existingIds = new Set(prev.map(t => t.id));
+              const newTasks = fetchedTasks.filter(t => !existingIds.has(t.id));
+              if (newTasks.length > 0) {
+                setOffset(o => o + newTasks.length);
+                return [...newTasks, ...prev];
+              }
+              return prev;
+            });
+          }
+        }
+      } catch (e) { console.error('Error refreshing tasks:', e); }
+    };
+
     setTasks([]);
     setOffset(0);
     setHasMore(true);
     loadInitial();
+
+    const intervalId = setInterval(refreshTasks, 5000);
+    return () => clearInterval(intervalId);
   }, [search, dateFilter, driverFilter]);
 
+  const filteredTasks = tasks;
+
   const statusColor = (s?:string)=>{
-    if(s==='DIBATALKAN') return {text:'text-gray-400',border:'border-gray-600'};
-    if(s==='SELESAI') return {text:'text-green-400',border:'border-green-500'};
-    if(s==='TELAH DIKONIFIRMASI') return {text:'text-blue-400',border:'border-blue-500'};
-    if(s?.startsWith('DIPROSES')) return {text:'text-red-400',border:'border-red-500'};
-    return {text:'text-yellow-300',border:'border-yellow-500'};
+    if(s==='DIBATALKAN') return {text:'text-gray-400',border:'border-gray-600',bg:'bg-gray-600/30'};
+    if(s==='SELESAI') return {text:'text-green-400',border:'border-green-500',bg:'bg-green-600/30'};
+    if(s==='TELAH DIKONIFIRMASI') return {text:'text-blue-400',border:'border-blue-500',bg:'bg-blue-600/30'};
+    if(s?.startsWith('DIPROSES')) return {text:'text-red-400',border:'border-red-500',bg:'bg-red-600/30'};
+    return {text:'text-yellow-300',border:'border-yellow-500',bg:'bg-yellow-600/30'};
   };
+  
 
   const handleDownload = async (taskId: string) => {
     try {
-      const response = await fetch(`http://193.70.34.25:20096/api/tasks/${taskId}/download`);
+      const response = await fetch(`/api/tasks/${taskId}/download`);
       if (!response.ok) {
         throw new Error('Download failed');
       }
@@ -214,23 +234,23 @@ const TugasSelesai: React.FC = () => {
               <div className="flex items-start justify-between mb-2">
                 <h4 className="font-semibold text-purple-300 text-base truncate max-w-[60%]">{t.description}</h4>
                 <div className="text-right flex flex-col items-end">
-                  <span className={`text-xs ${clr.text}`}>{t.status}</span>
+                  <span className={`text-xs font-semibold inline-block px-2 py-0.5 rounded-lg backdrop-blur-sm ${clr.text} ${clr.bg}`}>{t.status}</span>
                   <span className="text-xs text-gray-400">#{t.id}</span>
                 </div>
               </div>
-              <div className="flex flex-col md:flex-row justify-between text-sm">
+              <div className="flex flex-col md:flex-row flex-wrap justify-between gap-2 text-sm">
                 {/* Left side - Driver and Location Info */}
                 <div className="space-y-1 flex-1">
                   <div className="flex flex-wrap gap-1 items-start">
                     <span className="text-gray-400 mr-1">Driver:</span>
                     {(t.drivers||[]).map(id=>{ const acc=accounts[id]; return <span key={id} className="text-white inline-block bg-purple-700/60 px-2 py-0.5 rounded-md">{acc?`${acc.nama} (${acc.bk})`:id}</span>; })}
                   </div>
-                  <div className="flex gap-1"><span className="text-gray-400">Berangkat:</span><span className="text-white flex-1 truncate">{t.from}</span></div>
-                  <div className="flex gap-1"><span className="text-gray-400">Destinasi:</span><span className="text-white flex-1 truncate">{t.to}</span></div>
+                  <div className="flex flex-col sm:flex-row gap-1"><span className="text-gray-400">Berangkat:</span><span className="text-white flex-1 whitespace-normal break-words">{t.from}</span></div>
+                  <div className="flex flex-col sm:flex-row gap-1"><span className="text-gray-400">Destinasi:</span><span className="text-white flex-1 whitespace-normal break-words">{t.to}</span></div>
                 </div>
 
                 {/* Right side - Date and Time Info */}
-                <div className="space-y-1 text-right mt-2 md:mt-0">
+                <div className="space-y-1 text-left lg:text-right mt-2 lg:mt-0 w-full lg:w-56 flex-shrink-0">
                   <div className="text-gray-400 text-xs">Tanggal Dibuat: <span className="text-white">{createdStr}</span></div>
                   <div className="text-gray-400 text-xs">Deadline: <span className="text-red-400">{dstr}</span></div>
                   {t.status === 'SELESAI' && (() => {
@@ -251,35 +271,35 @@ const TugasSelesai: React.FC = () => {
                 <button
                   onClick={async()=>{
                     if(!confirm('Hapus tugas ini secara permanen?')) return;
-                    await fetch(`http://193.70.34.25:20096/api/tasks/${t.id}`,{method:'DELETE'});
+                    await fetch(`/api/tasks/${t.id}`,{method:'DELETE'});
                     // Reset and reload from beginning after deletion
                     setTasks([]);
                     setOffset(0);
                     setHasMore(true);
                     loadInitial();
                   }}
-                  className="mt-2 p-2 rounded bg-red-600 hover:bg-red-500 text-white transition-colors"
+                  className="mt-2 p-2 rounded-full bg-red-600 hover:bg-red-500 text-white transition-colors"
                   title="Hapus Tugas"
                 >
                   <FaTrash size={14} />
                 </button>
                 <button
                   onClick={()=>setDetailTask(t)}
-                  className="mt-2 p-2 rounded bg-blue-600 hover:bg-blue-500 text-white transition-colors"
+                  className="mt-2 p-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white transition-colors"
                   title="Lihat Detail"
                 >
                   <FaEye size={14} />
                 </button>
                 <button
                   onClick={()=>setImagesTask(t)}
-                  className="mt-2 p-2 rounded bg-green-600 hover:bg-green-500 text-white transition-colors"
+                  className="mt-2 p-2 rounded-full bg-green-600 hover:bg-green-500 text-white transition-colors"
                   title="Lihat Gambar"
                 >
                   <FaImages size={14} />
                 </button>
                 <button
                   onClick={()=>handleDownload(t.id)}
-                  className="mt-2 p-2 rounded bg-purple-600 hover:bg-purple-500 text-white transition-colors"
+                  className="mt-2 p-2 rounded-full bg-purple-600 hover:bg-purple-500 text-white transition-colors"
                   title="Download"
                 >
                   <FaDownload size={14} />
@@ -287,7 +307,7 @@ const TugasSelesai: React.FC = () => {
                 {t.status === 'SELESAI' && (
                   <button
                     onClick={()=>setPlaybackTask(t)}
-                    className="mt-2 p-2 rounded bg-orange-600 hover:bg-orange-500 text-white transition-colors"
+                    className="mt-2 p-2 rounded-full bg-orange-600 hover:bg-orange-500 text-white transition-colors"
                     title="Tracking Playback"
                   >
                     <FaPlay size={14} />

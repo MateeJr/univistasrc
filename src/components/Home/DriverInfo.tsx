@@ -18,7 +18,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
 
     const fetchInfo = async () => {
       try {
-        const res = await fetch(`http://193.70.34.25:20096/api/accounts/${deviceId}`);
+        const res = await fetch(`/api/accounts/${deviceId}`);
         if (res.ok) {
           const data = await res.json();
           setInfo(data);
@@ -76,19 +76,21 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
 
   if (!deviceId || deviceId==='MASTER') {
     return <div className="h-full rounded-lg bg-black p-4 text-white border border-purple-900 flex flex-col items-center justify-center">
-      <h3 className="text-lg font-semibold mb-2 text-center w-full">DEVICE INFO</h3>
+      <h3 className="text-lg font-semibold mb-2 text-center w-full">INFO PERANGKAT</h3>
       Pilih driver
     </div>;
   }
 
   if (!info) {
-    return <div className="h-full rounded-lg bg-black p-4 text-white border border-purple-900 flex flex-col items-center justify-center"><h3 className="text-lg font-semibold mb-2 text-center w-full">DEVICE INFO</h3>Memuat...</div>;
+    return <div className="h-full rounded-lg bg-black p-4 text-white border border-purple-900 flex flex-col items-center justify-center"><h3 className="text-lg font-semibold mb-2 text-center w-full">INFO PERANGKAT</h3>Memuat...</div>;
   }
 
   return (
     <div className="h-full rounded-lg bg-black p-4 text-white border border-purple-900 overflow-auto">
-      <h3 className="text-lg font-semibold mb-2 text-center w-full">DEVICE INFO</h3>
-      <h4 className="text-md font-semibold mb-4 text-center">{info.nama} ({info.bk})</h4>
+      <h3 className="text-lg font-semibold mb-2 text-center w-full">INFO PERANGKAT</h3>
+      <h4 className="text-md font-semibold mb-4 text-center">
+        <span className="inline-block px-3 py-1 rounded-lg bg-red-600/40 backdrop-blur-sm">{info.nama} ({info.bk})</span>
+      </h4>
       {info.track ? (
         <div className="space-y-1 text-sm">
           {(() => {
@@ -96,11 +98,12 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
 
             // GPS Status
             const gpsStatusColor = info.track.gpsStatus === 'Aktif' ? 'text-green-400' : info.track.gpsStatus === 'Tidak Aktif' ? 'text-red-400' : 'text-gray-400';
-            rows.push({ label: 'GPS Status', value: info.track.gpsStatus, color: gpsStatusColor });
+            rows.push({ label: 'Status GPS', value: info.track.gpsStatus, color: gpsStatusColor });
+            rows.push({ label: 'ID Perangkat', value: deviceId });
 
             // GPS Signal
             const sigColor = info.track.gpsSignal === 'Kuat' ? 'text-green-400' : info.track.gpsSignal === 'Normal' ? 'text-yellow-400' : info.track.gpsSignal === 'Lemah' ? 'text-red-400' : 'text-gray-400';
-            rows.push({ label: 'GPS Signal', value: info.track.gpsSignal, color: sigColor });
+            rows.push({ label: 'Sinyal GPS', value: info.track.gpsSignal, color: sigColor });
 
             // Accuracy status
             const acc = info.track.accuracy;
@@ -111,10 +114,10 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
               else if (acc <= 20) { accStatus = 'Akurat'; accColor = 'text-yellow-400'; }
               else { accStatus = 'Tidak Akurat'; accColor = 'text-red-400'; }
             }
-            rows.push({ label: 'Accuracy', value: `${acc ?? '-'} m (${accStatus})`, color: accColor });
+            rows.push({ label: 'Akurasi', value: `${acc ?? '-'} m (${accStatus})`, color: accColor });
 
-            rows.push({ label: 'Latitude', value: info.track.latitude?.toFixed?.(5) ?? '-' });
-            rows.push({ label: 'Longitude', value: info.track.longitude?.toFixed?.(5) ?? '-' });
+            rows.push({ label: 'Lintang', value: info.track.latitude?.toFixed?.(5) ?? '-' });
+            rows.push({ label: 'Bujur', value: info.track.longitude?.toFixed?.(5) ?? '-' });
 
             // Battery
             const batt = info.track.batteryPct ?? 0;
@@ -145,7 +148,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
               hour12: false,
             }) : '-';
 
-            rows.push({ label: 'Last Update', value: lastStr, color: diffMinLast >= 10 ? 'text-red-400' : undefined });
+            rows.push({ label: 'Data Terakhir', value: lastStr, color: diffMinLast >= 10 ? 'text-red-400' : undefined });
 
             return rows;
           })().map((row) => (

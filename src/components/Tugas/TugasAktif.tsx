@@ -2,7 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import TaskDetailModal from "./TaskDetailModal";
+import { FaTrash, FaEye, FaImages } from "react-icons/fa";
 import TaskImagesModal from "./TaskImagesModal";
+
 
 interface Task { id:string; description:string; from:string; to:string; deadline:string; drivers?:string[]; createdAt?:string; status?:string; waypoints?:{lng:number; lat:number}[] }
 
@@ -60,12 +62,13 @@ const parseDeadline = (str:string): Date | null => {
 };
 
 const statusColor = (s?:string)=>{
-  if(s==='DIBATALKAN') return {text:'text-gray-400',border:'border-gray-600'};
-  if(s==='SELESAI') return {text:'text-green-400',border:'border-green-500'};
-  if(s==='TELAH DIKONIFIRMASI') return {text:'text-blue-400',border:'border-blue-500'};
-  if(s?.startsWith('DIPROSES')) return {text:'text-red-400',border:'border-red-500'};
-  return {text:'text-yellow-300',border:'border-yellow-500'}; // waiting
+  if(s==='DIBATALKAN') return {text:'text-gray-400',border:'border-gray-600',bg:'bg-gray-600/30'};
+  if(s==='SELESAI') return {text:'text-green-400',border:'border-green-500',bg:'bg-green-600/30'};
+  if(s==='TELAH DIKONIFIRMASI') return {text:'text-blue-400',border:'border-blue-500',bg:'bg-blue-600/30'};
+  if(s?.startsWith('DIPROSES')) return {text:'text-red-400',border:'border-red-500',bg:'bg-red-600/30'};
+  return {text:'text-yellow-300',border:'border-yellow-500',bg:'bg-yellow-600/30'}; // waiting
 };
+
 
 const TugasAktif: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -98,7 +101,7 @@ const TugasAktif: React.FC = () => {
 
   const handleCancelTask = async (taskId: string) => {
     try {
-      await fetch(`http://193.70.34.25:20096/api/tasks/${taskId}`, {
+      await fetch(`/api/tasks/${taskId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'DIBATALKAN' })
@@ -132,7 +135,7 @@ const TugasAktif: React.FC = () => {
     if (dateFilter) params.append('date', dateFilter);
     if (driverFilter && driverFilter !== 'all') params.append('driver', driverFilter);
 
-    return `http://193.70.34.25:20096/api/tasks?${params.toString()}`;
+    return `/api/tasks?${params.toString()}`;
   };
 
   const loadInitial=async()=>{
@@ -183,29 +186,54 @@ const TugasAktif: React.FC = () => {
 
   const loadAccounts = async () => {
     try {
-      const res = await fetch('http://193.70.34.25:20096/api/accounts');
+      const res = await fetch('/api/accounts');
       if(res.ok){ const list:Account[]=await res.json(); const map:Record<string,Account>={} ; list.forEach(a=>map[a.deviceId]=a); setAccounts(map); }
     }catch{}
   };
 
-  useEffect(()=>{
-    loadInitial();
-    loadAccounts();
-    const id=setInterval(loadInitial,5000);
-    return()=>clearInterval(id);
-  },[]);
-
-  // No client-side filtering needed - server handles all filtering
-  const filteredTasks = tasks;
-
-  // Reset pagination when filters change
   useEffect(() => {
-    // When filters change, reload from the beginning with new filters
+    loadAccounts();
+  }, []);
+
+  // This one effect handles initial load, resetting on filter change, and the refresh interval.
+  useEffect(() => {
+    // Function to fetch the first page and prepend new tasks without a full refresh.
+    const refreshTasks = async () => {
+      // Don't refresh if a modal is open or another load is in progress.
+      if (loading || detailTask || imagesTask || confirmModal.isOpen) {
+        return;
+      }
+      try {
+        const res = await fetch(buildApiUrl(0)); // Always fetch page 1 for new items.
+        if (res.ok) {
+          const response = await res.json();
+          const fetchedTasks: Task[] = response.tasks || [];
+
+          if (fetchedTasks.length > 0) {
+            setTasks(prev => {
+              const existingIds = new Set(prev.map(t => t.id));
+              const newTasks = fetchedTasks.filter(t => !existingIds.has(t.id));
+              if (newTasks.length > 0) {
+                setOffset(o => o + newTasks.length);
+                return [...newTasks, ...prev];
+              }
+              return prev;
+            });
+          }
+        }
+      } catch (e) { console.error('Error refreshing tasks:', e); }
+    };
+
     setTasks([]);
     setOffset(0);
     setHasMore(true);
     loadInitial();
+
+    const intervalId = setInterval(refreshTasks, 5000);
+    return () => clearInterval(intervalId);
   }, [search, dateFilter, driverFilter]);
+
+  const filteredTasks = tasks;
 
   return (
     <div className="h-full rounded-lg bg-black p-4 text-white border border-purple-900 flex flex-col gap-2 overflow-auto">
@@ -247,7 +275,7 @@ const TugasAktif: React.FC = () => {
             <div className="flex items-start justify-between mb-2">
               <h4 className="font-semibold text-purple-300 text-base truncate max-w-[60%]">{t.description}</h4>
               <div className="text-right flex flex-col items-end">
-                <span className={`text-xs ${clr.text}`}>{t.status||'MENUNGGU KONFIRMASI'}</span>
+                <span className={`text-xs font-semibold inline-block px-2 py-0.5 rounded-lg backdrop-blur-sm ${clr.text} ${clr.bg}`}>{t.status||'MENUNGGU KONFIRMASI'}</span>
                 <span className="text-xs text-gray-400">#{t.id}</span>
               </div>
             </div>
@@ -276,12 +304,25 @@ const TugasAktif: React.FC = () => {
               <div className="flex justify-end gap-2 flex-wrap">
                 <button
                   onClick={() => openCancelConfirmation(t)}
-                  className="mt-2 px-3 py-1 rounded bg-red-600 hover:bg-red-500 text-white text-xs"
+                  className="mt-2 p-2 rounded-full bg-red-600 hover:bg-red-500 text-white transition-colors"
+                  title="Batalkan Tugas"
                 >
-                  Batalkan Tugas
+                  <FaTrash size={14} />
                 </button>
-                <button onClick={()=>setDetailTask(t)} className="mt-2 px-3 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs">Lihat Detail</button>
-                <button onClick={()=>setImagesTask(t)} className="mt-2 px-3 py-1 rounded bg-green-600 hover:bg-green-500 text-white text-xs">Lihat Gambar</button>
+                <button 
+                  onClick={()=>setDetailTask(t)} 
+                  className="mt-2 p-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white transition-colors"
+                  title="Lihat Detail"
+                >
+                  <FaEye size={14} />
+                </button>
+                <button 
+                  onClick={()=>setImagesTask(t)} 
+                  className="mt-2 p-2 rounded-full bg-green-600 hover:bg-green-500 text-white transition-colors"
+                  title="Lihat Gambar"
+                >
+                  <FaImages size={14} />
+                </button>
               </div>
             )}
           </div>

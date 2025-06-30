@@ -16,7 +16,7 @@ interface RiwayatStatusProps {
   onClose: () => void;
 }
 
-const API_BASE = "http://193.70.34.25:20096";
+const API_BASE = "";
 
 const RiwayatStatus: React.FC<RiwayatStatusProps> = ({ onClose }) => {
   const [fromDate, setFromDate] = useState("");
@@ -30,7 +30,7 @@ const RiwayatStatus: React.FC<RiwayatStatusProps> = ({ onClose }) => {
   React.useEffect(() => {
     const initializeDates = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/server-time`);
+        const res = await fetch(`/api/server-time`);
         if (res.ok) {
           const { ts } = await res.json();
           const serverDate = new Date(ts);
@@ -77,7 +77,7 @@ const RiwayatStatus: React.FC<RiwayatStatusProps> = ({ onClose }) => {
     setLoading(true);
     setHasLoaded(false);
     try {
-      const res = await fetch(`${API_BASE}/api/status-notifs/range?from=${fromDate}&to=${toDate}`);
+      const res = await fetch(`/api/status-notifs/range?from=${fromDate}&to=${toDate}`);
       if (res.ok) {
         const data: StatusNotif[] = await res.json();
         setList(data);
@@ -109,7 +109,7 @@ const RiwayatStatus: React.FC<RiwayatStatusProps> = ({ onClose }) => {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/status-notifs/range?from=${fromDate}&to=${toDate}`, {
+      const res = await fetch(`/api/status-notifs/range?from=${fromDate}&to=${toDate}`, {
         method: 'DELETE'
       });
 

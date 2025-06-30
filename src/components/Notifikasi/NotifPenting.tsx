@@ -4,7 +4,7 @@ import RiwayatPenting from "./RiwayatPenting";
 
 interface Notif { deviceId:string; nama:string; timestamp:string; lat?:number; lng?:number; type:string }
 
-const API_BASE = "http://193.70.34.25:20096";
+const API_BASE = "";
 
 const formatTs=(ts:string)=>{
   const parse=(str:string):Date|null=>{

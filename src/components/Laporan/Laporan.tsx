@@ -33,7 +33,7 @@ const Laporan: React.FC = () => {
   // fetch jenis list once and on event
   useEffect(()=>{
     const loadJenis=()=>{
-      fetch('http://193.70.34.25:20096/api/jenis-laporan').then(r=>r.json()).then(setJenisList).catch(console.error);
+      fetch('\/api/jenis-laporan').then(r=>r.json()).then(setJenisList).catch(console.error);
     };
     loadJenis();
     const handler=(e: any)=>{
@@ -53,7 +53,7 @@ const Laporan: React.FC = () => {
     if (dateFilter) params.append('date', dateFilter);
     if (driverFilter && driverFilter !== 'all') params.append('driver', driverFilter);
 
-    return `http://193.70.34.25:20096/api/laporan?${params.toString()}`;
+    return `/api/laporan?${params.toString()}`;
   };
 
   const loadInitial = async () => {
@@ -105,35 +105,56 @@ const Laporan: React.FC = () => {
   };
 
   useEffect(() => {
-    loadInitial();
-    // also fetch accounts once
-    fetch('http://193.70.34.25:20096/api/accounts')
-      .then(res => res.json())
-      .then(setAccounts)
-      .catch(console.error);
-
-    const id = setInterval(loadInitial, 5000);
-    return () => clearInterval(id);
+    fetch('\/api/accounts').then(res => res.json()).then(setAccounts).catch(console.error);
   }, []);
+
+  useEffect(() => {
+    const refreshLaporan = async () => {
+      if (loading || preview) return;
+      try {
+        const res = await fetch(buildApiUrl(0));
+        if (res.ok) {
+          const response = await res.json();
+          const fetchedLaporan: LaporanItem[] = response.laporan || [];
+          if (fetchedLaporan.length > 0) {
+            setItems(prev => {
+              const existingIds = new Set(prev.map(i => i.id));
+              const newItems = fetchedLaporan.filter(i => !existingIds.has(i.id));
+              if (newItems.length > 0) {
+                setOffset(o => o + newItems.length);
+                return [...newItems, ...prev];
+              }
+              return prev;
+            });
+          }
+        }
+      } catch (e) { console.error('Error refreshing laporan:', e); }
+    };
+
+    setItems([]);
+    setOffset(0);
+    setHasMore(true);
+    loadInitial();
+
+    const intervalId = setInterval(refreshLaporan, 5000);
+    return () => clearInterval(intervalId);
+  }, [search, dateFilter, driverFilter]);
+
   const getDriverInfo = (id:string) => accounts.find(a=>a.deviceId===id);
 
   const handleDelete = (item:LaporanItem) => {
     if(!confirm('Hapus laporan ini?')) return;
-    fetch(`http://193.70.34.25:20096/api/laporan/${item.deviceId}/${item.id}`, {method:'DELETE'})
+    fetch(`/api/laporan/${item.deviceId}/${item.id}`, {method:'DELETE'})
       .then(res=>{
         if(!res.ok) throw new Error('Failed');
-        // Reset and reload from beginning after deletion
-        setItems([]);
-        setOffset(0);
-        setHasMore(true);
-        loadInitial();
+        setItems(prev => prev.filter(i => i.id !== item.id));
       })
       .catch(e=>alert('Gagal hapus: '+e));
   };
 
   const handleDownload = async (item:LaporanItem) => {
     for(const img of item.images){
-      const url = `http://193.70.34.25:20096/laporan-images/${item.deviceId}/${img}`;
+      const url = `/laporan-images/${item.deviceId}/${img}`;
       try{
         const res = await fetch(url);
         const blob = await res.blob();
@@ -153,18 +174,7 @@ const Laporan: React.FC = () => {
     }
   };
 
-
-  // No client-side filtering needed - server handles all filtering
   const filteredItems = items;
-
-  // Reset pagination when filters change
-  useEffect(() => {
-    // When filters change, reload from the beginning with new filters
-    setItems([]);
-    setOffset(0);
-    setHasMore(true);
-    loadInitial();
-  }, [search, dateFilter, driverFilter]);
 
   return (
     <div className="h-full rounded-lg bg-zinc-900 p-6 text-white overflow-y-auto space-y-6">
@@ -204,7 +214,7 @@ const Laporan: React.FC = () => {
           <p className="text-sm mb-3">{item.description}</p>
           <div className="flex space-x-2 overflow-x-auto mb-4 pb-2">
             {item.images.map((img, idx) => (
-              <img onClick={()=>setPreview(`http://193.70.34.25:20096/laporan-images/${item.deviceId}/${img}`)} key={idx} src={`http://193.70.34.25:20096/laporan-images/${item.deviceId}/${img}`} alt="laporan" className="h-24 w-24 object-cover rounded-lg border border-purple-700 cursor-pointer hover:opacity-80" />
+              <img onClick={()=>setPreview(`/laporan-images/${item.deviceId}/${img}`)} key={idx} src={`/laporan-images/${item.deviceId}/${img}`} alt="laporan" className="h-24 w-24 object-cover rounded-lg border border-purple-700 cursor-pointer hover:opacity-80" />
             ))}
           </div>
           <div className="flex space-x-3">

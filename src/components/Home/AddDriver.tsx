@@ -18,7 +18,7 @@ const AddDriver: React.FC<AddDriverProps> = ({ open, onClose }) => {
     e.preventDefault();
     if (!nama || !bk || !otp) return;
     try {
-      const res = await fetch('http://193.70.34.25:20096/api/add-driver', {
+      const res = await fetch('/api/add-driver', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nama, bk, otp }),

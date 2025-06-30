@@ -2,7 +2,7 @@
 import React, { useEffect, useState, FormEvent, ChangeEvent } from "react";
 import { FiTrash2, FiSettings } from "react-icons/fi";
 
-const API_BASE = "http://193.70.34.25:20096";
+const API_BASE = "";
 
 interface Jenis {
   name: string;
@@ -560,6 +560,10 @@ const Settings: React.FC = () => {
   const [loadingGroups,setLoadingGroups]=useState(false);
   const [showGroupCfg,setShowGroupCfg]=useState(false);
 
+  // Page navigation state
+  type Page = 'DATA' | 'RADIUS' | 'NOTIFIKASI' | 'SERVER';
+  const [page, setPage] = useState<Page>('DATA');
+
   const loadGroups=async()=>{
     setLoadingGroups(true);
     try{
@@ -580,11 +584,30 @@ const Settings: React.FC = () => {
 
   return (
     <div className="p-4">
+      {/* Page Navigation */}
+      <div className="flex gap-2 mb-4">
+        {[
+          { key: 'DATA', label: 'DATA' },
+          { key: 'RADIUS', label: 'Radius' },
+          { key: 'NOTIFIKASI', label: 'Notifikasi' },
+          { key: 'SERVER', label: 'Server MISC' },
+        ].map(nav => (
+          <button
+            key={nav.key}
+            onClick={() => setPage(nav.key as Page)}
+            className={`px-4 py-2 rounded-md ${
+              page === nav.key ? 'bg-purple-700 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+            }`}
+          >
+            {nav.label}
+          </button>
+        ))}
+      </div>
       {/* Container for all setting panels */}
       <div className="flex flex-wrap gap-4">
 
         {/* ---------- Panel: Jenis Laporan ---------- */}
-        <div className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
+        <div hidden={page !== 'DATA'} className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
           <h2 className="text-xl font-semibold mb-4">Pengaturan Jenis Laporan</h2>
 
           {/* Add form */}
@@ -661,7 +684,7 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Pengaturan Jenis Foto ---------- */}
-        <div className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
+        <div hidden={page !== 'DATA'} className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
           <h2 className="text-xl font-semibold mb-4">Pengaturan Jenis Foto</h2>
 
           {/* Add form */}
@@ -714,7 +737,7 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Pengaturan Radius ---------- */}
-        <div className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
+        <div hidden={page !== 'RADIUS'} className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
           <h2 className="text-xl font-semibold mb-4">Pengaturan Radius</h2>
 
           <div className="flex-1 overflow-y-auto space-y-3 pr-1">
@@ -814,7 +837,7 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Pengaturan Notifikasi ---------- */}
-        <div className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
+        <div hidden={page !== 'NOTIFIKASI'} className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
           <h2 className="text-xl font-semibold mb-4">Pengaturan Notifikasi</h2>
 
           <div className="flex-1 overflow-y-auto space-y-2 pr-1">
@@ -854,7 +877,7 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Whatsapp API ---------- */}
-        <div className="relative rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
+        <div hidden={page !== 'NOTIFIKASI'} className="relative rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
           <h2 className="text-xl font-semibold mb-4">Whatsapp API</h2>
 
           {/* gear icon */}
@@ -916,7 +939,7 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Notifikasi Whatsapp ---------- */}
-        <div className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
+        <div hidden={page !== 'NOTIFIKASI'} className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
           <h2 className="text-xl font-semibold mb-4">Notifikasi Whatsapp</h2>
 
           {/* Add WA number */}
@@ -981,7 +1004,7 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Server Health ---------- */}
-        <div className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
+        <div hidden={page !== 'SERVER'} className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
           <h2 className="text-xl font-semibold mb-4">Server Health</h2>
 
           {stats ? (
@@ -1061,7 +1084,7 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Backup Data ---------- */}
-        <div className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
+        <div hidden={page !== 'DATA'} className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
           <h2 className="text-xl font-semibold mb-4">Backup Data</h2>
 
           <div className="flex-1 flex flex-col items-center justify-center w-full">

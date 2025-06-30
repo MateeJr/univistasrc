@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-const API_BASE = "http://193.70.34.25:20096";
+const API_BASE = "";
 
 export default function ServerMonitor({ children }: { children: React.ReactNode }) {
   const [online, setOnline] = useState<boolean>(true);

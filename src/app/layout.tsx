@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import PageSwitcher from "@/components/PageSwitcher";
+import FetchProxy from "@/components/FetchProxy";
 import InitialLoader from "@/components/InitialLoader";
 import ServerMonitor from "@/components/ServerMonitor";
 
@@ -29,6 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={outfit.className}>
       <body className="bg-black text-gray-100 min-h-screen overflow-auto">
+        <FetchProxy />
         <ServerMonitor>
           <InitialLoader>
             <PageSwitcher />

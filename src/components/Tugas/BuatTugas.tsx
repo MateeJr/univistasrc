@@ -47,6 +47,8 @@ const BuatTugas: React.FC = () => {
   const waypointMarkersRef = useRef<mapboxgl.Marker[]>([]);
   const [anchorEditMode, setAnchorEditMode] = useState(false);
   const anchorControlRef = useRef<any>(null);
+  // Reference for the persistent note control
+  const noteControlRef = useRef<any>(null);
 
   const { map } = useMap();
 
@@ -110,7 +112,7 @@ const BuatTugas: React.FC = () => {
             this._button.style.justifyContent = 'center';
 
             const icon = document.createElement('span');
-            icon.innerHTML = '<svg stroke="currentColor" fill="#7e22ce" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M49,192a48,48,0,0,0,48,48,46.54,46.54,0,0,0,16.89-3.33L192,256l-78.11,19.53A46.54,46.54,0,0,0,97,288a48,48,0,1,0,48,48,46.54,46.54,0,0,0-16.89-3.33L206.22,275,256,448l49.78-173,78.11,57.44A46.54,46.54,0,0,0,369,336a48,48,0,1,0,48-48,46.54,46.54,0,0,0-16.89,3.33L322.09,272,384,192l-57.44,78.11A46.54,46.54,0,0,0,320,287a48,48,0,1,0-48-48,46.54,46.54,0,0,0,3.33,16.89L256,334.22,194.22,256l21.67-86.7A46.54,46.54,0,0,0,240,160a48,48,0,1,0-48,48,46.54,46.54,0,0,0,16.89-3.33L192,256l-78.11,19.53A46.54,46.54,0,0,0,97,288a48,48,0,1,0,48,48,46.54,46.54,0,0,0-16.89-3.33L206.22,275,256,448l49.78-173,78.11,57.44A46.54,46.54,0,0,0,369,336a48,48,0,1,0,48-48,46.54,46.54,0,0,0-16.89,3.33L322.09,272,384,192l-57.44,78.11A46.54,46.54,0,0,0,320,287a48,48,0,1,0-48-48,46.54,46.54,0,0,0,3.33,16.89L256,334.22,194.22,256l21.67-86.7A46.54,46.54,0,0,0,240,160a48,48,0,1,0-48,48,46.54,46.54,0,0,0,16.89-3.33Z"></path></svg>';
+            icon.innerHTML = `<svg viewBox="0 0 24 24" height="1em" width="1em" fill="#7e22ce" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>`;
             this._button.appendChild(icon);
             
             this._button.onclick = () => setAnchorEditMode(p => !p);
@@ -138,10 +140,37 @@ const BuatTugas: React.FC = () => {
         map.addControl(control, 'bottom-left');
     }
     
+    // ---------- SIMPLE OVERLAY NOTE (center top) ----------
+    if (!noteControlRef.current) {
+        const el = document.createElement('div');
+        el.textContent = 'Pastikan jalur biru A - B terbentuk di map sebelum buat tugas (Jika tidak terbentuk, atur ulang koordinat)';
+        el.style.position = 'absolute';
+        el.style.top = '10px';
+        el.style.left = '50%';
+        el.style.transform = 'translateX(-50%)';
+        el.style.padding = '4px 10px';
+        el.style.background = 'rgba(0,0,0,0.6)';
+        el.style.color = '#fff';
+        el.style.fontSize = '12px';
+        el.style.borderRadius = '6px';
+        el.style.pointerEvents = 'none';
+        el.style.whiteSpace = 'normal';
+        el.style.textAlign = 'center';
+        el.style.wordBreak = 'break-word';
+        el.style.zIndex = '10';
+
+        map.getContainer().appendChild(el);
+        noteControlRef.current = el;
+    }
+
     return () => {
         if (map && anchorControlRef.current) {
             try { map.removeControl(anchorControlRef.current); } catch (e) {}
             anchorControlRef.current = null;
+        }
+        if (map && noteControlRef.current) {
+            try { map.getContainer().removeChild(noteControlRef.current); } catch {}
+            noteControlRef.current = null;
         }
     };
   }, [map]);
@@ -249,7 +278,7 @@ const BuatTugas: React.FC = () => {
   useEffect(() => {
     const loadDrivers = async () => {
       try {
-        const res = await fetch("http://193.70.34.25:20096/api/accounts");
+        const res = await fetch("/api/accounts");
         const data: Driver[] = res.ok ? await res.json() : [];
 
         // Store drivers
@@ -260,7 +289,7 @@ const BuatTugas: React.FC = () => {
         await Promise.all(
           data.map(async (d) => {
             try {
-              const detailRes = await fetch(`http://193.70.34.25:20096/api/accounts/${d.deviceId}`);
+              const detailRes = await fetch(`/api/accounts/${d.deviceId}`);
               if (!detailRes.ok) return;
               const detail = await detailRes.json();
               const last = detail.track?.timestampMs ?? (detail.track?.lastUpdated ? Date.parse(detail.track.lastUpdated.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')) : 0);
@@ -368,7 +397,7 @@ const BuatTugas: React.FC = () => {
   useEffect(() => {
     const loadFoto = async () => {
       try {
-        const res = await fetch('http://193.70.34.25:20096/api/jenis-foto');
+        const res = await fetch('/api/jenis-foto');
         const data: string[] = res.ok ? await res.json() : [];
         setPhotoTypes(data);
         const init: Record<string, boolean> = {};
@@ -383,11 +412,11 @@ const BuatTugas: React.FC = () => {
   useEffect(()=>{
     const fetchAll = async () => {
       try{
-        const r1 = await fetch('http://193.70.34.25:20096/api/area-larangan');
+        const r1 = await fetch('/api/area-larangan');
         if(r1.ok){ setAreas(await r1.json()); }
-        const r2 = await fetch('http://193.70.34.25:20096/api/keluar-jalur');
+        const r2 = await fetch('/api/keluar-jalur');
         if(r2.ok){ const d=await r2.json(); setKeluarJalurRadius(Number(d.value)||0); }
-        const r3 = await fetch('http://193.70.34.25:20096/api/target-radius');
+        const r3 = await fetch('/api/target-radius');
         if(r3.ok){ const d=await r3.json(); setTargetRadius(Math.max(100,Number(d.value)||100)); }
       }catch{}
     };
@@ -783,7 +812,7 @@ const BuatTugas: React.FC = () => {
                 etaMin,
                 waypoints,
               };
-              await fetch('http://193.70.34.25:20096/api/tasks', {
+              await fetch('/api/tasks', {
                 method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
               });
               alert('Task created');

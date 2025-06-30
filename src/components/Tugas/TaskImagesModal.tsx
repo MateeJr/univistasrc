@@ -16,7 +16,7 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
     const load = async ()=>{
       setLoading(true);
       try{
-        const res = await fetch(`http://193.70.34.25:20096/api/tasks/${task.id}`);
+        const res = await fetch(`/api/tasks/${task.id}`);
         if(res.ok){
           const data = await res.json();
           setImages(data.images || []);
@@ -69,20 +69,60 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
     }).replace('.',':');
   };
 
-  const card = (label:string,file?:string)=>{
-    let ts='-';
-    if(file){
-      const fname=file.split('/').pop()||file;
-      const parts=fname.split('_');
-      const firstNum=parts.find(p=>/^\d{13}$/.test(p));
-      const lastPart=parts[parts.length-1].split('.')[0];
-      const numStr=firstNum||(/^\d{13}$/.test(lastPart)?lastPart:null);
-      if(numStr) ts=fmtDate(Number(numStr));
+  // Image component that shows a spinner until the image has loaded
+  const ImageWithLoader: React.FC<{src: string; alt: string}> = ({ src, alt }) => {
+    const [loaded, setLoaded] = useState(false);
+    return (
+      <div className="relative w-full h-60">
+        {!loaded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-zinc-800">
+            <svg
+              className="w-10 h-10 text-purple-400 animate-spin"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              ></path>
+            </svg>
+          </div>
+        )}
+        <img
+          src={src}
+          alt={alt}
+          onLoad={() => setLoaded(true)}
+          onError={() => setLoaded(true)}
+          className={`w-full h-60 object-cover transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+        />
+      </div>
+    );
+  };
+
+  const card = (label: string, file?: string) => {
+    let ts = '-';
+    if (file) {
+      const fname = file.split('/').pop() || file;
+      const parts = fname.split('_');
+      const firstNum = parts.find(p => /^\d{13}$/.test(p));
+      const lastPart = parts[parts.length - 1].split('.')[0];
+      const numStr = firstNum || (/^\d{13}$/.test(lastPart) ? lastPart : null);
+      if (numStr) ts = fmtDate(Number(numStr));
     }
     return (
       <div key={label} className="flex flex-col bg-zinc-900 rounded-lg overflow-hidden border border-zinc-700 shadow-sm">
         {file ? (
-          <img src={`http://193.70.34.25:20096/task-images/${file}`} alt={label} className="w-full h-60 object-cover" />
+          <ImageWithLoader src={`/task-images/${file}`} alt={label} />
         ) : (
           <div className="w-full h-60 bg-zinc-800 flex items-center justify-center text-gray-500 text-sm">Tidak ada gambar</div>
         )}

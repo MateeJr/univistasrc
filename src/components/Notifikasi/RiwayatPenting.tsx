@@ -17,7 +17,7 @@ interface RiwayatPentingProps {
   onClose: () => void;
 }
 
-const API_BASE = "http://193.70.34.25:20096";
+const API_BASE = "";
 
 const formatTs = (ts: string) => {
   const parse = (str: string): Date | null => {

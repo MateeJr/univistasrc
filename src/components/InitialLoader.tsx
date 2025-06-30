@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 
-const API_BASE = "http://193.70.34.25:20096";
+const API_BASE = "";
 
-type StepId = 'server' | 'mapbox' | 'next';
+type StepId = "server" | "mapbox" | "next";
 
 interface Step {
   id: StepId;
@@ -12,144 +13,150 @@ interface Step {
 }
 
 const STEPS: Step[] = [
-  { id: 'server', label: 'Connecting to Server' },
-  { id: 'mapbox', label: 'Loading Maps & GPS' },
-  { id: 'next',   label: 'Preparing...' },
+  { id: "server", label: "Connecting to Server" },
+  { id: "mapbox", label: "Loading Maps & GPS" },
+  { id: "next", label: "Preparing User Interface" },
 ];
 
-/**
- * Displays a full-screen splash "Loading…" overlay until the browser has finished
- * loading / hydrating the page. All page content renders in the background but is
- * hidden with `visibility:hidden` to ensure correct layout calculations.
- */
 export default function InitialLoader({ children }: { children: React.ReactNode }) {
-  const [ready, setReady] = useState(false);
-  const [fadeOut, setFadeOut] = useState(false);
-  const [statuses, setStatuses] = useState<Record<StepId, 'pending' | 'ok' | 'fail'>>({
-    server: 'pending',
-    mapbox: 'pending',
-    next: 'pending',
+  const [statuses, setStatuses] = useState<Record<StepId, "pending" | "ok" | "fail">>({
+    server: "pending",
+    mapbox: "pending",
+    next: "pending",
   });
-
-  const [errorStep, setErrorStep] = useState<StepId|null>(null);
-
-  // When ready becomes true, start fade-out before removing overlay
-  useEffect(() => {
-    if (ready) {
-      // trigger css transition
-      setFadeOut(true);
-      const timer = setTimeout(() => {
-        // allow fade-out to finish then unmount overlay by setting readyOverlay
-        setShowOverlay(false);
-      }, 600); // match CSS duration
-      return () => clearTimeout(timer);
-    }
-  }, [ready]);
-
+  const [errorStep, setErrorStep] = useState<StepId | null>(null);
   const [showOverlay, setShowOverlay] = useState(true);
 
   useEffect(() => {
     const runChecks = async () => {
-      // Step 1: Server
-      try {
-        const res = await fetch(`${API_BASE}/api/stats`, { cache: 'no-store' });
-        if (res.ok) {
-          setStatuses(s=>({...s, server:'ok'}));
-        } else {
-          throw new Error('status');
-        }
-      } catch {
-        setStatuses(s=>({...s, server:'fail'}));
-        setErrorStep('server');
-        return; // stop further checks
-      }
+      type CheckFn = () => Promise<boolean>;
 
-      // Step 2: Mapbox status API
-      try {
-        const res = await fetch('https://status.mapbox.com/api/v2/status.json');
-        if (res.ok) {
-          const json = await res.json();
-          const indic = json?.status?.indicator || 'none';
-          if(indic==='none' || indic==='minor'){
-            setStatuses(s=>({...s, mapbox:'ok'}));
-          } else {
-            throw new Error('mapbox issue');
+      const checks: Record<StepId, CheckFn> = {
+        server: async () => {
+          try {
+            const res = await fetch(`${API_BASE}/api/stats`, { cache: "no-store" });
+            return res.ok;
+          } catch {
+            return false;
           }
-        } else throw new Error('mapbox http');
-      } catch {
-        setStatuses(s=>({...s, mapbox:'fail'}));
-        setErrorStep('mapbox');
-        return;
-      }
+        },
+        mapbox: async () => {
+          try {
+            const res = await fetch("https://status.mapbox.com/api/v2/status.json");
+            if (!res.ok) return false;
+            const json = await res.json();
+            const indic = json?.status?.indicator ?? "none";
+            return indic === "none" || indic === "minor";
+          } catch {
+            return false;
+          }
+        },
+        next: async () => true,
+      };
 
-      // Step 3: Next.js hydration complete (wait for window load event)
-      const waitHydrate = () => new Promise<void>(resolve=>{
-        if(document.readyState==='complete') return resolve();
-        window.addEventListener('load',()=>resolve(),{ once:true });
+      const promises = Object.entries(checks).map(async ([id, fn]) => {
+        const ok = await fn();
+        if (ok) {
+          setStatuses((s) => ({ ...s, [id as StepId]: "ok" }));
+        } else {
+          setStatuses((s) => ({ ...s, [id as StepId]: "fail" }));
+          setErrorStep(id as StepId);
+        }
+        return ok;
       });
-      await waitHydrate();
-      setStatuses(s=>({...s, next:'ok'}));
 
-      setReady(true);
+      const results = await Promise.all(promises);
+
+      if (results.every(Boolean)) {
+        // brief delay to allow the user to see the final status change
+        setTimeout(() => setShowOverlay(false), 500);
+      }
     };
 
-    runChecks();
-  }, []);
+    if (!errorStep) {
+      runChecks();
+    }
+  }, [errorStep]);
+
+  const handleRetry = () => {
+    setStatuses({ server: "pending", mapbox: "pending", next: "pending" });
+    setErrorStep(null);
+  };
+
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.5 } },
+    exit: { opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } },
+  };
 
   return (
     <>
-      {showOverlay && (
-        <div className={`fixed inset-0 flex flex-col items-center justify-center bg-black text-white z-[9999] transition-opacity duration-500 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
-          {errorStep ? (
-            <>
-              {/* red x icon */}
-              <svg className="h-14 w-14 text-red-600 mb-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-              <h2 className="text-xl font-bold mb-4">{errorStep==='server'?'Server Univista Offline':'Maps Bermasalah'}</h2>
-              <button onClick={()=>{
-                // reset and rerun checks
-                setStatuses({ server:'pending', mapbox:'pending', next:'pending'});
-                setErrorStep(null);
-                setReady(false);
-                setFadeOut(false);
-                // rerun checks
-                window.location.reload();
-              }} className="px-4 py-2 bg-purple-700 hover:bg-purple-600 rounded text-sm">Coba Lagi</button>
-            </>
-          ) : (
-            <>
-              {/* Spinner */}
-              <svg
-                className="animate-spin h-12 w-12 text-purple-600 mb-6"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-              </svg>
-
-              <ul className="space-y-2 text-sm">
-                {STEPS.map(step => {
-                  const st = statuses[step.id];
-                  return (
-                    <li key={step.id} className="flex items-center gap-2 animate-fade-slide" style={{ animationDelay: `${STEPS.indexOf(step)*0.2}s` }}>
-                      {st==='pending' && <span className="animate-spin inline-block h-3 w-3 border-2 border-t-transparent border-purple-400 rounded-full" />}
-                      {st==='ok' && <span className="inline-block h-3 w-3 bg-green-500 rounded-full" />}
-                      {st==='fail' && <span className="inline-block h-3 w-3 bg-red-600 rounded-full" />}
-                      <span>{step.label}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </>
-          )}
-        </div>
-      )}
-      {/* Keep underlying DOM but hide it until ready so images, fonts, etc load in background */}
-      <div style={{ visibility: ready ? "visible" : "hidden" }}>{children}</div>
+      <AnimatePresence>
+        {showOverlay && (
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="fixed inset-0 flex flex-col items-center justify-center bg-[#111] text-white z-[9999]"
+          >
+            <div className="w-64">
+              {errorStep ? (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center">
+                  <div className="w-12 h-12 mx-auto mb-4 bg-red-500/20 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                  </div>
+                  <h2 className="text-lg font-semibold text-red-400 mb-2">
+                    {errorStep === "server" ? "Server Connection Failed" : "Failed to Load Resources"}
+                  </h2>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleRetry}
+                    className="mt-4 px-5 py-2 bg-purple-600 hover:bg-purple-500 rounded-full text-sm font-semibold transition-colors"
+                  >
+                    Try Again
+                  </motion.button>
+                </motion.div>
+              ) : (
+                <ul className="space-y-4">
+                  {STEPS.map((step, index) => {
+                    const status = statuses[step.id];
+                    return (
+                      <motion.li
+                        key={step.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0, transition: { delay: index * 0.2, duration: 0.5 } }}
+                        className="flex items-center gap-4 text-base"
+                      >
+                        <div className="w-6 h-6 flex items-center justify-center">
+                            <AnimatePresence>
+                                {status === 'pending' && (
+                                    <motion.div key="pending" initial={{scale:0}} animate={{scale:1}} exit={{scale:0}} className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
+                                )}
+                                {status === 'ok' && (
+                                    <motion.div key="ok" initial={{scale:0}} animate={{scale:1}}>
+                                        <svg className="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                    </motion.div>
+                                )}
+                                {status === 'fail' && (
+                                     <motion.div key="fail" initial={{scale:0}} animate={{scale:1}} className="w-5 h-5 bg-red-500 rounded-full" />
+                                )}
+                            </AnimatePresence>
+                        </div>
+                        <span className="text-gray-300">{step.label}</span>
+                      </motion.li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <div style={{ visibility: showOverlay ? "hidden" : "visible" }}>
+        {children}
+      </div>
     </>
   );
 }

@@ -119,7 +119,7 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
     const loadAreas = async () => {
       if (!task.travelReq?.areaLarangan) return;
       try {
-        const res = await fetch('http://193.70.34.25:20096/api/areas');
+        const res = await fetch('/api/areas');
         if (res.ok) {
           const data = await res.json();
           setAreas(data);
@@ -129,7 +129,7 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
 
     const syncServerTime = async () => {
       try {
-        const res = await fetch('http://193.70.34.25:20096/api/server-time');
+        const res = await fetch('/api/server-time');
         if (res.ok) {
           const data = await res.json();
           const serverTime = data.ts;
@@ -505,9 +505,9 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
 
         {/* Time Range Controls */}
         <div className="p-4 border-b border-gray-700 bg-gray-800">
-          <div className="flex flex-wrap gap-4 items-center">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 items-start sm:items-center overflow-x-auto">
             <div className="flex items-center gap-2">
-              <label className="text-white text-sm">From:</label>
+              <label className="text-white text-xs sm:text-sm break-words">From:</label>
               <input
                 type="datetime-local"
                 value={startTime}
@@ -516,7 +516,7 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
               />
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-white text-sm">To:</label>
+              <label className="text-white text-xs sm:text-sm break-words">To:</label>
               <input
                 type="datetime-local"
                 value={endTime}
@@ -524,12 +524,12 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
                 className="px-2 py-1 rounded bg-gray-700 text-white text-sm"
               />
             </div>
-            <div className="text-white text-sm">
+            <div className="text-white text-xs sm:text-sm break-words">
               Track Points: {filteredTrack.length}
             </div>
             {filteredTrack.length > 0 ? (
               <>
-                <div className="text-white text-sm">
+                <div className="text-white text-xs sm:text-sm break-words">
                   Duration: {(() => {
                     const durationMs = filteredTrack[filteredTrack.length - 1]?.ts - filteredTrack[0]?.ts;
                     const totalSeconds = Math.floor(durationMs / 1000);
@@ -548,7 +548,7 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
                 <div className="text-gray-300 text-xs">
                   Range: {formatDisplayTime(filteredTrack[0].ts)} - {formatDisplayTime(filteredTrack[filteredTrack.length - 1].ts)}
                 </div>
-                <div className="text-gray-400 text-xs">
+                <div className="text-gray-400 text-xs hidden md:block">
                   Debug: Start={startTime}, End={endTime}
                 </div>
               </>
@@ -600,7 +600,7 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
             </div>
             
             {/* Control Buttons */}
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
               <button
                 onClick={() => {
                   setCurrentIndex(0);
@@ -651,16 +651,16 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
                 ⏭
               </button>
 
-              <div className="text-white text-sm">
+              <div className="text-white text-xs sm:text-sm break-words">
                 Speed: {playbackSpeed}x
               </div>
 
-              <div className="text-white text-sm">
+              <div className="text-white text-xs sm:text-sm break-words">
                 {currentIndex + 1} / {filteredTrack.length}
               </div>
 
               {filteredTrack[currentIndex] && (
-                <div className="text-white text-sm">
+                <div className="text-white text-xs sm:text-sm break-words">
                   Time: {formatDisplayTime(filteredTrack[currentIndex].ts)}
                 </div>
               )}

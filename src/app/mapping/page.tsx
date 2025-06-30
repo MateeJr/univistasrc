@@ -37,7 +37,7 @@ const generateCircle = (lng: number, lat: number, radiusMeters: number, points =
 
 interface Area { lng: number; lat: number; radius: number }
 
-const API_BASE = "http://193.70.34.25:20096"; // adjust if needed
+const API_BASE = "";
 
 const AreaLaranganPanel: React.FC = () => {
   const { map } = useMap();
@@ -186,7 +186,7 @@ const AreaLaranganPanel: React.FC = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/area-larangan`);
+        const res = await fetch(`/api/area-larangan`);
         if (res.ok) {
           const data: Area[] = await res.json();
           setAreas(data);
@@ -231,7 +231,7 @@ const AreaLaranganPanel: React.FC = () => {
       const area: Area = { lng, lat, radius };
       setAreas((prev) => [...prev, area]);
       // Persist to server (fire & forget)
-      fetch(`${API_BASE}/api/area-larangan`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(area) }).catch(() => {});
+      fetch(`/api/area-larangan`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(area) }).catch(() => {});
       addingRef.current = false;
       map.getCanvas().style.cursor = "";
     };
@@ -242,7 +242,7 @@ const AreaLaranganPanel: React.FC = () => {
   // Delete area helper
   const deleteArea = async (idx: number) => {
     setAreas((prev) => prev.filter((_, i) => i !== idx));
-    try { await fetch(`${API_BASE}/api/area-larangan/${idx}`, { method: "DELETE" }); } catch {}
+    try { await fetch(`/api/area-larangan/${idx}`, { method: "DELETE" }); } catch {}
   };
 
   // Delete all areas
@@ -252,16 +252,16 @@ const AreaLaranganPanel: React.FC = () => {
       const src = map.getSource("restricted-areas") as mapboxgl.GeoJSONSource | undefined;
       src?.setData({ type: "FeatureCollection", features: [] });
     }
-    try { await fetch(`${API_BASE}/api/area-larangan`, { method: "DELETE" }); } catch {}
+    try { await fetch(`/api/area-larangan`, { method: "DELETE" }); } catch {}
   };
 
   // Load initial value
   useEffect(()=>{
     const fetchVals = async () => {
       try {
-        const res1 = await fetch(`${API_BASE}/api/keluar-jalur`);
+        const res1 = await fetch(`/api/keluar-jalur`);
         if(res1.ok){ const data = await res1.json(); setKeluarJalur(Number(data.value)||0); }
-        const res2 = await fetch(`${API_BASE}/api/target-radius`);
+        const res2 = await fetch(`/api/target-radius`);
         if(res2.ok){ const d2 = await res2.json(); setPinRadius(Math.max(0,Number(d2.value)||100)); }
       } catch {}
     };
@@ -271,7 +271,7 @@ const AreaLaranganPanel: React.FC = () => {
   // Auto-save with debounce
   useEffect(()=>{
     const id = setTimeout(()=>{
-      fetch(`${API_BASE}/api/keluar-jalur`,{method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({value: keluarJalur})}).catch(()=>{});
+      fetch(`/api/keluar-jalur`,{method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({value: keluarJalur})}).catch(()=>{});
     },500);
     return ()=>clearTimeout(id);
   },[keluarJalur]);
@@ -279,7 +279,7 @@ const AreaLaranganPanel: React.FC = () => {
   // Auto-save pin radius
   useEffect(()=>{
     const id = setTimeout(()=>{
-      fetch(`${API_BASE}/api/target-radius`,{method:'PUT',headers:{'Content-Type':'application/json'},body: JSON.stringify({value: pinRadius})}).catch(()=>{});
+      fetch(`/api/target-radius`,{method:'PUT',headers:{'Content-Type':'application/json'},body: JSON.stringify({value: pinRadius})}).catch(()=>{});
     },500);
     return ()=>clearTimeout(id);
   },[pinRadius]);

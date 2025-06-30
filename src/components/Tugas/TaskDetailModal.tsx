@@ -82,7 +82,7 @@ const TaskDetailModal:React.FC<Props> = ({task, accounts, onClose})=>{
       let reachedB=false;
       for(const devId of task.drivers || []){
         try{
-          const res = await fetch(`http://193.70.34.25:20096/api/accounts/${devId}`);
+          const res = await fetch(`/api/accounts/${devId}`);
           if(!res.ok) continue;
           const detail = await res.json();
           const lat = detail.track?.latitude;
@@ -115,14 +115,14 @@ const TaskDetailModal:React.FC<Props> = ({task, accounts, onClose})=>{
 
       if(reachedA && taskStatus.startsWith('DIPROSES') && !taskStatus.includes('TITIK A')){
         try{
-          await fetch(`http://193.70.34.25:20096/api/tasks/${task.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'DIPROSES - TELAH SAMPAI DI TITIK A'})});
+          await fetch(`/api/tasks/${task.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'DIPROSES - TELAH SAMPAI DI TITIK A'})});
           setTaskStatus('DIPROSES - TELAH SAMPAI DI TITIK A');
         }catch{}
       }
 
       if(reachedB && taskStatus==='DIPROSES - TELAH SAMPAI DI TITIK A'){
         try{
-          await fetch(`http://193.70.34.25:20096/api/tasks/${task.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'DIPROSES - TELAH SAMPAI DI TITIK TUJUAN'})});
+          await fetch(`/api/tasks/${task.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:'DIPROSES - TELAH SAMPAI DI TITIK TUJUAN'})});
           setTaskStatus('DIPROSES - TELAH SAMPAI DI TITIK TUJUAN');
         }catch{}
       }
@@ -137,7 +137,7 @@ const TaskDetailModal:React.FC<Props> = ({task, accounts, onClose})=>{
     let id:NodeJS.Timeout;
     const poll=async()=>{
       try{
-        const res=await fetch('http://193.70.34.25:20096/api/tasks');
+        const res=await fetch('/api/tasks');
         if(res.ok){
           const data=await res.json();
           // Handle both old and new API response formats
@@ -168,7 +168,7 @@ const TaskDetailModal:React.FC<Props> = ({task, accounts, onClose})=>{
   useEffect(()=>{
     const fetchStopViolations = async ()=>{
       try{
-        const res = await fetch(`http://193.70.34.25:20096/api/tasks/${task.id}/stop-violations`);
+        const res = await fetch(`/api/tasks/${task.id}/stop-violations`);
         if(res.ok){
           const violations = await res.json();
           setStopViolations(violations);
@@ -252,7 +252,7 @@ const TaskDetailModal:React.FC<Props> = ({task, accounts, onClose})=>{
 
   useEffect(()=>{
     if(task.travelReq?.areaLarangan){
-      fetch('http://193.70.34.25:20096/api/area-larangan').then(r=>r.ok?r.json():null).then(d=>{if(d) setAreas(d);}).catch(()=>{});
+      fetch('/api/area-larangan').then(r=>r.ok?r.json():null).then(d=>{if(d) setAreas(d);}).catch(()=>{});
     }
   },[task.travelReq]);
 
@@ -376,20 +376,9 @@ const TaskDetailModal:React.FC<Props> = ({task, accounts, onClose})=>{
                   </div>
                 </div>
               </div>
-              {photoReq?.length ? (
-                <div>
-                  <p className="text-sm text-gray-400 mb-1">Syarat Foto:</p>
-                  <ul className="list-disc list-inside text-sm text-gray-100 space-y-0.5">
-                    {photoReq.map((f,i)=>{
-                      const done = photoDone?.includes(f);
-                      return <li key={i}>{done?'✔️ ':''}{f}</li>;
-                    })}
-                  </ul>
-                </div>
-              ):null}
-              {stopViolations?.length ? (
-                <div>
-                  <p className="text-sm text-gray-400 mb-1">List Berhenti Driver:</p>
+              <div>
+                <p className="text-sm text-gray-400 mb-1">List Berhenti Driver:</p>
+                {stopViolations?.length ? (
                   <div className="space-y-2">
                     {stopViolations.map((violation,i)=>{
                       const stopInfo = getStopViolationInfo(violation);
@@ -426,6 +415,19 @@ const TaskDetailModal:React.FC<Props> = ({task, accounts, onClose})=>{
                       );
                     })}
                   </div>
+                ) : (
+                  <p className="text-sm text-gray-500">Tidak ada rekaman berhenti</p>
+                )}
+              </div>
+              {photoReq?.length ? (
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">Syarat Foto:</p>
+                  <ul className="list-disc list-inside text-sm text-gray-100 space-y-0.5">
+                    {photoReq.map((f,i)=>{
+                      const done = photoDone?.includes(f);
+                      return <li key={i}>{done?'✔️ ':''}{f}</li>;
+                    })}
+                  </ul>
                 </div>
               ):null}
             </div>
@@ -466,20 +468,9 @@ const TaskDetailModal:React.FC<Props> = ({task, accounts, onClose})=>{
                   </div>
                 </div>
               </div>
-              {photoReq?.length ? (
-                <div>
-                  <p className="text-sm text-gray-400 mb-2">Syarat Foto:</p>
-                  <ul className="list-disc list-inside text-sm text-gray-100 space-y-1">
-                    {photoReq.map((f,i)=>{
-                      const done = photoDone?.includes(f);
-                      return <li key={i}>{done?'✔️ ':''}{f}</li>;
-                    })}
-                  </ul>
-                </div>
-              ):null}
-              {stopViolations?.length ? (
-                <div>
-                  <p className="text-sm text-gray-400 mb-2">List Berhenti Driver:</p>
+              <div>
+                <p className="text-sm text-gray-400 mb-2">List Berhenti Driver:</p>
+                {stopViolations?.length ? (
                   <div className="space-y-2">
                     {stopViolations.map((violation,i)=>{
                       const stopInfo = getStopViolationInfo(violation);
@@ -516,6 +507,19 @@ const TaskDetailModal:React.FC<Props> = ({task, accounts, onClose})=>{
                       );
                     })}
                   </div>
+                ) : (
+                  <p className="text-sm text-gray-500">Tidak ada rekaman berhenti</p>
+                )}
+              </div>
+              {photoReq?.length ? (
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">Syarat Foto:</p>
+                  <ul className="list-disc list-inside text-sm text-gray-100 space-y-1">
+                    {photoReq.map((f,i)=>{
+                      const done = photoDone?.includes(f);
+                      return <li key={i}>{done?'✔️ ':''}{f}</li>;
+                    })}
+                  </ul>
                 </div>
               ):null}
             </div>

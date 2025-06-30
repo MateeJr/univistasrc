@@ -18,14 +18,14 @@ const DriverList: React.FC<DriverListProps> = ({ onSelect, selectedId, onDeleted
 
   const loadDrivers = async () => {
     try {
-      const res = await fetch('http://193.70.34.25:20096/api/accounts');
+      const res = await fetch('/api/accounts');
       if (res.ok) {
         const data = await res.json();
         setDrivers(data);
 
         // fetch ratings concurrently
         try {
-          const scoreRes = await fetch('http://193.70.34.25:20096/api/score');
+          const scoreRes = await fetch('/api/score');
           if (scoreRes.ok) {
             const scoreData = await scoreRes.json();
             setRatings(scoreData);
@@ -37,7 +37,7 @@ const DriverList: React.FC<DriverListProps> = ({ onSelect, selectedId, onDeleted
         await Promise.all(
           data.map(async (d: any) => {
             try {
-              const detailRes = await fetch(`http://193.70.34.25:20096/api/accounts/${d.deviceId}`);
+              const detailRes = await fetch(`/api/accounts/${d.deviceId}`);
               if (detailRes.ok) {
                 const detail = await detailRes.json();
                 const last = detail.track?.timestampMs ?? (detail.track?.lastUpdated ? Date.parse(detail.track.lastUpdated.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')) : 0);
@@ -99,13 +99,13 @@ const DriverList: React.FC<DriverListProps> = ({ onSelect, selectedId, onDeleted
         {/* Master buttons in two columns */}
         <div className="w-full flex gap-2">
           <button
-            className={`flex-1 text-center py-2 rounded font-semibold text-white ${selectedId==='MASTER'?'bg-red-700':'bg-red-600'} hover:bg-red-500`}
+            className={`flex-1 text-center py-2 rounded-lg font-semibold text-white backdrop-blur-sm ${selectedId==='MASTER' ? 'bg-red-600/60 ring-inset ring-2 ring-red-400' : 'bg-red-600/30'} hover:bg-red-600/50`}
             onClick={() => onSelect('MASTER')}
           >
             MASTER
           </button>
           <button
-            className={`flex-1 text-center py-2 rounded font-semibold text-white ${selectedId==='MASTER_INFO'?'bg-orange-700':'bg-orange-600'} hover:bg-orange-500`}
+            className={`flex-1 text-center py-2 rounded-lg font-semibold text-white backdrop-blur-sm ${selectedId==='MASTER_INFO' ? 'bg-red-600/60 ring-inset ring-2 ring-red-400' : 'bg-red-600/30'} hover:bg-red-600/50`}
             onClick={() => onSelect('MASTER_INFO')}
           >
             MASTER INFO
@@ -149,7 +149,7 @@ const DriverList: React.FC<DriverListProps> = ({ onSelect, selectedId, onDeleted
         onConfirm={async () => {
           if (!deleteTarget) return;
           try {
-            await fetch(`http://193.70.34.25:20096/api/accounts/${deleteTarget.deviceId}`, { method: 'DELETE' });
+            await fetch(`/api/accounts/${deleteTarget.deviceId}`, { method: 'DELETE' });
           } catch {}
           setDeleteTarget(null);
           loadDrivers();
