@@ -715,7 +715,7 @@ const BuatTugas: React.FC = () => {
         <div className="flex-1">
           <label className="block mb-1 text-sm font-semibold text-gray-300">Tanggal Deadline</label>
           <input
-            type="text"
+            type="date"
             placeholder="DD/MM/YYYY"
             value={deadlineDate}
             pattern="\\d{2}/\\d{2}/\\d{4}"
