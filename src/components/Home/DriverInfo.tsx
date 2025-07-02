@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { getIconPath, scaledSize } from "@/utils/iconUtil";
 // @ts-ignore
 import mapboxgl from "mapbox-gl";
 import { useMap } from "@/components/Home/MapContext";
+import SwitchDeviceModal from './SwitchDeviceModal';
 
 interface DriverInfoProps { deviceId?: string }
 
@@ -16,29 +17,44 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
   const markerRef = React.useRef<mapboxgl.Marker|null>(null);
   const [editingIcon,setEditingIcon] = useState(false);
   const [iconSelection,setIconSelection] = useState<string>('');
+  const [isSwitchModalOpen, setSwitchModalOpen] = useState(false);
+  const [spoofedBy, setSpoofedBy] = useState<string[]>([]);
+
+  const fetchDriverData = useCallback(async () => {
+    if (!deviceId || deviceId === 'MASTER') return;
+    try {
+      // Fetch main driver info
+      const res = await fetch(`/api/accounts/${deviceId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setInfo(data);
+        if (!editingIcon) {
+          setIconSelection(data.icon || '');
+        }
+      }
+
+      // Fetch spoofing info
+      const spoofRes = await fetch(`/api/get-spoof/${deviceId}`);
+      if (spoofRes.ok) {
+        const spoofData = await spoofRes.json();
+        setSpoofedBy(spoofData.spoofs || []);
+      }
+
+    } catch (e) {
+      console.error("Failed to fetch driver data", e);
+    }
+  }, [deviceId, editingIcon]);
+
 
   useEffect(() => {
     if (!deviceId || deviceId==='MASTER') return;
     let timer: any;
 
-    const fetchInfo = async () => {
-      try {
-        const res = await fetch(`/api/accounts/${deviceId}`);
-        if (res.ok) {
-          const data = await res.json();
-          setInfo(data);
-          if(!editingIcon){
-            setIconSelection(data.icon || '');
-          }
-        }
-      } catch {}
-    };
-
-    fetchInfo();
-    timer = setInterval(fetchInfo, 5000);
+    fetchDriverData();
+    timer = setInterval(fetchDriverData, 5000);
 
     return () => clearInterval(timer);
-  }, [deviceId]);
+  }, [deviceId, fetchDriverData]);
 
   // update marker when location changes
   useEffect(() => {
@@ -95,7 +111,26 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
     return <div className="h-full rounded-lg bg-black p-4 text-white border border-purple-900 flex flex-col items-center justify-center"><h3 className="text-lg font-semibold mb-2 text-center w-full">INFO PERANGKAT</h3>Memuat...</div>;
   }
 
+  const handleClearSpoof = async () => {
+    if (!deviceId) return;
+    if (confirm('Anda yakin ingin menghapus penggantian perangkat untuk driver ini?')) {
+        try {
+            const res = await fetch('/api/clear-spoof', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ deviceId }),
+            });
+            if (!res.ok) throw new Error('Failed to clear spoof.');
+            alert('Penggantian perangkat berhasil dihapus.');
+            fetchDriverData(); // Refresh data
+        } catch (err) {
+            alert(err);
+        }
+    }
+  };
+
   return (
+    <>
     <div className="h-full rounded-lg bg-black p-4 text-white border border-purple-900 overflow-auto">
       <h3 className="text-lg font-semibold mb-2 text-center w-full">INFO PERANGKAT</h3>
       <h4 className="text-md font-semibold mb-4 text-center">
@@ -150,6 +185,14 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
             }
             rows.push({ label: 'Ping', value: `${ping ?? '-'} ms (${pingStatus})`, color: pingColor });
 
+            // Spoofed Device Info
+            if (spoofedBy.length > 0) {
+              rows.push({ label: 'Digantikan oleh', value: '' });
+              spoofedBy.forEach(id => {
+                  rows.push({ label: `Perangkat`, value: id, color: 'text-yellow-400' });
+              })
+            }
+
             // Last update – red if driver considered offline (>10min)
             const lastMs = info.track?.timestampMs ?? (info.track?.lastUpdated ? Date.parse(info.track.lastUpdated.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')) : 0);
             const diffMinLast = lastMs ? (Date.now() - lastMs) / 60000 : Infinity;
@@ -169,8 +212,20 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
             </div>
           ))}
 
+          {/* Device Switch Button */}
+          <div className="flex justify-center space-x-2 mt-4">
+              <button onClick={() => setSwitchModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                  Ganti Perangkat
+              </button>
+              {spoofedBy.length > 0 && (
+                  <button onClick={handleClearSpoof} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                      Hapus Pengganti
+                  </button>
+              )}
+          </div>
+
           {/* Jenis Kendaraan row */}
-          <div className="flex justify-between border-b border-gray-800 py-1">
+          <div className="flex justify-between border-b border-gray-800 py-1 mt-4">
             <span className="text-gray-400">Jenis Kendaraan</span>
             {editingIcon ? (
               <span className="space-x-1">
@@ -223,6 +278,13 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
         <p className="text-sm text-gray-400">Belum ada data tracking</p>
       )}
     </div>
+    <SwitchDeviceModal
+        isOpen={isSwitchModalOpen}
+        onClose={() => setSwitchModalOpen(false)}
+        driver={info ? { deviceId, nama: info.nama } : null}
+        onSwitch={fetchDriverData}
+      />
+    </>
   );
 };
 
