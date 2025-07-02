@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import { getIconPath, scaledSize } from "@/utils/iconUtil";
 import { FiCrosshair, FiPlus, FiMinus } from "react-icons/fi";
 // @ts-ignore - mapbox-gl types may be missing in strict environment
 import mapboxgl from "mapbox-gl";
@@ -94,6 +95,7 @@ const Maps: React.FC<Props> = ({ selected, showTraffic }) => {
           let marker = masterMarkers.current[acc.deviceId];
           if (!marker) {
             // Marker element: 32x32 icon with a label absolutely positioned above it.
+            const size = scaledSize(32, acc.icon);
             const el = document.createElement("div");
             el.style.display = 'flex';
             el.style.flexDirection = 'column';
@@ -101,7 +103,7 @@ const Maps: React.FC<Props> = ({ selected, showTraffic }) => {
             el.style.pointerEvents = 'none';
             el.innerHTML = `
               <span style="background:rgba(0,0,0,0.6);color:white;padding:2px 6px;border-radius:6px;font-size:11px;white-space:nowrap;text-shadow:0 0 2px black;margin-bottom:2px;">${acc.nama}</span>
-              <img src='/truck.png' style='width:32px;height:32px;${styleIdx===2?"filter:invert(1);":""}' />
+              <img src='${getIconPath(acc.icon)}' style='width:${size}px;height:${size}px;${styleIdx===2?"filter:invert(1);":""}' />
             `;
             marker = new mapboxgl.Marker({ element: el, anchor: "bottom" })
               .setLngLat([lon, lat])

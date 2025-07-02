@@ -1,16 +1,21 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { getIconPath, scaledSize } from "@/utils/iconUtil";
 // @ts-ignore
 import mapboxgl from "mapbox-gl";
 import { useMap } from "@/components/Home/MapContext";
 
 interface DriverInfoProps { deviceId?: string }
 
+const iconLabels = ['Sepeda Motor','Mobil','Mobil Kecil','Truk','Truk Besar'];
+
 const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
   const [info, setInfo] = useState<any>(null);
   const { map, setLastPos, styleIdx } = useMap();
   const markerRef = React.useRef<mapboxgl.Marker|null>(null);
+  const [editingIcon,setEditingIcon] = useState(false);
+  const [iconSelection,setIconSelection] = useState<string>('');
 
   useEffect(() => {
     if (!deviceId || deviceId==='MASTER') return;
@@ -22,6 +27,9 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
         if (res.ok) {
           const data = await res.json();
           setInfo(data);
+          if(!editingIcon){
+            setIconSelection(data.icon || '');
+          }
         }
       } catch {}
     };
@@ -40,8 +48,10 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
 
     if (!markerRef.current) {
       const el = document.createElement('img');
-      el.src = '/truck.png';
-      el.className = 'w-8 h-8';
+      el.src = getIconPath(info.icon);
+      const size = scaledSize(32, info.icon);
+      el.style.width = `${size}px`;
+      el.style.height = `${size}px`;
       markerRef.current = new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat(lngLat).addTo(map);
     } else {
       markerRef.current.setLngLat(lngLat);
@@ -100,6 +110,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
             const gpsStatusColor = info.track.gpsStatus === 'Aktif' ? 'text-green-400' : info.track.gpsStatus === 'Tidak Aktif' ? 'text-red-400' : 'text-gray-400';
             rows.push({ label: 'Status GPS', value: info.track.gpsStatus, color: gpsStatusColor });
             rows.push({ label: 'ID Perangkat', value: deviceId });
+            
 
             // GPS Signal
             const sigColor = info.track.gpsSignal === 'Kuat' ? 'text-green-400' : info.track.gpsSignal === 'Normal' ? 'text-yellow-400' : info.track.gpsSignal === 'Lemah' ? 'text-red-400' : 'text-gray-400';
@@ -157,6 +168,41 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
               <span className={`font-medium ${row.color ?? 'text-white'}`}>{row.value}</span>
             </div>
           ))}
+
+          {/* Jenis Kendaraan row */}
+          <div className="flex justify-between border-b border-gray-800 py-1">
+            <span className="text-gray-400">Jenis Kendaraan</span>
+            {editingIcon ? (
+              <span className="space-x-1">
+                <select value={iconSelection} onChange={e=>setIconSelection(e.target.value)} className="bg-gray-700 text-white text-xs px-1 py-0.5 rounded">
+                  <option value="">-</option>
+                  {iconLabels.map(label=> <option key={label} value={label}>{label}</option>)}
+                </select>
+                <button onClick={async ()=>{
+                  try{
+                    const res = await fetch(`/api/accounts/${deviceId}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({icon:iconSelection})});
+                    if(res.ok){
+                      setInfo((prev:any)=>({...prev, icon: iconSelection}));
+                      if(markerRef.current?.getElement()){
+                        const elImg = markerRef.current.getElement() as HTMLImageElement;
+                        elImg.src = getIconPath(iconSelection);
+                        const newSize = scaledSize(32, iconSelection);
+                        elImg.style.width = `${newSize}px`;
+                        elImg.style.height = `${newSize}px`;
+                      }
+                      setEditingIcon(false);
+                    }
+                  }catch{}
+                }} className="text-green-400 text-xs">Simpan</button>
+                <button onClick={()=>{setEditingIcon(false); setIconSelection(info.icon||'');}} className="text-red-400 text-xs">Batal</button>
+              </span>
+            ):(
+              <span className="font-medium">
+                {info.icon || '-'}
+                <button onClick={()=>setEditingIcon(true)} className="text-blue-400 text-xs ml-2 underline">Ganti</button>
+              </span>
+            )}
+          </div>
 
           {/* Warning message when last update is outdated (red) */}
           {(() => {

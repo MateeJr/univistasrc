@@ -10,18 +10,19 @@ interface AddDriverProps {
 const AddDriver: React.FC<AddDriverProps> = ({ open, onClose }) => {
   const [nama, setNama] = useState("");
   const [bk, setBk] = useState("");
+  const [icon, setIcon] = useState("");
   const [otp, setOtp] = useState("");
 
   if (!open) return null;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!nama || !bk || !otp) return;
+    if (!nama || !bk || !icon || !otp) return;
     try {
       const res = await fetch('/api/add-driver', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nama, bk, otp }),
+        body: JSON.stringify({ nama, bk, icon, otp }),
       });
       if (res.ok) {
         onClose();
@@ -60,6 +61,22 @@ const AddDriver: React.FC<AddDriverProps> = ({ open, onClose }) => {
               className="w-full rounded border border-gray-700 bg-gray-800 text-white placeholder-gray-500 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
               required
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-300 text-left">Icon Driver:</label>
+            <select
+              value={icon}
+              onChange={(e) => setIcon(e.target.value)}
+              className="w-full rounded border border-gray-700 bg-gray-800 text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
+              required
+            >
+              <option value="">Pilih Icon Driver</option>
+              <option value="Sepeda Motor">Sepeda Motor</option>
+              <option value="Mobil">Mobil</option>
+              <option value="Mobil Kecil">Mobil Kecil</option>
+              <option value="Truk">Truk</option>
+              <option value="Truk Besar">Truk Besar</option>
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-300 text-left">Kode OTP HP Driver:</label>

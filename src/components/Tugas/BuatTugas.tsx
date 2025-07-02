@@ -228,8 +228,8 @@ const BuatTugas: React.FC = () => {
     const newMarkers = waypoints.map((wp, index) => {
         const markerEl = document.createElement('div');
         markerEl.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="%23a855f7"><circle cx="12" cy="12" r="8" stroke="white" stroke-width="2"/></svg>')`;
-        markerEl.style.width = '24px';
-        markerEl.style.height = '24px';
+        markerEl.style.width = '36px';
+        markerEl.style.height = '36px';
         markerEl.style.cursor = 'pointer';
 
         const marker = new mapboxgl.Marker({

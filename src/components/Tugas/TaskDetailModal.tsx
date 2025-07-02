@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { getIconPath, scaledSize } from "@/utils/iconUtil";
 // @ts-ignore
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -19,7 +20,7 @@ interface StopViolation {
 }
 
 interface Task { id:string; description:string; from:string; to:string; deadline:string; drivers?:string[]; status?:string; fromCoord?:string; toCoord?:string; photoReq?:string[]; travelReq?:{areaLarangan:boolean; keluarJalur:boolean; pinRadius:boolean}; keluarJalurRadius?:number; targetRadius?:number; photoDone?:string[]; waypoints?:{lng:number; lat:number}[]; startTimestamp?:string; endTimestamp?:string; completionTimeMs?:number; cancelledTimestamp?:string; stopViolations?:StopViolation[] }
-interface Account { deviceId:string; nama:string; bk:string }
+interface Account { deviceId:string; nama:string; bk:string; icon?: string }
 
 interface Props { task: Task; accounts: Record<string,Account>; onClose: ()=>void }
 
@@ -103,7 +104,11 @@ const TaskDetailModal:React.FC<Props> = ({task, accounts, onClose})=>{
 
           let mk = driverMarkers.current[devId];
           if(!mk){
-            const img=document.createElement('img'); img.src='/truck.png'; img.style.width='28px'; img.style.height='28px';
+            const img = document.createElement('img');
+            img.src = getIconPath(accounts[devId]?.icon);
+            const size = scaledSize(28, accounts[devId]?.icon);
+            img.style.width = `${size}px`;
+            img.style.height = `${size}px`;
             mk = new mapboxgl.Marker({element:img, anchor:'center'}).setLngLat([lon,lat]).addTo(mapRef.current!);
             driverMarkers.current[devId]=mk;
           }else{

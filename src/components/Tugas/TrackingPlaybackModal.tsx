@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
+import { getIconPath, scaledSize } from "@/utils/iconUtil";
 import { FaTimes, FaPlay, FaPause, FaFastForward, FaFastBackward } from "react-icons/fa";
 import mapboxgl from "mapbox-gl";
 import { circle } from "@turf/circle";
@@ -27,6 +28,7 @@ interface Account {
   deviceId: string;
   nama: string;
   bk: string;
+  icon?: string;
 }
 
 interface TrackingPlaybackModalProps {
@@ -366,19 +368,21 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
     if (filteredTrack.length === 0 || !mapRef.current) return;
 
     const currentPoint = filteredTrack[currentIndex];
-    if (currentPoint) {
-      // Create or update truck marker position
-      if (!truckMarkerRef.current) {
-        const img = document.createElement('img');
-        img.src = '/truck.png';
-        img.style.width = '32px';
-        img.style.height = '32px';
-        truckMarkerRef.current = new mapboxgl.Marker({ element: img, anchor: 'center' })
-          .setLngLat([currentPoint.lng, currentPoint.lat])
-          .addTo(mapRef.current!);
-      } else {
-        truckMarkerRef.current.setLngLat([currentPoint.lng, currentPoint.lat]);
-      }
+    if (!currentPoint) return;
+
+    const iconLabel = accounts[task.drivers?.[0] || ""]?.icon;
+    const size = scaledSize(32, iconLabel);
+
+    if (!truckMarkerRef.current) {
+      const img = document.createElement("img");
+      img.src = getIconPath(iconLabel);
+      img.style.width = `${size}px`;
+      img.style.height = `${size}px`;
+      truckMarkerRef.current = new mapboxgl.Marker({ element: img, anchor: "center" })
+        .setLngLat([currentPoint.lng, currentPoint.lat])
+        .addTo(mapRef.current!);
+    } else {
+      truckMarkerRef.current.setLngLat([currentPoint.lng, currentPoint.lat]);
     }
   }, [currentIndex, filteredTrack]);
 
