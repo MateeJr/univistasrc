@@ -34,6 +34,10 @@ export default function RootLayout({
         <ServerMonitor>
           <InitialLoader>
             <PageSwitcher />
+            {/* Watermark version info */}
+            <div className="fixed top-2 left-1/2 -translate-x-1/2 text-[10px] md:text-xs text-gray-500 opacity-70 pointer-events-none select-none z-50">
+              Versi: v.0.3.0 · Terakhir Update: 4 Juli 2025
+            </div>
             <main className="mt-14 md:mt-0 md:ml-20">
               {children}
             </main>
