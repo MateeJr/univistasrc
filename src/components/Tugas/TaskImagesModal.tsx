@@ -220,4 +220,4 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
   );
 };
 
-export default TaskImagesModal; 
+export default React.memo(TaskImagesModal, (prev, next)=> prev.task.id===next.task.id); 
