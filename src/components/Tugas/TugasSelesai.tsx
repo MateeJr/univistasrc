@@ -251,7 +251,19 @@ const TugasSelesai: React.FC = () => {
 
                 {/* Right side - Date and Time Info */}
                 <div className="space-y-1 text-left lg:text-right mt-2 lg:mt-0 w-full lg:w-56 flex-shrink-0">
+                  {/* Created date */}
                   <div className="text-gray-400 text-xs">Tanggal Dibuat: <span className="text-white">{createdStr}</span></div>
+                  {/* Submitted date (driver menekan selesai / dibatalkan) */}
+                  {t.status==='SELESAI' && (() => {
+                    const submittedAt = t.endTimestamp || null;
+                    if(!submittedAt) return null;
+                    const submitStr = new Date(submittedAt).toLocaleString('id-ID', {
+                      day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                    }).replace('.', ':');
+                    return (
+                      <div className="text-gray-400 text-xs">Tanggal diSubmit: <span className="text-blue-400">{submitStr}</span></div>
+                    );
+                  })()}
                   <div className="text-gray-400 text-xs">Deadline: <span className="text-red-400">{dstr}</span></div>
                   {t.status === 'SELESAI' && (() => {
                     const completionTime = getTaskCompletionTime(t);
