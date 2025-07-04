@@ -51,6 +51,13 @@ const TugasSelesai: React.FC = () => {
     loadInitial();
   };
 
+  const refreshData=()=>{
+    setTasks([]);
+    setOffset(0);
+    setHasMore(true);
+    loadInitial();
+  };
+
   const buildApiUrl = (offset: number) => {
     const params = new URLSearchParams();
     params.append('status', 'completed');
@@ -167,7 +174,7 @@ const TugasSelesai: React.FC = () => {
     setHasMore(true);
     loadInitial();
 
-    const intervalId = setInterval(refreshTasks, 5000);
+    const intervalId = setInterval(refreshTasks, 10000);
     return () => clearInterval(intervalId);
   }, [search, dateFilter, driverFilter]);
 
@@ -243,6 +250,7 @@ const TugasSelesai: React.FC = () => {
           ))}
         </select>
         <button onClick={clearFilters} className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 text-xs">Clear</button>
+        <button onClick={refreshData} className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 text-xs">Refresh</button>
       </div>
       {filteredTasks.length===0 && !loading && <p className="text-gray-500 text-sm text-center">Tidak ada tugas selesai</p>}
       {filteredTasks.map(t=>{

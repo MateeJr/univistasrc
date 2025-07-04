@@ -100,6 +100,29 @@ const TugasAktif: React.FC = () => {
     loadInitial();
   };
 
+  const refreshData = async () => {
+    if(loading) return;
+    try {
+      setLoading(true);
+      const res = await fetch(buildApiUrl(0));
+      if(res.ok){
+        const response = await res.json();
+        const fresh:Task[] = response.tasks || [];
+
+        setTasks(prev => {
+          const freshIds = new Set(fresh.map(t=>t.id));
+          // Keep previous tasks that are still active and not in the fresh first page
+          const remaining = prev.filter(t=>!freshIds.has(t.id) && t.status!=='SELESAI' && t.status!=='DIBATALKAN');
+          return [...fresh, ...remaining];
+        });
+
+        setHasMore(response.hasMore);
+        // Offset stays as is; if user loaded more, keep it
+      }
+    }catch(err){ console.error('refreshData',err); }
+    finally { setLoading(false); }
+  };
+
   const handleCancelTask = async (taskId: string) => {
     try {
       await fetch(`/api/tasks/${taskId}`, {
@@ -221,38 +244,16 @@ const TugasAktif: React.FC = () => {
   // This one effect handles initial load, resetting on filter change, and the refresh interval.
   useEffect(() => {
     // Function to fetch the first page and prepend new tasks without a full refresh.
-    const refreshTasks = async () => {
-      // Don't refresh if a modal is open or another load is in progress.
-      if (loading || detailTask || imagesTask || confirmModal.isOpen) {
-        return;
-      }
-      try {
-        const res = await fetch(buildApiUrl(0)); // Always fetch page 1 for new items.
-        if (res.ok) {
-          const response = await res.json();
-          const fetchedTasks: Task[] = response.tasks || [];
-
-          if (fetchedTasks.length > 0) {
-            setTasks(prev => {
-              const existingIds = new Set(prev.map(t => t.id));
-              const newTasks = fetchedTasks.filter(t => !existingIds.has(t.id));
-              if (newTasks.length > 0) {
-                setOffset(o => o + newTasks.length);
-                return [...newTasks, ...prev];
-              }
-              return prev;
-            });
-          }
-        }
-      } catch (e) { console.error('Error refreshing tasks:', e); }
-    };
-
     setTasks([]);
     setOffset(0);
     setHasMore(true);
     loadInitial();
 
-    const intervalId = setInterval(refreshTasks, 5000);
+    const intervalId = setInterval(()=>{
+      if(!loading && !detailTask && !imagesTask && !confirmModal.isOpen){
+        refreshData();
+      }
+    },10000);
     return () => clearInterval(intervalId);
   }, [search, dateFilter, driverFilter]);
 
@@ -292,6 +293,7 @@ const TugasAktif: React.FC = () => {
           ))}
         </select>
         <button onClick={clearFilters} className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 text-xs">Clear</button>
+        <button onClick={refreshData} className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 text-xs">Refresh</button>
       </div>
       {filteredTasks.length===0 && <p className="text-gray-500 text-sm text-center">Tidak ada tugas</p>}
       {filteredTasks.map(t=>{
