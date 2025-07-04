@@ -86,7 +86,6 @@ const TugasAktif: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [offset, setOffset] = useState<number>(0);
-  const LIMIT = 5;
   const [statuses, setStatuses] = useState<Record<string,'online'|'disconnected'|'offline'>>({});
 
   const clearFilters = () => {
@@ -152,8 +151,7 @@ const TugasAktif: React.FC = () => {
   const buildApiUrl = (offset: number) => {
     const params = new URLSearchParams();
     params.append('status', 'active');
-    params.append('limit', LIMIT.toString());
-    params.append('offset', offset.toString());
+    // fetch all active tasks without pagination
 
     if (search.trim()) params.append('search', search.trim());
     if (dateFilter) params.append('date', dateFilter);
@@ -170,38 +168,12 @@ const TugasAktif: React.FC = () => {
         const response=await res.json();
         if(response.tasks) {
           setTasks(response.tasks);
-          setHasMore(response.hasMore);
-          setOffset(LIMIT);
+          setHasMore(false);
         } else {
           // Fallback for old API response format
           const activeTasks = response.filter((t:any) => t.status !== 'DIBATALKAN' && t.status !== 'SELESAI');
-          setTasks(activeTasks.slice(0, LIMIT));
-          setHasMore(activeTasks.length > LIMIT);
-          setOffset(LIMIT);
-        }
-      }
-    }catch{}
-    setLoading(false);
-  };
-
-  const loadMore=async()=>{
-    if(loading || !hasMore) return;
-    setLoading(true);
-    try{
-      const res=await fetch(buildApiUrl(offset));
-      if(res.ok){
-        const response=await res.json();
-        if(response.tasks) {
-          setTasks(prev => [...prev, ...response.tasks]);
-          setHasMore(response.hasMore);
-          setOffset(prev => prev + LIMIT);
-        } else {
-          // Fallback for old API response format
-          const activeTasks = response.filter((t:any) => t.status !== 'DIBATALKAN' && t.status !== 'SELESAI');
-          const newTasks = activeTasks.slice(offset, offset + LIMIT);
-          setTasks(prev => [...prev, ...newTasks]);
-          setHasMore(offset + LIMIT < activeTasks.length);
-          setOffset(prev => prev + LIMIT);
+          setTasks(activeTasks);
+          setHasMore(false);
         }
       }
     }catch{}
@@ -368,19 +340,6 @@ const TugasAktif: React.FC = () => {
           </div>
         );
       })}
-
-      {/* Load More Button - only show if there's more data AND we have loaded some tasks */}
-      {hasMore && tasks.length > 0 && (
-        <div className="flex justify-center mt-4">
-          <button
-            onClick={loadMore}
-            disabled={loading}
-            className="px-6 py-3 rounded-lg bg-purple-600 hover:bg-purple-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold transition-colors"
-          >
-            {loading ? 'Loading...' : 'LOAD MORE'}
-          </button>
-        </div>
-      )}
 
       {/* Loading indicator for initial load */}
       {loading && tasks.length === 0 && (
