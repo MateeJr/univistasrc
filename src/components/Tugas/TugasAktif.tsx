@@ -87,6 +87,7 @@ const TugasAktif: React.FC = () => {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [offset, setOffset] = useState<number>(0);
   const LIMIT = 5;
+  const [statuses, setStatuses] = useState<Record<string,'online'|'disconnected'|'offline'>>({});
 
   const clearFilters = () => {
     setSearch('');
@@ -187,7 +188,29 @@ const TugasAktif: React.FC = () => {
   const loadAccounts = async () => {
     try {
       const res = await fetch('/api/accounts');
-      if(res.ok){ const list:Account[]=await res.json(); const map:Record<string,Account>={} ; list.forEach(a=>map[a.deviceId]=a); setAccounts(map); }
+      if(res.ok){
+        const list:Account[]=await res.json();
+        const map:Record<string,Account>={} ; list.forEach(a=>map[a.deviceId]=a); setAccounts(map);
+
+        // compute online statuses similar to DriverList
+        const statusObj: Record<string,'online'|'disconnected'|'offline'> = {};
+        await Promise.all(
+          list.map(async (d:any)=>{
+            try{
+              const detailRes = await fetch(`/api/accounts/${d.deviceId}`);
+              if(detailRes.ok){
+                const detail = await detailRes.json();
+                const last = detail.track?.timestampMs ?? (detail.track?.lastUpdated ? Date.parse(detail.track.lastUpdated.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')) : 0);
+                const diffMin = (Date.now() - last) / 60000;
+                if(diffMin < 2) statusObj[d.deviceId] = 'online';
+                else if(diffMin < 10) statusObj[d.deviceId] = 'disconnected';
+                else statusObj[d.deviceId] = 'offline';
+              }
+            }catch{}
+          })
+        );
+        setStatuses(statusObj);
+      }
     }catch{}
   };
 
@@ -232,6 +255,12 @@ const TugasAktif: React.FC = () => {
     const intervalId = setInterval(refreshTasks, 5000);
     return () => clearInterval(intervalId);
   }, [search, dateFilter, driverFilter]);
+
+  // refresh statuses every 10s
+  useEffect(()=>{
+    const id=setInterval(()=>{loadAccounts();},10000);
+    return ()=> clearInterval(id);
+  },[]);
 
   const filteredTasks = tasks;
 
@@ -287,7 +316,12 @@ const TugasAktif: React.FC = () => {
                   <span className="text-gray-400 mr-1">Driver:</span>
                   {(t.drivers||[]).map(id=>{
                     const acc=accounts[id];
-                    return <span key={id} className="text-white inline-block bg-purple-700/60 px-2 py-0.5 rounded-md">{acc?`${acc.nama} (${acc.bk})`:id}</span>;
+                    return (
+                      <span key={id} className="text-white inline-flex items-center gap-1 bg-purple-700/60 px-2 py-0.5 rounded-md">
+                        <span className={`w-2 h-2 rounded-full ${statuses[id]==='online'?'bg-green-400':statuses[id]==='disconnected'?'bg-red-500':'bg-gray-500'}`}></span>
+                        {acc?`${acc.nama} (${acc.bk})`:id}
+                      </span>
+                    );
                   })}
                 </div>
                 <div className="flex gap-1"><span className="text-gray-400">Berangkat:</span><span className="text-white flex-1 truncate">{t.from}</span></div>
