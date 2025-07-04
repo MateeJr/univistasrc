@@ -121,6 +121,13 @@ const DriverList: React.FC<DriverListProps> = ({ onSelect, selectedId, onDeleted
               d.deviceId.toLowerCase().includes(q)
             );
           })
+          .sort((a,b)=>{
+            const rank:{[k:string]:number}={online:0,disconnected:1,offline:2};
+            const ra=rank[statuses[a.deviceId]||'offline'];
+            const rb=rank[statuses[b.deviceId]||'offline'];
+            if(ra!==rb) return ra-rb;
+            return a.nama.localeCompare(b.nama);
+          })
           .map((d) => (
             <div key={d.deviceId} className={`w-full flex items-center justify-between rounded p-2 hover:bg-gray-700 ${selectedId===d.deviceId?'bg-purple-700':'bg-gray-800'}`}>
               <button className="flex-1 text-left flex items-center gap-2" onClick={() => onSelect(d.deviceId)}>
