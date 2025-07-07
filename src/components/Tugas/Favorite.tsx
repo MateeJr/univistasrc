@@ -47,7 +47,7 @@ const Favorite: React.FC<Props> = ({ onSelect, refreshTrigger }) => {
       ) : list.length === 0 ? (
         <p className="text-center text-gray-500 text-sm">Belum ada favorite tersimpan</p>
       ) : (
-        <div className="flex flex-col gap-1 overflow-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-1 overflow-auto">
           {list.map((f) => (
             <div
               key={f.id}
