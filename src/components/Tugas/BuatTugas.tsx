@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import { useMap } from "@/components/Home/MapContext";
 import { FiSearch } from "react-icons/fi";
 import { GoPin } from "react-icons/go";
@@ -12,7 +12,12 @@ import * as turf from "@turf/turf";
 
 interface Driver { deviceId: string; nama: string; bk: string }
 
-const BuatTugas: React.FC = () => {
+// Favorite route payload
+export interface FavData { from: string; fromCoord: string; to: string; toCoord: string; }
+
+export interface BuatTugasHandle { loadFavorite: (fav: FavData) => void; }
+
+const BuatTugas = forwardRef<BuatTugasHandle, { onFavoriteSaved?: () => void }>(({ onFavoriteSaved }, ref) => {
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [selected, setSelected] = useState<Driver[]>([]);
   const [open, setOpen] = useState(false);
@@ -501,6 +506,32 @@ const BuatTugas: React.FC = () => {
   const [distanceKm,setDistanceKm]=useState<number|null>(null);
   const [etaMin,setEtaMin]=useState<number|null>(null);
 
+  // expose loadFavorite to parent
+  useImperativeHandle(ref, () => ({
+    loadFavorite: (fav) => {
+      setFrom(fav.from);
+      setFromCoord(fav.fromCoord);
+      setTo(fav.to);
+      setToCoord(fav.toCoord);
+      setFromSet(true);
+      setToSet(true);
+
+      if (!map) return;
+      const parse = (coord: string) => coord.split(',').map(Number) as [number, number];
+      const [fLat, fLng] = parse(fav.fromCoord);
+      const [tLat, tLng] = parse(fav.toCoord);
+      if (!Number.isNaN(fLat) && !Number.isNaN(fLng)) {
+        fromMarkerRef.current?.remove();
+        fromMarkerRef.current = new mapboxgl.Marker({ color: '#3b82f6' }).setLngLat([fLng, fLat]).addTo(map);
+      }
+      if (!Number.isNaN(tLat) && !Number.isNaN(tLng)) {
+        toMarkerRef.current?.remove();
+        toMarkerRef.current = new mapboxgl.Marker({ color: '#ef4444' }).setLngLat([tLng, tLat]).addTo(map);
+      }
+      map.flyTo({ center: [fLng, fLat], zoom: 14 });
+    }
+  }));
+
   return (
     <div className="h-full rounded-lg bg-black p-4 text-white border border-purple-900 flex flex-col gap-2 overflow-auto">
       {/* Driver selector */}
@@ -857,8 +888,31 @@ const BuatTugas: React.FC = () => {
           Bersihkan
         </button>
       </div>
+
+      {/* Save to Favorite */}
+      <button
+        type="button"
+        disabled={!from.trim() || !fromCoord.trim() || !to.trim() || !toCoord.trim()}
+        onClick={async () => {
+          try {
+            const body = { from, fromCoord, to, toCoord };
+            const res = await fetch('/api/favorites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            if (res.ok) {
+              alert('Disimpan ke favorite');
+              onFavoriteSaved && onFavoriteSaved();
+            } else {
+              alert('Gagal menyimpan favorite');
+            }
+          } catch {
+            alert('Gagal menyimpan favorite');
+          }
+        }}
+        className={`mt-2 px-3 py-2 rounded text-white font-semibold ${from.trim() && fromCoord.trim() && to.trim() && toCoord.trim() ? 'bg-yellow-600 hover:bg-yellow-500' : 'bg-gray-700 cursor-not-allowed opacity-50'}`}
+      >
+        Simpan ke Favorite
+      </button>
     </div>
   );
-};
+});
 
 export default BuatTugas; 
