@@ -584,30 +584,70 @@ const Settings: React.FC = () => {
 
   return (
     <div className="p-4">
-      {/* Page Navigation */}
-      <div className="flex gap-2 mb-4">
-        {[
-          { key: 'DATA', label: 'DATA' },
-          { key: 'RADIUS', label: 'Radius' },
-          { key: 'NOTIFIKASI', label: 'Notifikasi' },
-          { key: 'SERVER', label: 'Server MISC' },
-        ].map(nav => (
-          <button
-            key={nav.key}
-            onClick={() => setPage(nav.key as Page)}
-            className={`px-4 py-2 rounded-md ${
-              page === nav.key ? 'bg-purple-700 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-            }`}
-          >
-            {nav.label}
-          </button>
-        ))}
+      {/* Page Navigation with Glow Effect */}
+      <div className="relative mb-6">
+        {/* Glow effect behind active button */}
+        <div className="absolute inset-0 flex gap-2">
+          {[
+            { key: 'DATA', label: 'DATA' },
+            { key: 'RADIUS', label: 'Radius' },
+            { key: 'NOTIFIKASI', label: 'Notifikasi' },
+            { key: 'SERVER', label: 'Server MISC' },
+          ].map((nav, index) => (
+            <div
+              key={nav.key}
+              className={`flex-1 transition-opacity duration-500 ${
+                page === nav.key ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <div className="h-full w-full bg-purple-600/30 blur-2xl rounded-full" />
+            </div>
+          ))}
+        </div>
+        
+        {/* Navigation buttons */}
+        <div className="relative flex gap-2">
+          {[
+            { key: 'DATA', label: 'DATA' },
+            { key: 'RADIUS', label: 'Radius' },
+            { key: 'NOTIFIKASI', label: 'Notifikasi' },
+            { key: 'SERVER', label: 'Server MISC' },
+          ].map(nav => (
+            <button
+              key={nav.key}
+              onClick={() => setPage(nav.key as Page)}
+              className={`
+                relative px-6 py-3 rounded-xl font-medium
+                transition-all duration-300 transform
+                ${
+                  page === nav.key 
+                    ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-700/50 scale-105 border border-purple-500/30' 
+                    : 'bg-gray-800/80 hover:bg-gray-700/80 text-gray-300 hover:text-white border border-gray-700/50 hover:scale-105'
+                }
+                backdrop-blur-sm
+              `}
+            >
+              {/* Inner gradient overlay for depth */}
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-t from-transparent to-white/5 pointer-events-none" />
+              
+              {/* Button label */}
+              <span className="relative z-10">{nav.label}</span>
+              
+              {/* Active indicator dot */}
+              {page === nav.key && (
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full animate-pulse" />
+              )}
+            </button>
+          ))}
+        </div>
       </div>
       {/* Container for all setting panels */}
       <div className="flex flex-wrap gap-4">
 
         {/* ---------- Panel: Jenis Laporan ---------- */}
-        <div hidden={page !== 'DATA'} className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
+        <div hidden={page !== 'DATA'} className="relative rounded-lg bg-gray-900/90 backdrop-blur-sm p-4 text-gray-200 border border-purple-800/50 w-full max-w-sm h-96 flex flex-col shadow-xl shadow-purple-900/20 overflow-hidden">
+          {/* Subtle glow effect */}
+          <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-600/10 rounded-full blur-3xl" />
           <h2 className="text-xl font-semibold mb-4">Pengaturan Jenis Laporan</h2>
 
           {/* Add form */}
@@ -684,7 +724,9 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Pengaturan Jenis Foto ---------- */}
-        <div hidden={page !== 'DATA'} className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
+        <div hidden={page !== 'DATA'} className="relative rounded-lg bg-gray-900/90 backdrop-blur-sm p-4 text-gray-200 border border-purple-800/50 w-full max-w-sm h-96 flex flex-col shadow-xl shadow-purple-900/20 overflow-hidden">
+          {/* Subtle glow effect */}
+          <div className="absolute -top-20 -left-20 w-40 h-40 bg-blue-600/10 rounded-full blur-3xl" />
           <h2 className="text-xl font-semibold mb-4">Pengaturan Jenis Foto</h2>
 
           {/* Add form */}
@@ -737,7 +779,9 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Pengaturan Radius ---------- */}
-        <div hidden={page !== 'RADIUS'} className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
+        <div hidden={page !== 'RADIUS'} className="relative rounded-lg bg-gray-900/90 backdrop-blur-sm p-4 text-gray-200 border border-purple-800/50 w-full max-w-sm h-96 flex flex-col shadow-xl shadow-purple-900/20 overflow-hidden">
+          {/* Subtle glow effect */}
+          <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-purple-600/10 rounded-full blur-3xl" />
           <h2 className="text-xl font-semibold mb-4">Pengaturan Radius</h2>
 
           <div className="flex-1 overflow-y-auto space-y-3 pr-1">
@@ -837,7 +881,9 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Pengaturan Notifikasi ---------- */}
-        <div hidden={page !== 'NOTIFIKASI'} className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
+        <div hidden={page !== 'NOTIFIKASI'} className="relative rounded-lg bg-gray-900/90 backdrop-blur-sm p-4 text-gray-200 border border-purple-800/50 w-full max-w-sm h-96 flex flex-col shadow-xl shadow-purple-900/20 overflow-hidden">
+          {/* Subtle glow effect */}
+          <div className="absolute -top-20 -left-20 w-40 h-40 bg-green-600/10 rounded-full blur-3xl" />
           <h2 className="text-xl font-semibold mb-4">Pengaturan Notifikasi</h2>
 
           <div className="flex-1 overflow-y-auto space-y-2 pr-1">
@@ -877,7 +923,9 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Whatsapp API ---------- */}
-        <div hidden={page !== 'NOTIFIKASI'} className="relative rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
+        <div hidden={page !== 'NOTIFIKASI'} className="relative rounded-lg bg-gray-900/90 backdrop-blur-sm p-4 text-gray-200 border border-purple-800/50 w-full max-w-sm h-96 flex flex-col shadow-xl shadow-purple-900/20 overflow-hidden">
+          {/* Subtle glow effect */}
+          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-green-600/10 rounded-full blur-3xl" />
           <h2 className="text-xl font-semibold mb-4">Whatsapp API</h2>
 
           {/* gear icon */}
@@ -939,7 +987,9 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Notifikasi Whatsapp ---------- */}
-        <div hidden={page !== 'NOTIFIKASI'} className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
+        <div hidden={page !== 'NOTIFIKASI'} className="relative rounded-lg bg-gray-900/90 backdrop-blur-sm p-4 text-gray-200 border border-purple-800/50 w-full max-w-sm h-96 flex flex-col shadow-xl shadow-purple-900/20 overflow-hidden">
+          {/* Subtle glow effect */}
+          <div className="absolute -top-20 -right-20 w-40 h-40 bg-green-600/10 rounded-full blur-3xl" />
           <h2 className="text-xl font-semibold mb-4">Notifikasi Whatsapp</h2>
 
           {/* Add WA number */}
@@ -1004,7 +1054,9 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Server Health ---------- */}
-        <div hidden={page !== 'SERVER'} className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
+        <div hidden={page !== 'SERVER'} className="relative rounded-lg bg-gray-900/90 backdrop-blur-sm p-4 text-gray-200 border border-purple-800/50 w-full max-w-sm h-96 flex flex-col shadow-xl shadow-purple-900/20 overflow-hidden">
+          {/* Subtle glow effect */}
+          <div className="absolute -top-20 -left-20 w-40 h-40 bg-blue-600/10 rounded-full blur-3xl" />
           <h2 className="text-xl font-semibold mb-4">Server Health</h2>
 
           {stats ? (
@@ -1084,7 +1136,9 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Backup Data ---------- */}
-        <div hidden={page !== 'DATA'} className="rounded-lg bg-gray-900 p-4 text-gray-200 border border-purple-900 w-full max-w-sm h-96 flex flex-col">
+        <div hidden={page !== 'DATA'} className="relative rounded-lg bg-gray-900/90 backdrop-blur-sm p-4 text-gray-200 border border-purple-800/50 w-full max-w-sm h-96 flex flex-col shadow-xl shadow-purple-900/20 overflow-hidden">
+          {/* Subtle glow effect */}
+          <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-purple-600/10 rounded-full blur-3xl" />
           <h2 className="text-xl font-semibold mb-4">Backup Data</h2>
 
           <div className="flex-1 flex flex-col items-center justify-center w-full">

@@ -316,21 +316,21 @@ const TugasAktif: React.FC = () => {
               <div className="flex justify-end gap-2 flex-wrap">
                 <button
                   onClick={() => openCancelConfirmation(t)}
-                  className="mt-2 p-2 rounded-full bg-red-600 hover:bg-red-500 text-white transition-colors"
+                  className="mt-2 px-3 py-2 rounded-lg bg-red-600/80 hover:bg-red-500/90 text-white transition-colors backdrop-blur-sm"
                   title="Batalkan Tugas"
                 >
                   <FaTrash size={14} />
                 </button>
                 <button 
                   onClick={()=>setDetailTask(t)} 
-                  className="mt-2 p-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white transition-colors"
+                  className="mt-2 px-3 py-2 rounded-lg bg-blue-600/80 hover:bg-blue-500/90 text-white transition-colors backdrop-blur-sm"
                   title="Lihat Detail"
                 >
                   <FaEye size={14} />
                 </button>
                 <button 
                   onClick={()=>setImagesTask(t)} 
-                  className="mt-2 p-2 rounded-full bg-green-600 hover:bg-green-500 text-white transition-colors"
+                  className="mt-2 px-3 py-2 rounded-lg bg-green-600/80 hover:bg-green-500/90 text-white transition-colors backdrop-blur-sm"
                   title="Lihat Gambar"
                 >
                   <FaImages size={14} />

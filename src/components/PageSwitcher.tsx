@@ -30,20 +30,46 @@ function SidebarItem({ href, label, Icon, highlight, highlightDanger }: NavItem 
     <Link
       href={href}
       className={
-        "group relative flex h-12 w-12 items-center justify-center rounded-lg text-xl transition-colors " +
+        "group relative flex h-8 w-8 md:h-12 md:w-12 items-center justify-center rounded-full text-base md:text-xl transition-all duration-300 flex-shrink-0 " +
         (isActive
-          ? "bg-purple-800 text-white"
+          ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-700/50 md:scale-110"
           : highlightDanger
-          ? "animate-pulse bg-red-600 text-black"
+          ? "animate-pulse bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg shadow-red-600/50"
           : highlight
-          ? "animate-pulse bg-yellow-600 text-black"
-          : "text-gray-400 hover:bg-purple-900 hover:text-white")
+          ? "animate-pulse bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-lg shadow-yellow-600/50"
+          : "text-gray-400 hover:bg-purple-800/50 hover:text-white hover:scale-105")
       }
     >
       <Icon className="pointer-events-none" />
-      <span className="pointer-events-none absolute hidden md:block left-full ml-2 whitespace-nowrap rounded bg-gray-700 px-2 py-1 text-sm opacity-0 transition-opacity group-hover:opacity-100">
+      
+      {/* Enhanced tooltip with better positioning and styling */}
+      <span className="
+        pointer-events-none absolute 
+        hidden md:block 
+        left-full ml-4 
+        whitespace-nowrap 
+        rounded-lg 
+        bg-gray-800/95 backdrop-blur-sm
+        border border-gray-700/50
+        px-3 py-1.5 
+        text-sm font-medium
+        opacity-0 scale-95
+        transition-all duration-200
+        group-hover:opacity-100 group-hover:scale-100
+        shadow-xl
+      ">
         {label}
       </span>
+      
+      {/* Active indicator dot */}
+      {isActive && (
+        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full" />
+      )}
+      
+      {/* Notification badge */}
+      {(highlight || highlightDanger) && (
+        <div className="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full animate-ping" />
+      )}
     </Link>
   );
 }
@@ -137,17 +163,77 @@ export default function PageSwitcher() {
   }, [pathname]);
 
   return (
-    <nav
-      className="fixed top-0 left-0 z-50 flex w-full h-14 flex-row items-center justify-center gap-4 border-b border-purple-900 bg-[#0d0014] md:h-screen md:w-20 md:flex-col md:border-b-0 md:border-r md:rounded-tr-lg md:rounded-br-lg py-2 md:py-4"
-    >
-      {navItems.map((item) => (
-        <SidebarItem
-          key={item.href}
-          {...item}
-          highlight={item.href === '/notifikasi' && !hasPentingNew && hasStatusNew || (item.href === '/laporan' && hasLaporanNew)}
-          highlightDanger={item.href === '/notifikasi' && hasPentingNew}
-        />
-      ))}
-    </nav>
+    <>
+      {/* Mobile wrapper for proper centering */}
+      <div className="md:hidden w-full flex justify-center pt-4 pb-2">
+        <nav
+          className="
+            z-50
+            flex flex-row
+            h-12 w-fit
+            items-center justify-center
+            gap-1.5
+            px-2 py-1.5
+            /* Floating appearance */
+            bg-gray-900/95 backdrop-blur-xl
+            border border-purple-800/30
+            rounded-full
+            shadow-2xl shadow-purple-900/20
+            /* Animation */
+            transition-all duration-300
+          "
+      >
+        {/* Gradient overlay for depth */}
+        <div className="absolute inset-0 rounded-full md:rounded-2xl bg-gradient-to-b from-purple-900/10 to-transparent pointer-events-none" />
+        
+          {/* Navigation items */}
+          {navItems.map((item) => (
+            <SidebarItem
+              key={item.href}
+              {...item}
+              highlight={item.href === '/notifikasi' && !hasPentingNew && hasStatusNew || (item.href === '/laporan' && hasLaporanNew)}
+              highlightDanger={item.href === '/notifikasi' && hasPentingNew}
+            />
+          ))}
+        </nav>
+      </div>
+      
+      {/* Desktop navigation panel */}
+      <nav
+        className="
+          hidden md:flex
+          fixed z-50
+          top-1/2 left-4 -translate-y-1/2
+          flex-col
+          h-auto max-h-[calc(100vh-2rem)]
+          items-center justify-center
+          gap-2
+          px-3 py-4
+          /* Floating appearance */
+          bg-gray-900/95 backdrop-blur-xl
+          border border-purple-800/30
+          rounded-2xl
+          shadow-2xl shadow-purple-900/20
+          /* Animation */
+          transition-all duration-300
+        "
+      >
+        {/* Gradient overlay for depth */}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-purple-900/10 to-transparent pointer-events-none" />
+        
+        {/* Navigation items */}
+        {navItems.map((item) => (
+          <SidebarItem
+            key={item.href}
+            {...item}
+            highlight={item.href === '/notifikasi' && !hasPentingNew && hasStatusNew || (item.href === '/laporan' && hasLaporanNew)}
+            highlightDanger={item.href === '/notifikasi' && hasPentingNew}
+          />
+        ))}
+      </nav>
+      
+      {/* Optional: Add a subtle glow effect behind the panel - only on desktop */}
+      <div className="hidden md:block fixed md:top-1/2 md:left-4 md:-translate-y-1/2 w-20 h-96 bg-purple-600/20 blur-3xl pointer-events-none -z-10" />
+    </>
   );
 } 
