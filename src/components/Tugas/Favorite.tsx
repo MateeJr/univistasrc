@@ -49,16 +49,31 @@ const Favorite: React.FC<Props> = ({ onSelect, refreshTrigger }) => {
       ) : (
         <div className="flex flex-col gap-1 overflow-auto">
           {list.map((f) => (
-            <button
+            <div
               key={f.id}
-              onClick={() => onSelect(f)}
-              className="text-left bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded border border-gray-700"
+              className="bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded border border-gray-700 flex items-start gap-2"
             >
-              <div className="font-semibold text-purple-400 truncate" title={f.from}>{f.from}</div>
-              <div className="text-xs text-gray-400 truncate" title={f.fromCoord}>{f.fromCoord}</div>
-              <div className="font-semibold text-purple-400 mt-1 truncate" title={f.to}>{f.to}</div>
-              <div className="text-xs text-gray-400 truncate" title={f.toCoord}>{f.toCoord}</div>
-            </button>
+              <button onClick={() => onSelect(f)} className="flex-1 text-left">
+                <div className="font-semibold text-purple-400 truncate" title={f.from}>{f.from}</div>
+                <div className="text-xs text-gray-400 truncate" title={f.fromCoord}>{f.fromCoord}</div>
+                <div className="font-semibold text-purple-400 mt-1 truncate" title={f.to}>{f.to}</div>
+                <div className="text-xs text-gray-400 truncate" title={f.toCoord}>{f.toCoord}</div>
+              </button>
+              <button
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  if (!confirm('Hapus favorite ini?')) return;
+                  try {
+                    await fetch(`/api/favorites/${f.id}`, { method: 'DELETE' });
+                    setList(prev => prev.filter(item => item.id !== f.id));
+                  } catch {}
+                }}
+                className="text-red-500 hover:text-red-400 text-xs shrink-0"
+                title="Delete"
+              >
+                ✕
+              </button>
+            </div>
           ))}
         </div>
       )}
