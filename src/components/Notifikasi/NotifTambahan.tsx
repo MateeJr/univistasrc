@@ -91,7 +91,18 @@ const NotifTambahan: React.FC = () => {
         // Filter to show only today's notifications
         const todayData = data.filter(n => isToday(n.timestamp, serverToday));
         console.log('[NotifTambahan] Today data count:', todayData.length);
-        setList(todayData);
+
+        // --- client-side dedup just in case ---
+        const seen = new Set<string>();
+        const uniqueToday: TambahanNotif[] = [];
+        for (const n of todayData) {
+          const key = n.taskId ? `task-${n.taskId}` : n.deviceId ? `lap-${n.deviceId}-${n.title}` : `${n.timestamp}-${n.description}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            uniqueToday.push(n);
+          }
+        }
+        setList(uniqueToday);
 
         // also fetch notif config to respect konfirmasiSelesai toggle
         try {
