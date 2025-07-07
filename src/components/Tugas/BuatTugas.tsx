@@ -909,7 +909,7 @@ const BuatTugas = forwardRef<BuatTugasHandle, { onFavoriteSaved?: () => void }>(
         }}
         className={`mt-2 px-3 py-2 rounded text-white font-semibold ${from.trim() && fromCoord.trim() && to.trim() && toCoord.trim() ? 'bg-yellow-600 hover:bg-yellow-500' : 'bg-gray-700 cursor-not-allowed opacity-50'}`}
       >
-        Simpan ke Favorite
+        Simpan koordinat ke Favorite
       </button>
     </div>
   );
