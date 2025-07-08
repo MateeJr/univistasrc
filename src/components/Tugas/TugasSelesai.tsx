@@ -180,7 +180,34 @@ const TugasSelesai: React.FC = () => {
 
   useEffect(()=>{ const id=setInterval(()=>{loadAccounts();},10000); return ()=>clearInterval(id);},[]);
 
-  const filteredTasks = tasks;
+  const filteredTasks = tasks.sort((a, b) => {
+    // Sort by submission date (endTimestamp for completed, cancelledTimestamp for cancelled)
+    // Most recent submission date should be on top
+    let aTime = 0;
+    let bTime = 0;
+    
+    // For task a
+    if (a.status === 'SELESAI' && a.endTimestamp) {
+      aTime = new Date(a.endTimestamp).getTime();
+    } else if (a.status === 'DIBATALKAN' && a.cancelledTimestamp) {
+      aTime = new Date(a.cancelledTimestamp).getTime();
+    } else if (a.createdAt) {
+      // Fallback to created date if no submission date
+      aTime = new Date(a.createdAt).getTime();
+    }
+    
+    // For task b
+    if (b.status === 'SELESAI' && b.endTimestamp) {
+      bTime = new Date(b.endTimestamp).getTime();
+    } else if (b.status === 'DIBATALKAN' && b.cancelledTimestamp) {
+      bTime = new Date(b.cancelledTimestamp).getTime();
+    } else if (b.createdAt) {
+      // Fallback to created date if no submission date
+      bTime = new Date(b.createdAt).getTime();
+    }
+    
+    return bTime - aTime; // Descending order (most recent first)
+  });
 
   const statusColor = (s?:string)=>{
     if(s==='DIBATALKAN') return {text:'text-gray-400',border:'border-gray-600',bg:'bg-gray-600/30'};
