@@ -154,6 +154,16 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
                 <p className="text-sm text-gray-400">Destinasi: <span className="text-gray-200">{task.to}</span></p>
                 <p className="text-sm text-gray-400">Deadline: <span className="text-red-400">{task.deadline}</span></p>
                 {task.status === 'SELESAI' && (() => {
+                  const submittedAt = task.endTimestamp || null;
+                  if(!submittedAt) return null;
+                  const submitStr = new Date(submittedAt).toLocaleString('id-ID', {
+                    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                  }).replace('.', ':');
+                  return (
+                    <p className="text-sm text-gray-400">Tanggal diSubmit: <span className="text-blue-400">{submitStr}</span></p>
+                  );
+                })()}
+                {task.status === 'SELESAI' && (() => {
                   const completionTime = getTaskCompletionTime(task);
                   return completionTime ? (
                     <p className="text-sm text-gray-400">Waktu Penyelesaian: <span className="text-green-400">{completionTime}</span></p>
@@ -194,6 +204,16 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
                 <p className="text-sm text-gray-400">Berangkat: <span className="text-gray-200">{task.from}</span></p>
                 <p className="text-sm text-gray-400">Destinasi: <span className="text-gray-200">{task.to}</span></p>
                 <p className="text-sm text-gray-400">Deadline: <span className="text-red-400">{task.deadline}</span></p>
+                {task.status === 'SELESAI' && (() => {
+                  const submittedAt = task.endTimestamp || null;
+                  if(!submittedAt) return null;
+                  const submitStr = new Date(submittedAt).toLocaleString('id-ID', {
+                    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                  }).replace('.', ':');
+                  return (
+                    <p className="text-sm text-gray-400">Tanggal diSubmit: <span className="text-blue-400">{submitStr}</span></p>
+                  );
+                })()}
                 {task.status === 'SELESAI' && (() => {
                   const completionTime = getTaskCompletionTime(task);
                   return completionTime ? (
