@@ -31,6 +31,7 @@ const NotifPenting: React.FC = () => {
   const [serverToday, setServerToday] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [dataReady, setDataReady] = useState<boolean>(false);
+  const isInitialLoadRef = useRef(true);
 
   // Helper function to check if a notification is from today
   const isToday = (timestamp: string, todayStr: string): boolean => {
@@ -77,7 +78,9 @@ const NotifPenting: React.FC = () => {
   const fetchData = async () => {
     if (!dataReady) return; // Don't load until server time is ready
 
-    setIsLoading(true);
+    if (isInitialLoadRef.current) {
+      setIsLoading(true);
+    }
     try {
       const res = await fetch(`${API_BASE}/api/penting-notifs`);
       if (res.ok) {
@@ -116,6 +119,7 @@ const NotifPenting: React.FC = () => {
       }
     } catch {}
     setIsLoading(false);
+    isInitialLoadRef.current = false;
   };
 
   // Initial setup
@@ -205,7 +209,7 @@ const NotifPenting: React.FC = () => {
         </div>
       </div>
 
-      {!dataReady || isLoading ? (
+      {!dataReady || (isLoading && list.length === 0) ? (
         <div className="flex flex-col items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mb-2"></div>
           <p className="text-gray-400 text-sm">Loading notifications...</p>

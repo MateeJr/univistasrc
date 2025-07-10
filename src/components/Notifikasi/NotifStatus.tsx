@@ -23,8 +23,9 @@ const NotifStatus: React.FC = () => {
   const [filterDate, setFilterDate] = useState('');
   const [showRiwayat, setShowRiwayat] = useState(false);
   const [serverToday, setServerToday] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true); // Start with true for initial load
   const [dataReady, setDataReady] = useState<boolean>(false);
+  const isInitialLoadRef = useRef(true);
 
   // Helper function to check if a notification is from today
   const isToday = (timestamp: string, todayStr: string): boolean => {
@@ -50,7 +51,9 @@ const NotifStatus: React.FC = () => {
   const load = async () => {
     if (!dataReady) return; // Don't load until server time is ready
 
-    setIsLoading(true);
+    if (isInitialLoadRef.current) {
+      setIsLoading(true);
+    }
     try {
       const res = await fetch(`${API_BASE}/api/status-notifs`);
       if (res.ok) {
@@ -84,6 +87,7 @@ const NotifStatus: React.FC = () => {
       }
     } catch {}
     setIsLoading(false);
+    isInitialLoadRef.current = false;
   };
 
   // Fetch server time to get today's date
@@ -222,7 +226,7 @@ const NotifStatus: React.FC = () => {
         </div>
       </div>
 
-      {!dataReady || isLoading ? (
+      {!dataReady || (isLoading && list.length === 0) ? (
         <div className="flex flex-col items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mb-2"></div>
           <p className="text-gray-400 text-sm">Loading notifications...</p>
@@ -232,82 +236,96 @@ const NotifStatus: React.FC = () => {
           {search || filterDate ? 'Tidak ada notifikasi yang sesuai filter' : 'Belum ada notifikasi status hari ini'}
         </p>
       ) : (
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-purple-400 sticky top-0 bg-black">
-              <th className="text-left px-2">Waktu</th>
-              <th className="text-left px-2">Driver</th>
-              <th className="text-left px-2">Pesan</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((n, idx) => {
-              const rowBase = idx % 2 === 0 ? 'bg-gray-800' : 'bg-gray-900';
-              const isUnread = unreadIds.has(n.timestamp + n.deviceId);
-              const rowCls = isUnread ? 'animate-pulse bg-yellow-600 text-black' : rowBase;
+        <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+          {filtered.map((n, idx) => {
+            const rowBase = idx % 2 === 0 ? 'bg-gray-800' : 'bg-gray-900';
+            const isUnread = unreadIds.has(n.timestamp + n.deviceId);
+            const rowCls = isUnread ? 'animate-pulse bg-yellow-900/50' : rowBase;
 
-              const badge = (text: string, state: 'on' | 'off' | 'online' | 'offline' | 'disconnected') => {
-                const clr = state === 'on' || state === 'online' ? 'green' : state==='disconnected'? 'yellow' : 'red';
-                return (
-                  <span className={`px-2 py-0.5 rounded text-xs font-semibold bg-${clr}-600 text-black`}>{text}</span>
-                );
-              };
+            const badge = (text: string, state: 'on' | 'off' | 'online' | 'offline' | 'disconnected') => {
+              const clr = state === 'on' || state === 'online' ? 'green' : state==='disconnected'? 'yellow' : 'red';
+              return (
+                <span className={`px-2 py-1 rounded-md text-sm font-medium bg-${clr}-600 text-black min-w-[80px] text-center`}>{text}</span>
+              );
+            };
 
-              let messageElem: React.ReactNode = null;
-              if (n.type === 'status') {
-                messageElem = (
-                  <span className="flex items-center gap-1">
-                    Status {badge(n.from ?? '', n.from as any)} ➔ {badge(n.to ?? '', n.to as any)}
+            let messageElem: React.ReactNode = null;
+            if (n.type === 'status') {
+              messageElem = (
+                <div className="flex flex-col gap-1">
+                  <span className="font-medium">Status Perubahan</span>
+                  <div className="flex items-center gap-2">
+                    {badge(n.from ?? '', n.from as any)}
+                    <span className="text-lg">➔</span>
+                    {badge(n.to ?? '', n.to as any)}
                     <button
                       onClick={() => alert('Kemungkinan Jaringan terputus atau HP Dimatikan')}
                       className="text-purple-300 hover:text-purple-200"
                       title="Info"
                     >
-                      <FiInfo size={14} />
+                      <FiInfo size={16} />
                     </button>
-                  </span>
-                );
-              } else if (n.type === 'gps') {
-                const fromLabel = n.from === 'on' ? 'Aktif' : 'Mati';
-                const toLabel = n.to === 'on' ? 'Aktif' : 'Mati';
-                messageElem = (
-                  <span className="flex items-center gap-1">
-                    GPS {badge(fromLabel, n.from as any)} ➔ {badge(toLabel, n.to as any)}
+                  </div>
+                </div>
+              );
+            } else if (n.type === 'gps') {
+              const fromLabel = n.from === 'on' ? 'Aktif' : 'Mati';
+              const toLabel = n.to === 'on' ? 'Aktif' : 'Mati';
+              messageElem = (
+                <div className="flex flex-col gap-1">
+                  <span className="font-medium">GPS Perubahan</span>
+                  <div className="flex items-center gap-2">
+                    {badge(fromLabel, n.from as any)}
+                    <span className="text-lg">➔</span>
+                    {badge(toLabel, n.to as any)}
                     <button
                       onClick={() => alert('Kemungkinan besar settingan GPS Diubah Driver')}
                       className="text-yellow-300 hover:text-yellow-200"
                       title="Info"
                     >
-                      <FiInfo size={14} />
+                      <FiInfo size={16} />
                     </button>
-                  </span>
-                );
-              } else if (n.type === 'battery') {
-                messageElem = (
-                  <span className="flex items-center gap-1">
-                    <span className="px-2 py-0.5 rounded text-xs font-semibold bg-red-600 text-black">Baterai Low</span>
-                    ({n.level}%)
+                  </div>
+                </div>
+              );
+            } else if (n.type === 'battery') {
+              messageElem = (
+                <div className="flex flex-col gap-1">
+                  <span className="font-medium">Status Baterai</span>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-1 rounded-md text-sm font-medium bg-red-600 text-black min-w-[120px] text-center">Baterai Rendah</span>
+                    <span className="text-sm">({n.level}%)</span>
                     <button
                       onClick={() => alert('Kondisi Battery HP Driver dibawah 25%')}
                       className="text-red-300 hover:text-red-200"
                       title="Info"
                     >
-                      <FiInfo size={14} />
+                      <FiInfo size={16} />
                     </button>
-                  </span>
-                );
-              }
-
-              return (
-                <tr key={idx} className={`border-t border-gray-700 hover:bg-gray-700 ${rowCls}`}>
-                  <td className="px-2 py-1 whitespace-nowrap">{new Date(n.timestamp).toLocaleString('id-ID')}</td>
-                  <td className="px-2 py-1">{n.nama}</td>
-                  <td className="px-2 py-1">{messageElem}</td>
-                </tr>
+                  </div>
+                </div>
               );
-            })}
-          </tbody>
-        </table>
+            }
+
+            return (
+              <div key={idx} className={`p-4 rounded-xl ${rowCls} shadow-md hover:shadow-lg transition-shadow`}>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="w-full sm:w-1/4">
+                    <span className="font-medium text-purple-400">Waktu:</span>
+                    <p className="text-base">{new Date(n.timestamp).toLocaleString('id-ID')}</p>
+                  </div>
+                  <div className="w-full sm:w-1/4">
+                    <span className="font-medium text-purple-400">Driver:</span>
+                    <p className="text-base">{n.nama}</p>
+                  </div>
+                  <div className="w-full sm:w-1/2">
+                    {messageElem}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );
