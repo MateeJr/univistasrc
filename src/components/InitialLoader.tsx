@@ -160,7 +160,7 @@ export default function InitialLoader({ children }: { children: React.ReactNode 
                     <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                   </div>
                   <h2 className="text-lg font-semibold text-red-400 mb-2">
-                    {errorStep === "server" ? "Server Connection Failed" : "Failed to Load Resources"}
+                    {errorStep === "server" ? "Tidak dapat terhubung ke server" : "Gagal memuat sumber daya"}
                   </h2>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
@@ -168,7 +168,7 @@ export default function InitialLoader({ children }: { children: React.ReactNode 
                     onClick={handleRetry}
                     className="mt-4 px-5 py-2 bg-purple-600 hover:bg-purple-500 rounded-full text-sm font-semibold transition-colors"
                   >
-                    Try Again
+                    Coba Lagi
                   </motion.button>
                 </motion.div>
               ) : (
