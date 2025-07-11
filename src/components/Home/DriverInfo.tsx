@@ -108,14 +108,14 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
         <div className="relative mb-6">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-xl blur-sm"></div>
           <h3 className="relative text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent text-center">
-            DEVICE INFO
+            INFO PERANGKAT
           </h3>
         </div>
         <div className="w-16 h-16 mb-4 rounded-full bg-gradient-to-r from-purple-600/20 to-blue-600/20 flex items-center justify-center">
           <FiSmartphone className="w-8 h-8 text-purple-400" />
         </div>
-        <p className="text-slate-400 text-lg">Select a driver</p>
-        <p className="text-slate-500 text-sm mt-1">Choose from the driver list to view device information</p>
+        <p className="text-slate-400 text-lg">Pilih driver</p>
+        <p className="text-slate-500 text-sm mt-1">Pilih dari daftar driver untuk melihat informasi perangkat</p>
       </div>
     );
   }
@@ -126,13 +126,13 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
         <div className="relative mb-6">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-xl blur-sm"></div>
           <h3 className="relative text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent text-center">
-            DEVICE INFO
+            INFO PERANGKAT
           </h3>
         </div>
         <div className="w-16 h-16 mb-4 rounded-full bg-gradient-to-r from-purple-600/30 to-blue-600/30 flex items-center justify-center animate-pulse">
           <FiActivity className="w-8 h-8 text-purple-400 animate-spin" />
         </div>
-        <p className="text-slate-400 text-lg">Loading...</p>
+        <p className="text-slate-400 text-lg">Memuat...</p>
       </div>
     );
   }
@@ -163,7 +163,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
         <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-xl blur-sm"></div>
         <div className="relative">
           <h3 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent text-center mb-3">
-            DEVICE INFO
+            INFO PERANGKAT
           </h3>
           <div className="text-center">
             <span className="inline-block px-4 py-2 rounded-xl bg-gradient-to-r from-red-600/40 to-red-500/40 backdrop-blur-sm border border-red-500/30 font-semibold">
@@ -189,7 +189,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
                 ) : (
                   <HiStatusOffline className="w-4 h-4 text-red-400" />
                 )}
-                <span className="text-xs text-slate-400">GPS Status</span>
+                <span className="text-xs text-slate-400">Status GPS</span>
               </div>
               <span className={`font-semibold ${
                 info.track.gpsStatus === 'Aktif' ? 'text-emerald-400' : 'text-red-400'
@@ -212,7 +212,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
                 ) : (
                   <FiBattery className="w-4 h-4" />
                 )}
-                <span className="text-xs text-slate-400">Battery</span>
+                <span className="text-xs text-slate-400">Baterai</span>
               </div>
               <span className={`font-semibold ${
                 (info.track.batteryPct ?? 0) > 75 
@@ -232,7 +232,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
               const rows: { label: string; value: string | number; color?: string; icon?: React.ReactNode }[] = [];
 
               rows.push({ 
-                label: 'Device ID', 
+                label: 'ID Perangkat', 
                 value: deviceId, 
                 icon: <FiSmartphone className="w-4 h-4" /> 
               });
@@ -240,7 +240,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
               // GPS Signal
               const sigColor = info.track.gpsSignal === 'Kuat' ? 'text-emerald-400' : info.track.gpsSignal === 'Normal' ? 'text-yellow-400' : info.track.gpsSignal === 'Lemah' ? 'text-red-400' : 'text-slate-400';
               rows.push({ 
-                label: 'GPS Signal', 
+                label: 'Sinyal GPS', 
                 value: info.track.gpsSignal, 
                 color: sigColor,
                 icon: info.track.gpsSignal === 'Kuat' ? <FiWifi className="w-4 h-4" /> : <FiWifiOff className="w-4 h-4" />
@@ -251,25 +251,25 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
               let accStatus = '-';
               let accColor = 'text-slate-400';
               if (acc != null) {
-                if (acc <= 5) { accStatus = 'Very Accurate'; accColor = 'text-emerald-400'; }
-                else if (acc <= 20) { accStatus = 'Accurate'; accColor = 'text-yellow-400'; }
-                else { accStatus = 'Inaccurate'; accColor = 'text-red-400'; }
+                if (acc <= 5) { accStatus = 'Sangat Akurat'; accColor = 'text-emerald-400'; }
+                else if (acc <= 20) { accStatus = 'Akurat'; accColor = 'text-yellow-400'; }
+                else { accStatus = 'Tidak Akurat'; accColor = 'text-red-400'; }
               }
               rows.push({ 
-                label: 'Accuracy', 
+                label: 'Akurasi', 
                 value: `${acc ?? '-'} m (${accStatus})`, 
                 color: accColor,
                 icon: <FiMapPin className="w-4 h-4" />
               });
 
               rows.push({ 
-                label: 'Latitude', 
+                label: 'Lintang', 
                 value: info.track.latitude?.toFixed?.(5) ?? '-',
                 icon: <FiMapPin className="w-4 h-4" />
               });
               
               rows.push({ 
-                label: 'Longitude', 
+                label: 'Bujur', 
                 value: info.track.longitude?.toFixed?.(5) ?? '-',
                 icon: <FiMapPin className="w-4 h-4" />
               });
@@ -279,14 +279,14 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
               let pingStatus = '-';
               let pingColor = 'text-slate-400';
               if (ping != null) {
-                if (ping < 50) { pingStatus = 'Excellent'; pingColor = 'text-emerald-400'; }
-                else if (ping < 100) { pingStatus = 'Good'; pingColor = 'text-yellow-400'; }
-                else if (ping < 200) { pingStatus = 'Fair'; pingColor = 'text-orange-400'; }
-                else if (ping < 400) { pingStatus = 'Poor'; pingColor = 'text-red-400'; }
-                else { pingStatus = 'Very Poor'; pingColor = 'text-red-600'; }
+                if (ping < 50) { pingStatus = 'Sangat Baik'; pingColor = 'text-emerald-400'; }
+                else if (ping < 100) { pingStatus = 'Baik'; pingColor = 'text-yellow-400'; }
+                else if (ping < 200) { pingStatus = 'Cukup'; pingColor = 'text-orange-400'; }
+                else if (ping < 400) { pingStatus = 'Buruk'; pingColor = 'text-red-400'; }
+                else { pingStatus = 'Sangat Buruk'; pingColor = 'text-red-600'; }
               }
               rows.push({ 
-                label: 'Network Ping', 
+                label: 'Ping Jaringan', 
                 value: `${ping ?? '-'} ms (${pingStatus})`, 
                 color: pingColor,
                 icon: <FiActivity className="w-4 h-4" />
@@ -295,13 +295,13 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
               // Spoofed Device Info
               if (spoofedBy.length > 0) {
                 rows.push({ 
-                  label: 'Spoofed by', 
+                  label: 'Digantikan oleh', 
                   value: '',
                   icon: <FiSettings className="w-4 h-4" />
                 });
                 spoofedBy.forEach(id => {
                   rows.push({ 
-                    label: `Device`, 
+                    label: `Perangkat`, 
                     value: id, 
                     color: 'text-yellow-400',
                     icon: <FiSmartphone className="w-4 h-4" />
@@ -319,7 +319,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
               }) : '-';
 
               rows.push({ 
-                label: 'Last Update', 
+                label: 'Update Terakhir', 
                 value: lastStr, 
                 color: diffMinLast >= 10 ? 'text-red-400' : undefined,
                 icon: <FiClock className="w-4 h-4" />
@@ -328,11 +328,11 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
               return rows;
             })().map((row) => (
               <div key={row.label} className="flex items-center justify-between p-3 rounded-xl bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 hover:border-purple-500/30 transition-all duration-300">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-shrink-0">
                   <span className="text-purple-400">{row.icon}</span>
                   <span className="text-slate-400 font-medium">{row.label}</span>
                 </div>
-                <span className={`font-semibold ${row.color ?? 'text-white'}`}>{row.value}</span>
+                <span className={`font-semibold text-right flex-shrink-0 ${row.color ?? 'text-white'}`}>{row.value}</span>
               </div>
             ))}
           </div>
@@ -344,7 +344,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
               className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/25 font-semibold"
             >
               <FiSettings className="w-4 h-4" />
-              Switch Device
+              Ganti Perangkat
             </button>
             {spoofedBy.length > 0 && (
               <button 
@@ -352,7 +352,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
                 className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-red-500/25 font-semibold"
               >
                 <FiTrash2 className="w-4 h-4" />
-                Clear
+                Hapus
               </button>
             )}
           </div>
@@ -362,7 +362,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <FiSettings className="w-4 h-4 text-purple-400" />
-                <span className="text-slate-400 font-medium">Vehicle Type</span>
+                <span className="text-slate-400 font-medium">Jenis Kendaraan</span>
               </div>
               {editingIcon ? (
                 <div className="flex items-center gap-2">
@@ -393,13 +393,13 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
                     }} 
                     className="px-3 py-1 rounded-lg bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 transition-all duration-200 text-sm font-medium"
                   >
-                    Save
+                    Simpan
                   </button>
                   <button 
                     onClick={()=>{setEditingIcon(false); setIconSelection(info.icon||'');}} 
                     className="px-3 py-1 rounded-lg bg-red-600/20 text-red-400 hover:bg-red-600/30 transition-all duration-200 text-sm font-medium"
                   >
-                    Cancel
+                    Batal
                   </button>
                 </div>
               ):(
@@ -409,7 +409,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
                     onClick={()=>setEditingIcon(true)} 
                     className="px-3 py-1 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-all duration-200 text-sm font-medium"
                   >
-                    Edit
+                    Ubah
                   </button>
                 </div>
               )}
@@ -426,9 +426,9 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
                 <div className="p-4 rounded-xl bg-red-500/20 border border-red-500/40 backdrop-blur-sm">
                   <div className="flex items-center justify-center gap-2">
                     <HiStatusOffline className="w-5 h-5 text-red-400" />
-                    <span className="text-red-400 font-bold text-lg">DISCONNECTED</span>
+                    <span className="text-red-400 font-bold text-lg">TERPUTUS</span>
                   </div>
-                  <p className="text-red-300 text-sm text-center mt-1">Device has been offline for more than 10 minutes</p>
+                  <p className="text-red-300 text-sm text-center mt-1">Perangkat telah offline lebih dari 10 menit</p>
                 </div>
               );
             }
@@ -440,8 +440,8 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
           <div className="w-16 h-16 mb-4 rounded-full bg-gradient-to-r from-purple-600/20 to-blue-600/20 flex items-center justify-center">
             <FiMapPin className="w-8 h-8 text-purple-400" />
           </div>
-          <p className="text-slate-400 text-lg">No tracking data</p>
-          <p className="text-slate-500 text-sm mt-1">Waiting for device to send location data</p>
+          <p className="text-slate-400 text-lg">Tidak ada data tracking</p>
+          <p className="text-slate-500 text-sm mt-1">Menunggu perangkat mengirim data lokasi</p>
         </div>
       )}
     </div>
