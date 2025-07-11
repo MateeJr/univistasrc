@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 
-const API_BASE = "";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
 
 type StepId = "server" | "mapbox" | "next";
 
@@ -45,6 +45,10 @@ const STEPS: Step[] = [
 ];
 
 export default function InitialLoader({ children }: { children: React.ReactNode }) {
+  console.log('[InitialLoader] Component mounted');
+  console.log('[InitialLoader] NODE_ENV:', process.env.NODE_ENV);
+  console.log('[InitialLoader] Running in browser:', typeof window !== 'undefined');
+  
   const [statuses, setStatuses] = useState<Record<StepId, "pending" | "ok" | "fail">>({
     server: "pending",
     mapbox: "pending",
@@ -53,38 +57,64 @@ export default function InitialLoader({ children }: { children: React.ReactNode 
   const [errorStep, setErrorStep] = useState<StepId | null>(null);
   const [showOverlay, setShowOverlay] = useState(true);
 
+  console.log('[InitialLoader] Initial state:', { statuses, errorStep, showOverlay });
+
   useEffect(() => {
     const runChecks = async () => {
       type CheckFn = () => Promise<boolean>;
 
       const checks: Record<StepId, CheckFn> = {
         server: async () => {
+          const url = `${API_BASE}/api/stats`;
+          console.log('[InitialLoader] Checking server connection...');
+          console.log('[InitialLoader] API_BASE:', API_BASE);
+          console.log('[InitialLoader] Full URL:', url);
+          console.log('[InitialLoader] Environment NEXT_PUBLIC_API_BASE:', process.env.NEXT_PUBLIC_API_BASE);
+          
           try {
-            const res = await fetch(`${API_BASE}/api/stats`, { cache: "no-store" });
+            console.log('[InitialLoader] Making fetch request...');
+            const res = await fetch(url, { cache: "no-store" });
+            console.log('[InitialLoader] Response status:', res.status);
+            console.log('[InitialLoader] Response ok:', res.ok);
+            console.log('[InitialLoader] Response headers:', [...res.headers.entries()]);
+            
+            if (res.ok) {
+              try {
+                const data = await res.text();
+                console.log('[InitialLoader] Response data:', data);
+              } catch (e) {
+                console.log('[InitialLoader] Could not read response body:', e);
+              }
+            }
+            
             return res.ok;
-          } catch {
+          } catch (error) {
+            console.error('[InitialLoader] Server check failed with error:', error);
+            console.error('[InitialLoader] Error type:', (error as Error)?.constructor?.name || typeof error);
+            console.error('[InitialLoader] Error message:', (error as Error)?.message || String(error));
             return false;
           }
         },
         mapbox: async () => {
-          try {
-            const res = await fetch("https://status.mapbox.com/api/v2/status.json");
-            if (!res.ok) return false;
-            const json = await res.json();
-            const indic = json?.status?.indicator ?? "none";
-            return indic === "none" || indic === "minor";
-          } catch {
-            return false;
-          }
+          console.log('[InitialLoader] Skipping Mapbox check - not essential');
+          return true; // Always pass since Mapbox service issues don't block the app
         },
-        next: async () => true,
+        next: async () => {
+          console.log('[InitialLoader] Next.js check - always passes');
+          return true;
+        },
       };
 
       const promises = Object.entries(checks).map(async ([id, fn]) => {
+        console.log(`[InitialLoader] Starting check for: ${id}`);
         const ok = await fn();
+        console.log(`[InitialLoader] Check result for ${id}:`, ok);
+        
         if (ok) {
+          console.log(`[InitialLoader] ✅ ${id} check passed`);
           setStatuses((s) => ({ ...s, [id as StepId]: "ok" }));
         } else {
+          console.log(`[InitialLoader] ❌ ${id} check failed`);
           setStatuses((s) => ({ ...s, [id as StepId]: "fail" }));
           setErrorStep(id as StepId);
         }
@@ -92,10 +122,16 @@ export default function InitialLoader({ children }: { children: React.ReactNode 
       });
 
       const results = await Promise.all(promises);
+      
+      console.log('[InitialLoader] All check results:', results);
+      console.log('[InitialLoader] Final statuses:', statuses);
 
       if (results.every(Boolean)) {
+        console.log('[InitialLoader] ✅ All checks passed! Loading app...');
         // brief delay to allow the user to see the final status change
         setTimeout(() => setShowOverlay(false), 500);
+      } else {
+        console.log('[InitialLoader] ❌ Some checks failed, showing error screen');
       }
     };
 
