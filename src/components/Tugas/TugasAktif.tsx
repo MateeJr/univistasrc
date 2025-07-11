@@ -274,7 +274,7 @@ const TugasAktif: React.FC = () => {
         const createdStr = t.createdAt ? new Date(t.createdAt).toLocaleString('id-ID',{ day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}).replace('.',':') : '-';
         const clr=statusColor(t.status);
         return (
-          <div key={t.id} className={`relative bg-gray-800/70 rounded-lg p-4 mb-3 shadow-lg hover:shadow-xl transition border ${clr.border}`} >
+          <div key={t.id} className={`relative bg-black rounded-lg p-4 mb-3 shadow-lg hover:shadow-xl transition border ${clr.border}`} >
             {/* Order badge */}
             <div className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-semibold select-none">
               {idx+1}

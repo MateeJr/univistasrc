@@ -286,7 +286,7 @@ const TugasSelesai: React.FC = () => {
           const createdStr = t.createdAt ? new Date(t.createdAt).toLocaleString('id-ID',{ day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}).replace('.',':') : '-';
           const clr = statusColor(t.status);
           return (
-            <div key={t.id} className={`bg-gray-800/70 rounded-lg p-4 mb-3 shadow-lg border ${clr.border}`}>
+            <div key={t.id} className={`bg-black rounded-lg p-4 mb-3 shadow-lg border ${clr.border}`}>
               <div className="flex items-start justify-between mb-2">
                 <h4 className="font-semibold text-purple-300 text-base truncate max-w-[60%]">{t.description}</h4>
                 <div className="text-right flex flex-col items-end">
