@@ -351,28 +351,28 @@ const TugasSelesai: React.FC = () => {
                     setHasMore(true);
                     loadInitial();
                   }}
-                  className="mt-2 px-3 py-2 rounded-lg bg-red-600/80 hover:bg-red-500/90 text-white transition-colors backdrop-blur-sm"
+                  className="mt-2 px-3 py-2 rounded-lg bg-red-600/30 hover:bg-red-500/40 text-white transition-colors backdrop-blur-sm"
                   title="Hapus Tugas"
                 >
                   <FaTrash size={14} />
                 </button>
                 <button
                   onClick={()=>setDetailTask(t)}
-                  className="mt-2 px-3 py-2 rounded-lg bg-blue-600/80 hover:bg-blue-500/90 text-white transition-colors backdrop-blur-sm"
+                  className="mt-2 px-3 py-2 rounded-lg bg-blue-600/30 hover:bg-blue-500/40 text-white transition-colors backdrop-blur-sm"
                   title="Lihat Detail"
                 >
                   <FaEye size={14} />
                 </button>
                 <button
                   onClick={()=>setImagesTask(t)}
-                  className="mt-2 px-3 py-2 rounded-lg bg-green-600/80 hover:bg-green-500/90 text-white transition-colors backdrop-blur-sm"
+                  className="mt-2 px-3 py-2 rounded-lg bg-green-600/30 hover:bg-green-500/40 text-white transition-colors backdrop-blur-sm"
                   title="Lihat Gambar"
                 >
                   <FaImages size={14} />
                 </button>
                 <button
                   onClick={()=>handleDownload(t.id)}
-                  className="mt-2 px-3 py-2 rounded-lg bg-purple-600/80 hover:bg-purple-500/90 text-white transition-colors backdrop-blur-sm"
+                  className="mt-2 px-3 py-2 rounded-lg bg-purple-600/30 hover:bg-purple-500/40 text-white transition-colors backdrop-blur-sm"
                   title="Download"
                 >
                   <FaDownload size={14} />
@@ -380,7 +380,7 @@ const TugasSelesai: React.FC = () => {
                 {t.status === 'SELESAI' && (
                   <button
                     onClick={()=>setPlaybackTask(t)}
-                    className="mt-2 px-3 py-2 rounded-lg bg-orange-600/80 hover:bg-orange-500/90 text-white transition-colors backdrop-blur-sm"
+                    className="mt-2 px-3 py-2 rounded-lg bg-orange-600/30 hover:bg-orange-500/40 text-white transition-colors backdrop-blur-sm"
                     title="Tracking Playback"
                   >
                     <FaPlay size={14} />
