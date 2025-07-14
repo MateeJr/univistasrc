@@ -180,6 +180,15 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
       
       {info.track ? (
         <div className="space-y-4">
+          {isOffline && (
+            <div className="p-4 rounded-xl bg-red-500/20 border border-red-500/40 backdrop-blur-sm">
+              <div className="flex items-center justify-center gap-2">
+                <HiStatusOffline className="w-5 h-5 text-red-400" />
+                <span className="text-red-400 font-bold text-lg">TERPUTUS</span>
+              </div>
+              <p className="text-red-300 text-sm text-center mt-1">Perangkat telah offline lebih dari 10 menit</p>
+            </div>
+          )}
           {/* Status Cards Grid */}
           <div className="grid grid-cols-2 gap-3 mb-6">
             {/* GPS Status */}
@@ -418,17 +427,6 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
               )}
             </div>
           </div>
-
-          {/* Warning message when last update is outdated (red) */}
-          {isOffline && (
-            <div className="p-4 rounded-xl bg-red-500/20 border border-red-500/40 backdrop-blur-sm">
-              <div className="flex items-center justify-center gap-2">
-                <HiStatusOffline className="w-5 h-5 text-red-400" />
-                <span className="text-red-400 font-bold text-lg">TERPUTUS</span>
-              </div>
-              <p className="text-red-300 text-sm text-center mt-1">Perangkat telah offline lebih dari 10 menit</p>
-            </div>
-          )}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-12">
