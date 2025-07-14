@@ -209,7 +209,9 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
                 ? 'bg-emerald-500/20 border-emerald-500/30' 
                 : (info.track.batteryPct ?? 0) > 30 
                   ? 'bg-yellow-500/20 border-yellow-500/30'
-                  : 'bg-red-500/20 border-red-500/30'
+                  : (info.track.batteryPct ?? 0) > 10 
+                    ? 'bg-orange-500/20 border-orange-500/30'
+                    : 'bg-red-500/20 border-red-500/30'
             }`}>
               <div className="flex items-center gap-2 mb-1">
                 {info.track.charging ? (
