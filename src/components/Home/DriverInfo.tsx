@@ -155,6 +155,11 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
     }
   };
 
+  const lastMs = info.track?.timestampMs ?? (info.track?.lastUpdated ? Date.parse(info.track.lastUpdated.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')) : 0);
+  const diffMinLast = lastMs ? (Date.now() - lastMs) / 60000 : Infinity;
+  const isOffline = diffMinLast >= 10;
+  const effectiveGpsStatus = isOffline ? 'Tidak Aktif' : info.track.gpsStatus;
+
   return (
     <>
     <div className="h-full rounded-2xl bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 p-6 text-white border border-purple-500/30 shadow-2xl backdrop-blur-xl overflow-auto scrollbar-thin scrollbar-track-slate-800 scrollbar-thumb-purple-600">
@@ -179,12 +184,12 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
           <div className="grid grid-cols-2 gap-3 mb-6">
             {/* GPS Status */}
             <div className={`p-3 rounded-xl backdrop-blur-sm border transition-all duration-300 ${
-              info.track.gpsStatus === 'Aktif' 
+              effectiveGpsStatus === 'Aktif' 
                 ? 'bg-emerald-500/20 border-emerald-500/30' 
                 : 'bg-red-500/20 border-red-500/30'
             }`}>
               <div className="flex items-center gap-2 mb-1">
-                {info.track.gpsStatus === 'Aktif' ? (
+                {effectiveGpsStatus === 'Aktif' ? (
                   <HiStatusOnline className="w-4 h-4 text-emerald-400" />
                 ) : (
                   <HiStatusOffline className="w-4 h-4 text-red-400" />
@@ -192,9 +197,9 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
                 <span className="text-xs text-slate-400">Status GPS</span>
               </div>
               <span className={`font-semibold ${
-                info.track.gpsStatus === 'Aktif' ? 'text-emerald-400' : 'text-red-400'
+                effectiveGpsStatus === 'Aktif' ? 'text-emerald-400' : 'text-red-400'
               }`}>
-                {info.track.gpsStatus}
+                {effectiveGpsStatus}
               </span>
             </div>
 
@@ -310,10 +315,6 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
               }
 
               // Last update – red if driver considered offline (>10min)
-              const lastMs = info.track?.timestampMs ?? (info.track?.lastUpdated ? Date.parse(info.track.lastUpdated.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')) : 0);
-              const diffMinLast = lastMs ? (Date.now() - lastMs) / 60000 : Infinity;
-
-              // Format using browser's local timezone
               const lastStr = lastMs ? new Date(lastMs).toLocaleString('id-ID', {
                 hour12: false,
               }) : '-';
@@ -417,23 +418,15 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
           </div>
 
           {/* Warning message when last update is outdated (red) */}
-          {(() => {
-            const lastMs = info.track?.timestampMs ?? (info.track?.lastUpdated ? Date.parse(info.track.lastUpdated.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')) : 0);
-            const diffMinLast = lastMs ? (Date.now() - lastMs) / 60000 : Infinity;
-
-            if (diffMinLast >= 10) {
-              return (
-                <div className="p-4 rounded-xl bg-red-500/20 border border-red-500/40 backdrop-blur-sm">
-                  <div className="flex items-center justify-center gap-2">
-                    <HiStatusOffline className="w-5 h-5 text-red-400" />
-                    <span className="text-red-400 font-bold text-lg">TERPUTUS</span>
-                  </div>
-                  <p className="text-red-300 text-sm text-center mt-1">Perangkat telah offline lebih dari 10 menit</p>
-                </div>
-              );
-            }
-            return null;
-          })()}
+          {isOffline && (
+            <div className="p-4 rounded-xl bg-red-500/20 border border-red-500/40 backdrop-blur-sm">
+              <div className="flex items-center justify-center gap-2">
+                <HiStatusOffline className="w-5 h-5 text-red-400" />
+                <span className="text-red-400 font-bold text-lg">TERPUTUS</span>
+              </div>
+              <p className="text-red-300 text-sm text-center mt-1">Perangkat telah offline lebih dari 10 menit</p>
+            </div>
+          )}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-12">
