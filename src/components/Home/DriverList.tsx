@@ -110,9 +110,9 @@ const DriverList: React.FC<DriverListProps> = ({ onSelect, selectedId, onDeleted
 
       <div className="flex-1 space-y-4 overflow-y-auto scrollbar-thin scrollbar-track-slate-800 scrollbar-thumb-purple-600">
         {/* Master buttons redesigned */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3">
           <button
-            className={`relative py-4 px-6 rounded-xl font-bold text-white transition-all duration-300 transform hover:scale-105 ${
+            className={`relative py-3 px-2 sm:py-4 sm:px-3 rounded-xl font-bold text-white transition-all duration-300 transform hover:scale-105 min-w-0 ${
               selectedId==='MASTER' 
                 ? 'bg-gradient-to-r from-red-600 to-red-500 shadow-lg shadow-red-500/30 ring-2 ring-red-400/50' 
                 : 'bg-gradient-to-r from-red-600/50 to-red-500/50 hover:from-red-600/70 hover:to-red-500/70'
@@ -120,10 +120,10 @@ const DriverList: React.FC<DriverListProps> = ({ onSelect, selectedId, onDeleted
             onClick={() => onSelect('MASTER')}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-red-400/20 to-red-600/20 rounded-xl blur-sm"></div>
-            <span className="relative">MASTER</span>
+            <span className="relative block text-sm sm:text-base break-words whitespace-normal leading-tight">MASTER</span>
           </button>
           <button
-            className={`relative py-4 px-6 rounded-xl font-bold text-white transition-all duration-300 transform hover:scale-105 ${
+            className={`relative py-3 px-2 sm:py-4 sm:px-3 rounded-xl font-bold text-white transition-all duration-300 transform hover:scale-105 min-w-0 ${
               selectedId==='MASTER_INFO' 
                 ? 'bg-gradient-to-r from-red-600 to-red-500 shadow-lg shadow-red-500/30 ring-2 ring-red-400/50' 
                 : 'bg-gradient-to-r from-red-600/50 to-red-500/50 hover:from-red-600/70 hover:to-red-500/70'
@@ -131,7 +131,7 @@ const DriverList: React.FC<DriverListProps> = ({ onSelect, selectedId, onDeleted
             onClick={() => onSelect('MASTER_INFO')}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-red-400/20 to-red-600/20 rounded-xl blur-sm"></div>
-            <span className="relative">MASTER INFO</span>
+            <span className="relative block text-sm sm:text-base break-words whitespace-normal leading-tight">MASTER INFO</span>
           </button>
         </div>
 
