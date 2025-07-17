@@ -184,7 +184,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
             <div className="p-4 rounded-xl bg-red-500/20 border border-red-500/40 backdrop-blur-sm">
               <div className="flex items-center justify-center gap-2">
                 <HiStatusOffline className="w-5 h-5 text-red-400" />
-                <span className="text-red-400 font-bold text-lg">TERPUTUS</span>
+                <span className="text-red-400 font-bold text-lg">TERPUTUS (OFFLINE)</span>
               </div>
               <p className="text-red-300 text-sm text-center mt-1">Perangkat telah offline lebih dari 10 menit</p>
             </div>
@@ -222,21 +222,15 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
                     ? 'bg-orange-500/20 border-orange-500/30'
                     : 'bg-red-500/20 border-red-500/30'
             }`}>
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1 text-white/80">
                 {info.track.charging ? (
-                  <FiBatteryCharging className="w-4 h-4 text-blue-400" />
+                  <FiBatteryCharging className="w-4 h-4 text-sky-300" />
                 ) : (
                   <FiBattery className="w-4 h-4" />
                 )}
-                <span className="text-xs text-slate-400">Baterai</span>
+                <span className="text-xs">Baterai</span>
               </div>
-              <span className={`font-semibold ${
-                (info.track.batteryPct ?? 0) > 75 
-                  ? 'text-emerald-400' 
-                  : (info.track.batteryPct ?? 0) > 30 
-                    ? 'text-yellow-400'
-                    : 'text-red-400'
-              }`}>
+              <span className="font-semibold text-white">
                 {info.track.batteryPct ?? 0}%{info.track.charging ? ' ⚡' : ''}
               </span>
             </div>

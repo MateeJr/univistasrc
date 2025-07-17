@@ -289,7 +289,7 @@ const TugasAktif: React.FC = () => {
 
             <div className="flex flex-col md:flex-row justify-between text-sm">
               {/* Left side - Driver and Location Info */}
-              <div className="space-y-1 flex-1">
+              <div className="space-y-1 flex-1 min-w-0 pr-4">
                 <div className="flex flex-wrap gap-1 items-start">
                   <span className="text-gray-400 mr-1">Driver:</span>
                   {(t.drivers||[]).map(id=>{

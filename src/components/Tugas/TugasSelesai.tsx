@@ -296,7 +296,7 @@ const TugasSelesai: React.FC = () => {
               </div>
               <div className="flex flex-col md:flex-row flex-wrap justify-between gap-2 text-sm">
                 {/* Left side - Driver and Location Info */}
-                <div className="space-y-1 flex-1">
+                <div className="space-y-1 flex-1 min-w-0 pr-4">
                   <div className="flex flex-wrap gap-1 items-start">
                     <span className="text-gray-400 mr-1">Driver:</span>
                     {(t.drivers||[]).map(id=>{ const acc=accounts[id]; return (
@@ -306,8 +306,8 @@ const TugasSelesai: React.FC = () => {
                       </span>
                     ); })}
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-1"><span className="text-gray-400">Berangkat:</span><span className="text-white flex-1 whitespace-normal break-words">{t.from}</span></div>
-                  <div className="flex flex-col sm:flex-row gap-1"><span className="text-gray-400">Destinasi:</span><span className="text-white flex-1 whitespace-normal break-words">{t.to}</span></div>
+                  <div className="flex gap-1"><span className="text-gray-400">Berangkat:</span><span className="text-white flex-1 truncate">{t.from}</span></div>
+                  <div className="flex gap-1"><span className="text-gray-400">Destinasi:</span><span className="text-white flex-1 truncate">{t.to}</span></div>
                 </div>
 
                 {/* Right side - Date and Time Info */}

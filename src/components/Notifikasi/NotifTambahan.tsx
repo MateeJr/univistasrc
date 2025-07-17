@@ -242,9 +242,9 @@ const NotifTambahan: React.FC = () => {
 
         {/* Buttons - 3 columns on mobile, inline on desktop */}
         <div className="grid grid-cols-3 gap-2 sm:flex sm:gap-2">
-          <button onClick={clearFilters} className="px-3 py-1 rounded bg-red-600 hover:bg-red-500 text-sm">Clear</button>
-          <button onClick={deleteAll} className="px-3 py-1 rounded bg-purple-700 hover:bg-purple-800 text-sm">Hapus Semua</button>
-          <button onClick={() => setShowRiwayat(true)} className="px-3 py-1 rounded bg-blue-600 hover:bg-blue-500 text-sm">Semua Riwayat</button>
+          <button onClick={clearFilters} className="px-3 py-1 rounded bg-red-600/30 hover:bg-red-500/40 text-white transition-colors backdrop-blur-sm text-sm">Clear</button>
+          <button onClick={deleteAll} className="px-3 py-1 rounded bg-purple-700/30 hover:bg-purple-800/40 text-white transition-colors backdrop-blur-sm text-sm">Hapus Semua</button>
+          <button onClick={() => setShowRiwayat(true)} className="px-3 py-1 rounded bg-blue-600/30 hover:bg-blue-500/40 text-white transition-colors backdrop-blur-sm text-sm">Semua Riwayat</button>
         </div>
       </div>
 
