@@ -1,8 +1,10 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import RiwayatPenting from "./RiwayatPenting";
+import { getCachedStreetName } from "@/utils/streetUtils";
+import TaskDetailModal from "../Tugas/TaskDetailModal";
 
-interface Notif { deviceId:string; nama:string; timestamp:string; lat?:number; lng?:number; type:string }
+interface Notif { deviceId:string; nama:string; timestamp:string; lat?:number; lng?:number; type:string; taskId?: string }
 
 const API_BASE = "";
 
@@ -31,6 +33,10 @@ const NotifPenting: React.FC = () => {
   const [serverToday, setServerToday] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [dataReady, setDataReady] = useState<boolean>(false);
+  const [streetNames, setStreetNames] = useState<Map<string, string>>(new Map());
+  const [detailTask, setDetailTask] = useState<any|null>(null);
+  const [detailAccounts, setDetailAccounts] = useState<Record<string, any>>({});
+  const [showDetail, setShowDetail] = useState(false);
   const isInitialLoadRef = useRef(true);
 
   // Helper function to check if a notification is from today
@@ -137,10 +143,61 @@ const NotifPenting: React.FC = () => {
   useEffect(() => {
     if (dataReady && serverToday) {
       fetchData();
-      const id = setInterval(fetchData, 10000);
-      return () => clearInterval(id);
+      const interval = setInterval(fetchData, 30000);
+      return () => clearInterval(interval);
     }
   }, [dataReady, serverToday]);
+
+  const openDetail = async (notif: Notif) => {
+    if(!notif.taskId){ alert('Task ID tidak tersedia'); return; }
+    try{
+      const resTask = await fetch(`${API_BASE}/api/tasks/${notif.taskId}`);
+      if(!resTask.ok) throw new Error('Gagal memuat task');
+      const taskData = await resTask.json();
+      // fetch accounts once
+      const resAcc = await fetch(`${API_BASE}/api/accounts`);
+      let accMap: Record<string,any> = {};
+      if(resAcc.ok){
+        const accList = await resAcc.json();
+        accList.forEach((a:any)=>{ accMap[a.deviceId]=a; });
+      }
+      setDetailTask(taskData);
+      setDetailAccounts(accMap);
+      setShowDetail(true);
+    }catch(err){
+      alert('Gagal memuat detail tugas');
+      console.error(err);
+    }
+  };
+
+  // Fetch street names for stop notifications
+  useEffect(() => {
+    const fetchStreetNames = async () => {
+      const stopNotifications = list.filter(n => n.type === 'stop' && n.lat && n.lng);
+      const newStreetNames = new Map(streetNames);
+      
+      for (const notification of stopNotifications) {
+        const streetKey = `${notification.timestamp}-${notification.deviceId}`;
+        if (!newStreetNames.has(streetKey)) {
+          try {
+            const streetName = await getCachedStreetName(notification.lat!, notification.lng!);
+            newStreetNames.set(streetKey, streetName);
+          } catch (error) {
+            console.error('Error fetching street name:', error);
+            newStreetNames.set(streetKey, 'Gagal memuat alamat');
+          }
+        }
+      }
+      
+      if (newStreetNames.size !== streetNames.size) {
+        setStreetNames(newStreetNames);
+      }
+    };
+
+    if (list.length > 0) {
+      fetchStreetNames();
+    }
+  }, [list, streetNames]);
 
   // Store last seen on unmount
   const lastSeenRef = useRef<number>(0);
@@ -179,6 +236,10 @@ const NotifPenting: React.FC = () => {
     try { await fetch(`${API_BASE}/api/penting-notifs`, { method: "DELETE" }); } catch {}
     setList([]);
   };
+
+  if (showDetail && detailTask) {
+    return <TaskDetailModal task={detailTask} accounts={detailAccounts} onClose={() => setShowDetail(false)} />;
+  }
 
   if (showRiwayat) {
     return <RiwayatPenting onClose={() => {
@@ -234,10 +295,28 @@ const NotifPenting: React.FC = () => {
             const msg = getMsg(n.type);
             const isUnread = unreadIds.has(n.timestamp + n.deviceId);
             const rowCls = isUnread ? 'animate-pulse bg-yellow-600 text-black' : 'bg-gray-800/70';
+            const streetKey = `${n.timestamp}-${n.deviceId}`;
+            const streetName = streetNames.get(streetKey);
+            
             return (
-              <div key={idx} className={`${rowCls} border border-red-600 rounded px-2 py-1 text-sm flex items-center gap-2`}>
-                <span className="text-gray-400 text-xs shrink-0 w-40 inline-block">{formatTs(n.timestamp)}</span>
-                <span className="flex-1"><span className={`font-semibold mr-1 ${isUnread ? 'text-black' : 'text-red-400'}`}>{n.nama}</span>{msg}</span>
+              <div key={idx} className={`${rowCls} border border-red-600 rounded px-2 py-1 text-sm`}>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-400 text-xs shrink-0 w-40 inline-block">{formatTs(n.timestamp)}</span>
+                  <span className="flex-1"><span className={`font-semibold mr-1 ${isUnread ? 'text-black' : 'text-red-400'}`}>{n.nama}</span>{msg}</span>
+                  {n.taskId && (
+                    <button onClick={() => openDetail(n)} className="shrink-0 px-2 py-0.5 text-xs rounded bg-blue-600 hover:bg-blue-500 text-white">Detail</button>
+                  )}
+                </div>
+                {n.type === 'stop' && n.lat && n.lng && (
+                  <div className="mt-1 text-xs text-gray-300 ml-40">
+                    <span className="text-gray-500">📍 Lokasi: </span>
+                    {streetName ? (
+                      <span className="text-blue-300">{streetName}</span>
+                    ) : (
+                      <span className="text-gray-400">Memuat alamat...</span>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
