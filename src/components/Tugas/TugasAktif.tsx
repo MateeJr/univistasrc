@@ -6,7 +6,7 @@ import { FaTrash, FaEye, FaImages } from "react-icons/fa";
 import TaskImagesModal from "./TaskImagesModal";
 
 
-interface Task { id:string; description:string; from:string; to:string; deadline:string; drivers?:string[]; createdAt?:string; status?:string; waypoints?:{lng:number; lat:number}[] }
+interface Task { id:string; description:string; from:string; to:string; fromCoord?:string; toCoord?:string; deadline:string; drivers?:string[]; createdAt?:string; status?:string; waypoints?:{lng:number; lat:number}[]; distanceKm?:number; etaMin?:number; }
 
 interface Account { deviceId:string; nama:string; bk:string }
 
@@ -87,6 +87,8 @@ const TugasAktif: React.FC = () => {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [offset, setOffset] = useState<number>(0);
   const [statuses, setStatuses] = useState<Record<string,'online'|'disconnected'|'offline'>>({});
+  const [realTimeEtas, setRealTimeEtas] = useState<Record<string, Record<string, {etaMin: number, distanceKm: number, lastUpdated: number}>>>({});
+  const [etaCalculating, setEtaCalculating] = useState<boolean>(false);
 
   const clearFilters = () => {
     setSearch('');
@@ -235,6 +237,217 @@ const TugasAktif: React.FC = () => {
     return ()=> clearInterval(id);
   },[]);
 
+  // Function to get driver's current coordinates
+  const getDriverLocation = async (deviceId: string): Promise<{lat: number, lng: number} | null> => {
+    try {
+      console.log(`📡 Fetching location for driver: ${deviceId}`);
+      const detailRes = await fetch(`/api/accounts/${deviceId}`);
+      if (!detailRes.ok) {
+        console.log(`❌ API call failed for driver ${deviceId}: ${detailRes.status}`);
+        return null;
+      }
+      const detail = await detailRes.json();
+      console.log(`📊 Driver ${deviceId} detail:`, detail);
+      
+      // Check multiple possible location data structures
+      let lat: number | null = null;
+      let lng: number | null = null;
+      
+      // Try to get coordinates from various possible structures
+      if (detail.track) {
+        // Method 1: direct lat/lng in track
+        if (detail.track.lat && detail.track.lng) {
+          lat = parseFloat(detail.track.lat);
+          lng = parseFloat(detail.track.lng);
+        }
+        // Method 2: latitude/longitude in track
+        else if (detail.track.latitude && detail.track.longitude) {
+          lat = parseFloat(detail.track.latitude);
+          lng = parseFloat(detail.track.longitude);
+        }
+        // Method 3: location object in track
+        else if (detail.track.location) {
+          lat = parseFloat(detail.track.location.lat || detail.track.location.latitude);
+          lng = parseFloat(detail.track.location.lng || detail.track.location.longitude);
+        }
+        // Method 4: coordinates array [lng, lat]
+        else if (detail.track.coordinates && Array.isArray(detail.track.coordinates)) {
+          lng = parseFloat(detail.track.coordinates[0]);
+          lat = parseFloat(detail.track.coordinates[1]);
+        }
+      }
+      
+      // Also try direct on detail object
+      if (!lat || !lng) {
+        lat = lat || parseFloat(detail.lat || detail.latitude);
+        lng = lng || parseFloat(detail.lng || detail.longitude);
+      }
+      
+      // Check if we have valid coordinates
+      if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+        console.log(`❌ No valid location data for driver ${deviceId}. Available keys:`, Object.keys(detail.track || {}));
+        return null;
+      }
+      
+      const location = { lat, lng };
+      console.log(`📍 Driver ${deviceId} location:`, location);
+      return location;
+    } catch (error) {
+      console.error(`❌ Error fetching location for driver ${deviceId}:`, error);
+      return null;
+    }
+  };
+
+  // Function to calculate ETA using Mapbox Directions API
+  const calculateETA = async (fromLat: number, fromLng: number, toCoord: string): Promise<{etaMin: number, distanceKm: number} | null> => {
+    try {
+      console.log(`🗺️ Calculating ETA from (${fromLat}, ${fromLng}) to ${toCoord}`);
+      
+      const [toLat, toLng] = toCoord.split(',').map(parseFloat);
+      if (isNaN(toLat) || isNaN(toLng)) {
+        console.log(`❌ Invalid destination coordinates: ${toCoord}`);
+        return null;
+      }
+
+      const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+      if (!token) {
+        console.warn('❌ NEXT_PUBLIC_MAPBOX_TOKEN not found for ETA calculation');
+        return null;
+      }
+      
+      const coordsString = `${fromLng},${fromLat};${toLng},${toLat}`;
+      const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordsString}?geometries=geojson&overview=full&access_token=${token}`;
+      
+      console.log(`📡 Making Mapbox API call: ${url}`);
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.log(`❌ Mapbox API call failed: ${res.status}`);
+        return null;
+      }
+      
+      const data = await res.json();
+      console.log(`📊 Mapbox response:`, data);
+      
+      const route = data.routes?.[0];
+      if (!route) {
+        console.log('❌ No route found in Mapbox response');
+        return null;
+      }
+
+      const result = {
+        etaMin: Math.round(route.duration / 60),
+        distanceKm: Math.round(route.distance / 100) / 10 // one decimal km
+      };
+      
+      console.log(`✅ ETA calculation successful:`, result);
+      return result;
+    } catch (error) {
+      console.error('❌ Error in ETA calculation:', error);
+      return null;
+    }
+  };
+
+  // Function to update real-time ETA for all active tasks
+  const updateRealTimeEtas = async () => {
+    console.log('🚗 Starting real-time ETA calculation...');
+    if (loading) {
+      console.log('⏳ Skipping ETA calculation - component is loading');
+      return;
+    }
+    
+    setEtaCalculating(true);
+    
+    const activeProcessingTasks = tasks.filter(task => 
+      task.status?.startsWith('DIPROSES') && task.drivers && task.drivers.length > 0
+    );
+
+    console.log(`📋 Found ${activeProcessingTasks.length} active DIPROSES tasks`);
+    if (activeProcessingTasks.length === 0) {
+      setEtaCalculating(false);
+      return;
+    }
+
+    const newEtas: Record<string, Record<string, {etaMin: number, distanceKm: number, lastUpdated: number}>> = { ...realTimeEtas };
+
+    for (const task of activeProcessingTasks) {
+      console.log(`🎯 Processing task: ${task.id} - ${task.description}`);
+      console.log(`📍 Task destination (toCoord): ${task.toCoord}`);
+      
+      if (!task.drivers) continue;
+      
+      if (!newEtas[task.id]) {
+        newEtas[task.id] = {};
+      }
+
+      for (const driverId of task.drivers) {
+        console.log(`👤 Processing driver: ${driverId} (status: ${statuses[driverId]})`);
+        
+        // Only calculate for online/disconnected drivers
+        if (statuses[driverId] === 'offline') {
+          console.log(`❌ Skipping offline driver: ${driverId}`);
+          continue;
+        }
+
+        const driverLocation = await getDriverLocation(driverId);
+        console.log(`📍 Driver location:`, driverLocation);
+        if (!driverLocation) continue;
+
+        // Use task.toCoord as destination coordinates
+        if (!task.toCoord) {
+          console.log(`❌ Task ${task.id} missing toCoord`);
+          continue;
+        }
+        
+        const etaData = await calculateETA(driverLocation.lat, driverLocation.lng, task.toCoord);
+        console.log(`⏱️ ETA calculation result:`, etaData);
+        
+        if (etaData) {
+          newEtas[task.id][driverId] = {
+            ...etaData,
+            lastUpdated: Date.now()
+          };
+          console.log(`✅ Updated ETA for task ${task.id}, driver ${driverId}: ${etaData.etaMin} min`);
+        }
+      }
+    }
+
+    console.log('📊 Final ETA data:', newEtas);
+    setRealTimeEtas(newEtas);
+    setEtaCalculating(false);
+  };
+
+  // Set up 5-minute interval for real-time ETA calculations
+  useEffect(() => {
+    // Run initial calculation immediately when component mounts
+    updateRealTimeEtas();
+
+    const etaIntervalId = setInterval(() => {
+      updateRealTimeEtas();
+    }, 5 * 60 * 1000); // 5 minutes = 300,000ms
+
+    return () => clearInterval(etaIntervalId);
+  }, [tasks, statuses]); // Re-run when tasks or statuses change
+
+  // Clean up real-time ETAs for tasks that are no longer in DIPROSES status
+  useEffect(() => {
+    const activeProcessingTaskIds = new Set(
+      tasks.filter(task => task.status?.startsWith('DIPROSES')).map(task => task.id)
+    );
+
+    setRealTimeEtas(prevEtas => {
+      const cleanedEtas: typeof prevEtas = {};
+      
+      // Only keep ETAs for tasks that are still in DIPROSES status
+      Object.keys(prevEtas).forEach(taskId => {
+        if (activeProcessingTaskIds.has(taskId)) {
+          cleanedEtas[taskId] = prevEtas[taskId];
+        }
+      });
+      
+      return cleanedEtas;
+    });
+  }, [tasks]);
+
   const filteredTasks = tasks;
 
   return (
@@ -304,6 +517,50 @@ const TugasAktif: React.FC = () => {
                 </div>
                 <div className="flex gap-1"><span className="text-gray-400">Berangkat:</span><span className="text-white flex-1 truncate">{t.from}</span></div>
                 <div className="flex gap-1"><span className="text-gray-400">Destinasi:</span><span className="text-white flex-1 truncate">{t.to}</span></div>
+                {(t.distanceKm !== undefined || t.etaMin !== undefined || realTimeEtas[t.id]) && (
+                  <div className="flex gap-1">
+                    <span className="text-gray-400">Estimasi Perjalanan:</span>
+                    <div className="text-white flex-1">
+                      {/* Static estimates from task creation */}
+                      {(t.distanceKm !== undefined || t.etaMin !== undefined) && (
+                        <div className="truncate">
+                          <span className="text-green-400">🟢 Awal: </span>
+                          {t.distanceKm !== undefined && `${t.distanceKm} km`}
+                          {t.distanceKm !== undefined && t.etaMin !== undefined && ' | '}
+                          {t.etaMin !== undefined && `${t.etaMin} menit`}
+                        </div>
+                      )}
+                      
+                      {/* Real-time estimates for DIPROSES tasks */}
+                      {t.status?.startsWith('DIPROSES') && (
+                        <div className="mt-1">
+                          {realTimeEtas[t.id] ? (
+                            // Show actual ETA data when available
+                            Object.entries(realTimeEtas[t.id]).map(([driverId, etaData]) => {
+                              const driver = accounts[driverId];
+                              const ageMinutes = Math.floor((Date.now() - etaData.lastUpdated) / 60000);
+                              const timeText = ageMinutes === 0 ? 'baru saja' : `${ageMinutes} menit yang lalu`;
+                              const etaDisplay = etaData.etaMin === 0 ? 'Sampai Destinasi' : `${etaData.distanceKm} km | ${etaData.etaMin} menit`;
+                              return (
+                                <div key={driverId} className="text-sm truncate">
+                                  <span className="text-green-400">🔴 LIVE: </span>
+                                  <span className="text-yellow-300">{etaDisplay}</span>
+                                  <span className="text-gray-500 text-xs ml-1">({timeText})</span>
+                                </div>
+                              );
+                            })
+                          ) : (
+                            // Show loading state when ETA data is not yet available
+                            <div className="text-sm truncate">
+                              <span className="text-green-400">🔴 LIVE: </span>
+                              <span className="text-gray-400">Sedang Menghitung...</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Right side - Date and Time Info */}
