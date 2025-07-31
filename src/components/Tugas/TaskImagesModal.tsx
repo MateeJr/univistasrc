@@ -5,10 +5,17 @@ import { getTaskCompletionTime } from "../../utils/timeUtils";
 
 interface Task { id:string; description:string; from:string; to:string; deadline:string; status?:string; photoReq?:string[]; startTimestamp?:string; endTimestamp?:string; completionTimeMs?:number; }
 
+interface PreviewImage {
+  path: string;
+  label: string;
+  uploadedAt: string;
+}
+
 interface Props { task: Task; onClose: ()=>void; }
 
 const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
   const [images, setImages] = useState<string[]>([]);
+  const [previewImages, setPreviewImages] = useState<PreviewImage[]>([]);
   const [photoReq, setPhotoReq] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -20,6 +27,7 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
         if(res.ok){
           const data = await res.json();
           setImages(data.images || []);
+          setPreviewImages(data.previewImages || []);
           setPhotoReq(data.photoReq || []);
         }
       }catch{}
@@ -32,14 +40,12 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
   const norm = (s:string)=> decodeURIComponent(s).toLowerCase().replace(/[^a-z0-9]/g,'');
 
   const mapped = photoReq.length ? photoReq.map(req=>{
-    // More precise matching: find exact match first, then fallback to contains
     const normalizedReq = norm(req);
 
-    // First try exact match (for cases like "fotosuratjalan" vs "fotosuratjalan2")
+    // First check final images
     let img = images.find(fn=> {
       const fnParts = fn.split('_');
       if (fnParts.length >= 3) {
-        // Extract the label part from filename (remove timestamp, taskId, and extension)
         const labelPart = fnParts.slice(2, -1).join('').toLowerCase();
         const normalizedLabel = labelPart.replace(/[^a-z0-9]/g,'');
         return normalizedLabel === normalizedReq;
@@ -47,13 +53,56 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
       return false;
     });
 
-    // If no exact match found, fallback to contains (for backward compatibility)
+    let isPreview = false;
+    // If not found in final images, check preview images and get the NEWEST one
     if (!img) {
-      img = images.find(fn=> norm(fn).includes(normalizedReq));
+      const matchingPreviews = previewImages.filter(pi => norm(pi.label) === normalizedReq);
+      if (matchingPreviews.length > 0) {
+        // Sort by uploadedAt timestamp and get the newest
+        const newestPreview = matchingPreviews.sort((a, b) => 
+          new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
+        )[0];
+        img = newestPreview.path;
+        isPreview = true;
+      }
     }
 
-    return { label:req, file:img };
-  }) : images.map(i=>({label:i.split('_').slice(2,-1).join(' ')||i, file:i}));
+    // Fallback to contains matching with newest logic
+    if (!img) {
+      img = images.find(fn=> norm(fn).includes(normalizedReq));
+      if (!img) {
+        const matchingPreviews = previewImages.filter(pi => norm(pi.label).includes(normalizedReq));
+        if (matchingPreviews.length > 0) {
+          // Sort by uploadedAt timestamp and get the newest
+          const newestPreview = matchingPreviews.sort((a, b) => 
+            new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
+          )[0];
+          img = newestPreview.path;
+          isPreview = true;
+        }
+      }
+    }
+
+    return { label:req, file:img, isPreview };
+  }) : [
+    // For non-photoReq tasks, show all images but deduplicate previews by label (newest only)
+    ...images.map(i=>({label:i.split('_').slice(2,-1).join(' ')||i, file:i, isPreview: false})), 
+    ...getUniqueNewestPreviews(previewImages).map(pi=>({label:pi.label, file:pi.path, isPreview: true}))
+  ];
+
+  // Helper function to get only the newest preview image for each label
+  function getUniqueNewestPreviews(previews: PreviewImage[]): PreviewImage[] {
+    const labelMap = new Map<string, PreviewImage>();
+    
+    previews.forEach(preview => {
+      const existing = labelMap.get(preview.label);
+      if (!existing || new Date(preview.uploadedAt).getTime() > new Date(existing.uploadedAt).getTime()) {
+        labelMap.set(preview.label, preview);
+      }
+    });
+    
+    return Array.from(labelMap.values());
+  }
 
   // helper to format timestamp - force Indonesia (WIB) timezone
   const fmtDate=(ms:number)=>{
@@ -109,7 +158,7 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
     );
   };
 
-  const card = (label: string, file?: string) => {
+  const card = (label: string, file?: string, isPreview = false) => {
     let ts = '-';
     if (file) {
       const fname = file.split('/').pop() || file;
@@ -120,7 +169,13 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
       if (numStr) ts = fmtDate(Number(numStr));
     }
     return (
-      <div key={label} className="flex flex-col bg-zinc-900 rounded-lg overflow-hidden border border-zinc-700 shadow-sm">
+      <div key={label} className="flex flex-col bg-zinc-900 rounded-lg overflow-hidden border border-zinc-700 shadow-sm relative">
+        {/* Preview badge */}
+        {isPreview && (
+          <div className="absolute top-2 left-2 z-10 bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
+            PREVIEW
+          </div>
+        )}
         {file ? (
           <ImageWithLoader src={`/task-images/${file}`} alt={label} />
         ) : (
@@ -129,6 +184,9 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
         <div className="p-2 border-t border-zinc-800 text-center text-xs text-gray-200">
           <p>{label}</p>
           <p className="text-gray-400 mt-1">{ts}</p>
+          {isPreview && (
+            <p className="text-orange-400 mt-1 font-semibold">Belum disubmit</p>
+          )}
         </div>
       </div>
     );
@@ -174,8 +232,13 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
                     <p className="text-sm text-gray-400 mb-1">Syarat Foto:</p>
                     <ul className="list-disc list-inside text-sm space-y-0.5">
                       {photoReq.map((f,i)=>{
-                        const done = mapped.find(m=>m.label===f)?.file;
-                        return <li key={i} className={done?'text-green-400':'text-gray-200'}>{done?'✔️ ':''}{f}</li>;
+                        const mappedItem = mapped.find(m=>m.label===f);
+                        const done = mappedItem?.file;
+                        const isPreview = mappedItem?.isPreview;
+                        return <li key={i} className={done ? (isPreview ? 'text-orange-400' : 'text-green-400') : 'text-gray-200'}>
+                          {done ? (isPreview ? '🔶 ' : '✔️ ') : ''}{f}
+                          {isPreview && <span className="text-xs ml-1">(preview)</span>}
+                        </li>;
                       })}
                     </ul>
                   </div>
@@ -185,7 +248,7 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
               {/* Right images grid */}
               <div className="flex-1 overflow-auto p-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 auto-rows-max">
                 {mapped.length===0 && <p className="col-span-full text-center text-gray-500">Belum ada gambar</p>}
-                {mapped.map(({label,file})=> card(label,file))}
+                {mapped.map(({label,file,isPreview})=> card(label,file,isPreview))}
               </div>
             </div>
 
@@ -194,7 +257,7 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
               {/* Top images grid */}
               <div className="flex-1 overflow-auto p-4 grid gap-4 grid-cols-1 sm:grid-cols-2 auto-rows-max">
                 {mapped.length===0 && <p className="col-span-full text-center text-gray-500">Belum ada gambar</p>}
-                {mapped.map(({label,file})=> card(label,file))}
+                {mapped.map(({label,file,isPreview})=> card(label,file,isPreview))}
               </div>
 
               {/* Bottom info panel */}
@@ -225,8 +288,13 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
                     <p className="text-sm text-gray-400 mb-1">Syarat Foto:</p>
                     <ul className="list-disc list-inside text-sm space-y-0.5">
                       {photoReq.map((f,i)=>{
-                        const done = mapped.find(m=>m.label===f)?.file;
-                        return <li key={i} className={done?'text-green-400':'text-gray-200'}>{done?'✔️ ':''}{f}</li>;
+                        const mappedItem = mapped.find(m=>m.label===f);
+                        const done = mappedItem?.file;
+                        const isPreview = mappedItem?.isPreview;
+                        return <li key={i} className={done ? (isPreview ? 'text-orange-400' : 'text-green-400') : 'text-gray-200'}>
+                          {done ? (isPreview ? '🔶 ' : '✔️ ') : ''}{f}
+                          {isPreview && <span className="text-xs ml-1">(preview)</span>}
+                        </li>;
                       })}
                     </ul>
                   </div>
