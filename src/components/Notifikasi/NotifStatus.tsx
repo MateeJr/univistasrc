@@ -243,9 +243,22 @@ const NotifStatus: React.FC = () => {
             const rowCls = isUnread ? 'animate-pulse bg-amber-900/40' : rowBase;
 
             const badge = (text: string, state: 'on' | 'off' | 'online' | 'offline' | 'disconnected') => {
-              const clr = state === 'on' || state === 'online' ? 'green' : state==='disconnected'? 'yellow' : 'red';
+              let cls = 'bg-zinc-700 text-zinc-100';
+              switch (state) {
+                case 'on':
+                case 'online':
+                  cls = 'bg-emerald-600 text-white';
+                  break;
+                case 'off':
+                case 'offline':
+                  cls = 'bg-rose-600 text-white';
+                  break;
+                case 'disconnected':
+                  cls = 'bg-amber-500 text-white';
+                  break;
+              }
               return (
-                <span className={`px-2 py-1 rounded-md text-sm font-medium bg-${clr}-600 text-black min-w-[80px] text-center shrink-0`}>{text}</span>
+                <span className={`px-2 py-1 rounded-md text-sm font-medium min-w-[80px] text-center shrink-0 ${cls}`}>{text}</span>
               );
             };
 
@@ -293,7 +306,7 @@ const NotifStatus: React.FC = () => {
                 <div className="flex flex-col gap-1 max-w-full">
                   <span className="font-medium">Status Baterai</span>
                   <div className="flex flex-wrap items-center gap-2 max-w-full">
-                    <span className="px-2 py-1 rounded-md text-sm font-medium bg-red-600 text-black min-w-[120px] text-center shrink-0">Baterai Rendah</span>
+                    <span className="px-2 py-1 rounded-md text-sm font-medium bg-rose-600 text-white min-w-[120px] text-center shrink-0">Baterai Rendah</span>
                     <span className="text-sm">({n.level}%)</span>
                     <button
                       onClick={() => alert('Kondisi Battery HP Driver dibawah 25%')}
