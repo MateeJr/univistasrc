@@ -127,7 +127,7 @@ const Maps: React.FC<Props> = ({ selected, showTraffic }) => {
   }, [selected, map, styleIdx]);
 
   return (
-    <div className="h-full rounded-lg border border-purple-900 overflow-hidden relative">
+    <div className="h-full rounded-xl border border-black bg-black/60 overflow-hidden relative">
       <div ref={mapContainer} className="w-full h-full" />
       {/* Mobile refocus button */}
       <button
@@ -139,7 +139,7 @@ const Maps: React.FC<Props> = ({ selected, showTraffic }) => {
             map.flyTo({ center: [98.6785, 3.597], zoom: 11 });
           }
         }}
-        className="absolute bottom-3 right-3 bg-purple-700 hover:bg-purple-600 text-white rounded-full p-3 shadow-lg"
+        className="absolute bottom-3 right-3 bg-zinc-900/70 hover:bg-zinc-800 text-zinc-200 rounded-full p-3 shadow-lg border border-zinc-700"
         title="Refocus"
       >
         <FiCrosshair size={20} />
@@ -148,14 +148,14 @@ const Maps: React.FC<Props> = ({ selected, showTraffic }) => {
       <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
         <button
           onClick={() => map?.zoomIn()}
-          className="w-10 h-10 flex items-center justify-center bg-purple-800/80 hover:bg-purple-700 backdrop-blur-sm text-white rounded-full shadow-lg border border-purple-600"
+          className="w-10 h-10 flex items-center justify-center bg-zinc-900/60 hover:bg-zinc-800 backdrop-blur-sm text-zinc-200 rounded-full shadow-lg border border-zinc-700"
           title="Zoom In"
         >
           <FiPlus />
         </button>
         <button
           onClick={() => map?.zoomOut()}
-          className="w-10 h-10 flex items-center justify-center bg-purple-800/80 hover:bg-purple-700 backdrop-blur-sm text-white rounded-full shadow-lg border border-purple-600"
+          className="w-10 h-10 flex items-center justify-center bg-zinc-900/60 hover:bg-zinc-800 backdrop-blur-sm text-zinc-200 rounded-full shadow-lg border border-zinc-700"
           title="Zoom Out"
         >
           <FiMinus />

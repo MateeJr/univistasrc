@@ -286,20 +286,20 @@ const AreaLaranganPanel: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-lg font-semibold text-purple-400">Area Larangan</h2>
+      <h2 className="text-lg font-semibold text-zinc-200">Area Larangan</h2>
 
       {/* Radius input */}
       <div>
-        <label className="text-sm font-medium text-gray-300">Radius Area (meter)</label>
+        <label className="text-sm font-medium text-zinc-300">Radius Area (meter)</label>
         <div className="flex items-center gap-2 mt-1">
-          <input type="number" min={10} value={radius} onChange={(e) => setRadius(parseInt(e.target.value) || 0)} className="flex-1 bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600" />
-          <span className="text-gray-400">meter</span>
+          <input type="number" min={10} value={radius} onChange={(e) => setRadius(parseInt(e.target.value) || 0)} className="flex-1 bg-zinc-900/80 border border-zinc-800 rounded px-3 py-2 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-600/40" />
+          <span className="text-zinc-400">meter</span>
         </div>
       </div>
 
       {/* Buttons */}
       <div className="flex gap-2">
-        <button type="button" onClick={() => { if (!map) return; addingRef.current = true; map.getCanvas().style.cursor = "crosshair"; alert("Klik pada peta untuk menentukan pusat area larangan."); }} className="flex-1 py-2 rounded bg-purple-700 hover:bg-purple-600 text-white font-semibold">
+        <button type="button" onClick={() => { if (!map) return; addingRef.current = true; map.getCanvas().style.cursor = "crosshair"; alert("Klik pada peta untuk menentukan pusat area larangan."); }} className="flex-1 py-2 rounded bg-blue-600 hover:bg-blue-500 text-white font-semibold">
           Tambah Area
         </button>
         <button type="button" onClick={clearAll} className="flex-1 py-2 rounded bg-red-700 hover:bg-red-600 text-white font-semibold">
@@ -311,7 +311,7 @@ const AreaLaranganPanel: React.FC = () => {
       {areas.length > 0 && (
         <div className="flex flex-col gap-2 max-h-60 overflow-auto pr-1">
           {areas.map((a, idx) => (
-            <div key={idx} className="flex items-center justify-between bg-gray-800/80 border border-gray-700 rounded px-2 py-1 text-sm">
+            <div key={idx} className="flex items-center justify-between bg-zinc-900/60 border border-zinc-800 rounded px-2 py-1 text-sm">
               <span>#{idx + 1} ({a.lat.toFixed(3)}, {a.lng.toFixed(3)}) – {a.radius}m</span>
               <button onClick={() => deleteArea(idx)} className="text-red-400 hover:text-red-200">✕</button>
             </div>
@@ -320,24 +320,24 @@ const AreaLaranganPanel: React.FC = () => {
       )}
 
       {/* ---------------- Batas Keluar Jalur ---------------- */}
-      <div className="mt-6 flex flex-col gap-2 pt-4 border-t border-purple-800">
-        <h3 className="text-md font-semibold text-purple-300">Batas Keluar Jalur</h3>
+      <div className="mt-6 flex flex-col gap-2 pt-4 border-t border-zinc-800">
+        <h3 className="text-md font-semibold text-zinc-300">Batas Keluar Jalur</h3>
         <div className="flex items-center gap-2">
           <input
             type="number"
             min={0}
             value={keluarJalur}
             onChange={(e)=>setKeluarJalur(parseInt(e.target.value)||0)}
-            className="flex-1 bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600"
+            className="flex-1 bg-zinc-900/80 border border-zinc-800 rounded px-3 py-2 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-600/40"
           />
-          <span className="text-gray-400">meter</span>
+          <span className="text-zinc-400">meter</span>
         </div>
-        <p className="text-xs text-gray-500">0 = Off (tidak aktif)</p>
+        <p className="text-xs text-zinc-500">0 = Off (tidak aktif)</p>
       </div>
 
       {/* ---------------- Radius Target PinPoint ---------------- */}
-      <div className="mt-6 flex flex-col gap-2 pt-4 border-t border-purple-800">
-        <h3 className="text-md font-semibold text-purple-300">Radius Target PinPoint</h3>
+      <div className="mt-6 flex flex-col gap-2 pt-4 border-t border-zinc-800">
+        <h3 className="text-md font-semibold text-zinc-300">Radius Target PinPoint</h3>
         <div className="flex items-center gap-2">
           <input
             type="number"
@@ -345,9 +345,9 @@ const AreaLaranganPanel: React.FC = () => {
             value={pinRadius}
             onChange={e=>{ setPinRadius(parseInt(e.target.value)||0); }}
             onBlur={()=>{ if(pinRadius<100) setPinRadius(100);} }
-            className="flex-1 bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
+            className="flex-1 bg-zinc-900/80 border border-zinc-800 rounded px-3 py-2 text-zinc-200 focus:outline-none focus:ring-2 focus:ring-blue-600/40"
           />
-          <span className="text-gray-400">meter</span>
+          <span className="text-zinc-400">meter</span>
         </div>
       </div>
     </div>
@@ -359,7 +359,7 @@ const MappingPage: React.FC = () => {
     <MapProvider>
       <div className="p-4 flex flex-col md:flex-row gap-4 overflow-auto md:h-screen">
         {/* Left panel - Area Larangan tools */}
-        <div className="w-full md:w-[40%] h-auto md:h-full rounded-lg bg-black/50 border border-purple-900 p-4 text-white overflow-auto">
+        <div className="w-full md:w-[40%] h-auto md:h-full rounded-xl bg-black/60 border border-black p-4 text-zinc-200 overflow-auto">
           <AreaLaranganPanel />
         </div>
 
