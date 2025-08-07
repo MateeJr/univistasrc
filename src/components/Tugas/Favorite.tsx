@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 export interface FavoriteItem {
   id: string;
@@ -19,6 +19,7 @@ interface Props {
 const Favorite: React.FC<Props> = ({ onSelect, refreshTrigger }) => {
   const [list, setList] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -39,13 +40,38 @@ const Favorite: React.FC<Props> = ({ onSelect, refreshTrigger }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshTrigger]);
 
+  const filtered = useMemo(() => {
+    if (!query.trim()) return list;
+    const q = query.toLowerCase();
+    return list.filter((f) =>
+      [f.from, f.to].some((v) => v?.toLowerCase().includes(q))
+    );
+  }, [list, query]);
+
   return (
     <div className="h-full rounded-lg bg-black text-white border border-purple-900 p-3 flex flex-col overflow-hidden">
-      <div className="flex items-center justify-center mb-3">
+      <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
           <h3 className="text-sm font-bold tracking-wider text-purple-300">FAVORITES</h3>
-          <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+        </div>
+        <div className="relative w-1/2 min-w-[140px]">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search from/to..."
+            className="w-full rounded-md bg-gray-900/80 border border-gray-700 text-xs px-7 py-1.5 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+          />
+          <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[11px] text-gray-500">⌕</span>
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-gray-400 hover:text-gray-200"
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
         </div>
       </div>
       
@@ -64,67 +90,74 @@ const Favorite: React.FC<Props> = ({ onSelect, refreshTrigger }) => {
           <p className="text-center text-gray-500 text-xs">No favorites saved yet</p>
         </div>
       ) : (
-        <div className="flex-1 overflow-auto space-y-1 scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-purple-600">
-          {list.map((f, index) => (
-            <div
-              key={f.id}
-              className="group relative bg-gradient-to-r from-gray-900/80 to-gray-800/60 hover:from-gray-800/90 hover:to-gray-700/70 rounded-lg border border-gray-700/50 hover:border-purple-600/30 transition-all duration-200 overflow-hidden"
-            >
-              <button 
-                onClick={() => onSelect(f)} 
-                className="w-full p-2 text-left relative"
-              >
-                {/* Route indicator */}
-                <div className="absolute left-1 top-1/2 transform -translate-y-1/2 flex flex-col items-center">
-                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
-                  <div className="w-0.5 h-3 bg-gradient-to-b from-green-400 to-red-400 my-0.5"></div>
-                  <div className="w-1.5 h-1.5 bg-red-400 rounded-full"></div>
-                </div>
-                
-                {/* Content */}
-                <div className="ml-5 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-green-300 truncate max-w-[80%]" title={f.from}>
-                      {f.from}
-                    </span>
-                    <span className="text-[10px] text-gray-500 font-mono">#{index + 1}</span>
-                  </div>
-                  
-                  <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
-                  
-                  <div className="text-xs font-medium text-red-300 truncate" title={f.to}>
-                    {f.to}
-                  </div>
-                  
-                  <div className="text-[10px] text-gray-400 truncate opacity-70">
-                    {new Date(f.createdAt).toLocaleDateString('id-ID', { 
-                      day: '2-digit', 
-                      month: 'short' 
-                    })}
-                  </div>
-                </div>
-                
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-purple-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-              </button>
-              
-              {/* Delete button */}
-              <button
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  if (!confirm('Remove this favorite?')) return;
-                  try {
-                    await fetch(`/api/favorites/${f.id}`, { method: 'DELETE' });
-                    setList(prev => prev.filter(item => item.id !== f.id));
-                  } catch {}
-                }}
-                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-600/20 hover:bg-red-600/40 border border-red-500/30 hover:border-red-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200"
-                title="Remove favorite"
-              >
-                <span className="text-red-400 text-[10px] font-bold">×</span>
-              </button>
+        <div className="flex-1 overflow-auto scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-purple-600">
+          {filtered.length === 0 ? (
+            <div className="h-full w-full flex items-center justify-center text-xs text-gray-500">
+              No results for "{query}"
             </div>
-          ))}
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 pr-1">
+              {filtered.map((f, index) => (
+                <div
+                  key={f.id}
+                  className="relative bg-gradient-to-b from-gray-900/80 to-gray-800/60 hover:from-gray-800/90 hover:to-gray-700/70 rounded-lg border border-gray-700/50 hover:border-purple-600/40 transition-all duration-200"
+                >
+                  <button
+                    onClick={() => onSelect(f)}
+                    className="w-full p-2 pr-10 text-left"
+                    title={`${f.from} → ${f.to}`}
+                  >
+                    <div className="flex items-start gap-2">
+                      <div className="mt-0.5 flex flex-col items-center">
+                        <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                        <div className="w-0.5 h-3 bg-gradient-to-b from-green-400 to-red-400 my-0.5"></div>
+                        <div className="w-1.5 h-1.5 bg-red-400 rounded-full"></div>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[11px] font-semibold text-green-300 truncate" title={f.from}>
+                            {f.from}
+                          </span>
+                          <span className="shrink-0 text-[10px] text-gray-500 font-mono">#{index + 1}</span>
+                        </div>
+                        <div className="mt-1 text-[11px] font-medium text-red-300 truncate" title={f.to}>
+                          {f.to}
+                        </div>
+                        <div className="mt-1 text-[10px] text-gray-400 truncate">
+                          {new Date(f.createdAt).toLocaleDateString("id-ID", {
+                            day: "2-digit",
+                            month: "short",
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      if (!confirm("Remove this favorite?")) return;
+                      try {
+                        await fetch(`/api/favorites/${f.id}`, { method: "DELETE" });
+                        setList((prev) => prev.filter((item) => item.id !== f.id));
+                      } catch {}
+                    }}
+                    className="absolute top-1.5 right-1.5 inline-flex h-6 w-6 items-center justify-center rounded-md border border-red-500/40 bg-red-500/15 text-red-400 hover:bg-red-500/25 hover:text-red-300"
+                    title="Remove favorite"
+                    aria-label="Remove favorite"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="h-3.5 w-3.5"
+                    >
+                      <path d="M9 3a1 1 0 0 0-1 1v1H5.5a.75.75 0 0 0 0 1.5h13a.75.75 0 0 0 0-1.5H16V4a1 1 0 0 0-1-1H9Zm-2 6.25a.75.75 0 0 1 1.5 0v8a.75.75 0 0 1-1.5 0v-8Zm4.25 0a.75.75 0 0 1 1.5 0v8a.75.75 0 0 1-1.5 0v-8Zm5.5 0a.75.75 0 0 0-1.5 0v8a.75.75 0 0 0 1.5 0v-8ZM10 5h4v1H10V5Zm-2 3h8l-.7 12.18A1.5 1.5 0 0 1 13.8 21H10.2a1.5 1.5 0 0 1-1.5-1.32L8 8Z" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
