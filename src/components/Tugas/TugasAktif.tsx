@@ -23,20 +23,20 @@ const ConfirmationModal: React.FC<{
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 border border-gray-600">
-        <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>
-        <p className="text-gray-300 mb-6">{message}</p>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50">
+      <div className="bg-zinc-900 rounded-xl p-6 max-w-md w-full mx-4 border border-zinc-800 shadow-2xl">
+        <h3 className="text-lg font-semibold text-white mb-4 tracking-wide">{title}</h3>
+        <p className="text-gray-300/90 mb-6 leading-relaxed">{message}</p>
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500 text-white text-sm"
+            className="px-4 py-2 rounded-md bg-zinc-800 hover:bg-zinc-700 text-white text-sm border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-purple-500/30"
           >
             {cancelText}
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 rounded bg-red-600 hover:bg-red-500 text-white text-sm"
+            className="px-4 py-2 rounded-md bg-red-600/90 hover:bg-red-500 text-white text-sm border border-red-700/40 focus:outline-none focus:ring-2 focus:ring-red-500/30"
           >
             {confirmText}
           </button>
@@ -451,34 +451,34 @@ const TugasAktif: React.FC = () => {
   const filteredTasks = tasks;
 
   return (
-    <div className="h-full rounded-lg bg-black p-4 text-white border border-purple-900 flex flex-col gap-2 overflow-auto">
-      <h3 className="text-lg font-semibold mb-2 text-center">TUGAS AKTIF</h3>
-      <div className="flex flex-wrap items-center mb-2 gap-2">
+    <div className="h-full rounded-xl bg-gradient-to-b from-zinc-950 to-black p-4 text-white border border-zinc-800 shadow-xl/20 flex flex-col gap-3 overflow-auto">
+      <h3 className="text-lg md:text-xl font-semibold tracking-wide text-purple-200 mb-1 text-center">TUGAS AKTIF</h3>
+      <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 rounded-lg border border-zinc-800/80 bg-black/60 backdrop-blur p-2">
         <input
           type="text"
           value={search}
           onChange={(e)=>setSearch(e.target.value)}
           placeholder="Cari tugas, lokasi, atau status (diproses, dikonfirmasi)..."
-          className="px-2 py-1 rounded bg-zinc-800 text-white text-xs flex-grow md:flex-grow-0 md:w-1/2"
+          className="h-9 px-3 py-2 rounded-md bg-zinc-900/70 text-white placeholder-zinc-500 text-xs border border-zinc-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 outline-none transition flex-grow md:flex-grow-0 md:w-1/2"
         />
         <input
           type="date"
           value={dateFilter}
           onChange={(e)=>setDateFilter(e.target.value)}
-          className="px-2 py-1 rounded bg-zinc-800 text-white text-xs"
+          className="h-9 px-3 py-2 rounded-md bg-zinc-900/70 text-white placeholder-zinc-500 text-xs border border-zinc-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 outline-none transition"
         />
         <select
           value={driverFilter}
           onChange={(e)=>setDriverFilter(e.target.value)}
-          className="px-2 py-1 rounded bg-zinc-800 text-white text-xs"
+          className="h-9 px-3 py-2 rounded-md bg-zinc-900/70 text-white text-xs border border-zinc-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 outline-none transition"
         >
           <option value="all">Semua Driver</option>
           {Object.values(accounts).map(a=>(
             <option key={a.deviceId} value={a.deviceId}>{a.nama}</option>
           ))}
         </select>
-        <button onClick={clearFilters} className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 text-xs">Clear</button>
-        <button onClick={refreshData} className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 text-xs">Refresh</button>
+        <button onClick={clearFilters} className="h-9 px-3 py-2 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition">Clear</button>
+        <button onClick={refreshData} className="h-9 px-3 py-2 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition">Refresh</button>
       </div>
       {filteredTasks.length===0 && <p className="text-gray-500 text-sm text-center">Tidak ada tugas</p>}
       {filteredTasks.map((t,idx)=>{
@@ -487,15 +487,15 @@ const TugasAktif: React.FC = () => {
         const createdStr = t.createdAt ? new Date(t.createdAt).toLocaleString('id-ID',{ day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}).replace('.',':') : '-';
         const clr=statusColor(t.status);
         return (
-          <div key={t.id} className={`relative bg-black rounded-lg p-4 mb-3 shadow-lg hover:shadow-xl transition border ${clr.border}`} >
+          <div key={t.id} className={`relative bg-zinc-900/60 rounded-xl p-4 mb-3 border ${clr.border} hover:border-purple-500/40 shadow-sm hover:shadow-md transition-all duration-200`} >
             {/* Order badge */}
-            <div className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-semibold select-none">
+            <div className="absolute -top-3 -left-3 w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-600 ring-2 ring-purple-900/50 shadow flex items-center justify-center text-white text-xs font-semibold select-none">
               {idx+1}
             </div>
             <div className="flex items-start justify-between mb-2">
-              <h4 className="font-semibold text-purple-300 text-base truncate max-w-[60%]">{t.description}</h4>
+              <h4 className="font-semibold text-purple-200 text-base truncate max-w-[60%] tracking-wide">{t.description}</h4>
               <div className="text-right flex flex-col items-end">
-                <span className={`text-xs font-semibold inline-block px-2 py-0.5 rounded-lg backdrop-blur-sm ${clr.text} ${clr.bg}`}>{t.status||'MENUNGGU KONFIRMASI'}</span>
+                <span className={`text-xs font-semibold inline-block px-2 py-0.5 rounded-md border border-white/10 ${clr.text} ${clr.bg}`}>{t.status||'MENUNGGU KONFIRMASI'}</span>
                 <span className="text-xs text-gray-400">#{t.id}</span>
               </div>
             </div>
@@ -508,8 +508,8 @@ const TugasAktif: React.FC = () => {
                   {(t.drivers||[]).map(id=>{
                     const acc=accounts[id];
                     return (
-                      <span key={id} className="text-white inline-flex items-center gap-1 bg-purple-700/60 px-2 py-0.5 rounded-md">
-                        <span className={`w-2 h-2 rounded-full ${statuses[id]==='online'?'bg-green-400':statuses[id]==='disconnected'?'bg-red-500':'bg-gray-500'}`}></span>
+                      <span key={id} className="text-white inline-flex items-center gap-1 bg-purple-700/40 border border-purple-500/20 px-2 py-0.5 rounded-md">
+                        <span className={`w-2 h-2 rounded-full shadow-inner ${statuses[id]==='online'?'bg-green-400':statuses[id]==='disconnected'?'bg-red-500':'bg-gray-500'}`}></span>
                         {acc?`${acc.nama} (${acc.bk})`:id}
                       </span>
                     );
@@ -524,7 +524,7 @@ const TugasAktif: React.FC = () => {
                       {/* Static estimates from task creation */}
                       {(t.distanceKm !== undefined || t.etaMin !== undefined) && (
                         <div className="truncate">
-                          <span className="text-green-400">🟢 Awal: </span>
+                          <span className="text-green-400 font-medium">🟢 Awal: </span>
                           {t.distanceKm !== undefined && `${t.distanceKm} km`}
                           {t.distanceKm !== undefined && t.etaMin !== undefined && ' | '}
                           {t.etaMin !== undefined && `${t.etaMin} menit`}
@@ -543,8 +543,8 @@ const TugasAktif: React.FC = () => {
                               const etaDisplay = etaData.etaMin === 0 ? 'Sampai Destinasi' : `${etaData.distanceKm} km | ${etaData.etaMin} menit`;
                               return (
                                 <div key={driverId} className="text-sm truncate">
-                                  <span className="text-green-400">🔴 LIVE: </span>
-                                  <span className="text-yellow-300">{etaDisplay}</span>
+                                  <span className="text-green-400 font-medium">🔴 LIVE: </span>
+                                  <span className="text-yellow-300 font-medium">{etaDisplay}</span>
                                   <span className="text-gray-500 text-xs ml-1">({timeText})</span>
                                 </div>
                               );
@@ -552,7 +552,7 @@ const TugasAktif: React.FC = () => {
                           ) : (
                             // Show loading state when ETA data is not yet available
                             <div className="text-sm truncate">
-                              <span className="text-green-400">🔴 LIVE: </span>
+                              <span className="text-green-400 font-medium">🔴 LIVE: </span>
                               <span className="text-gray-400">Sedang Menghitung...</span>
                             </div>
                           )}
@@ -573,21 +573,21 @@ const TugasAktif: React.FC = () => {
               <div className="flex justify-end gap-2 flex-wrap">
                 <button
                   onClick={() => openCancelConfirmation(t)}
-                  className="mt-2 px-3 py-2 rounded-lg bg-red-600/30 hover:bg-red-500/40 text-white transition-colors backdrop-blur-sm"
+                  className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-red-700/30 bg-red-600/20 hover:bg-red-600/30 text-white transition-colors"
                   title="Batalkan Tugas"
                 >
                   <FaTrash size={14} />
                 </button>
                 <button 
                   onClick={()=>setDetailTask(t)} 
-                  className="mt-2 px-3 py-2 rounded-lg bg-blue-600/30 hover:bg-blue-500/40 text-white transition-colors backdrop-blur-sm"
+                  className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-blue-700/30 bg-blue-600/20 hover:bg-blue-600/30 text-white transition-colors"
                   title="Lihat Detail"
                 >
                   <FaEye size={14} />
                 </button>
                 <button 
                   onClick={()=>setImagesTask(t)} 
-                  className="mt-2 px-3 py-2 rounded-lg bg-green-600/30 hover:bg-green-500/40 text-white transition-colors backdrop-blur-sm"
+                  className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-green-700/30 bg-green-600/20 hover:bg-green-600/30 text-white transition-colors"
                   title="Lihat Gambar"
                 >
                   <FaImages size={14} />

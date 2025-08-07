@@ -351,81 +351,63 @@ const TaskDetailModal:React.FC<Props> = ({task, accounts, onClose})=>{
   },[stopViolations]);
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-gray-900 text-white rounded-lg w-full h-[85vh] md:h-[85vh] overflow-auto w-[90vw] md:w-[80vw]" onClick={e=>e.stopPropagation()}>
-        <div className="flex justify-between items-center border-b border-purple-800 px-4 py-2">
-          <h3 className="font-semibold">Detail Tugas</h3>
-          <button onClick={onClose} className="text-red-400 hover:text-red-300">✕</button>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-zinc-950/95 text-white rounded-2xl w-[90vw] md:w-[80vw] h-[88vh] overflow-hidden border border-zinc-800 shadow-2xl" onClick={e=>e.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-3 bg-gradient-to-r from-purple-700/40 to-fuchsia-700/30 border-b border-zinc-800">
+          <h3 className="font-semibold tracking-wide text-purple-100">Detail Tugas</h3>
+          <button onClick={onClose} className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-700/30 transition">✕</button>
         </div>
-        <div className="p-4 flex flex-col md:flex-row gap-3 md:gap-4 md:h-[calc(85vh-60px)]">
+        <div className="p-4 md:p-5 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 h-[calc(88vh-56px)]">
           {/* Mobile: Map first, then info below */}
-          <div className="order-2 md:order-1 md:w-1/3 flex-shrink-0 space-y-3 md:space-y-4 overflow-y-auto">
-            <div>
-              <p className="font-semibold text-purple-300 mb-2">{task.description}</p>
-              <div className="space-y-1">
-                <p className="text-sm text-gray-400">ID: <span className="text-gray-100">{task.id}</span></p>
-                <p className="text-sm text-gray-400">Status: <span className={taskStatus==='TELAH DIKONIFIRMASI'? 'text-green-400' : taskStatus?.startsWith('DIPROSES') ? 'text-blue-400' : taskStatus==='DIBATALKAN' ? 'text-red-400' : 'text-yellow-300'}>{taskStatus||'MENUNGGU KONFIRMASI'}</span></p>
-                <p className="text-sm text-gray-400">Berangkat: <span className="text-gray-100">{task.from}</span></p>
-                <p className="text-sm text-gray-400">Destinasi: <span className="text-gray-100">{task.to}</span></p>
-                <p className="text-sm text-gray-400">Deadline: <span className="text-red-400">{task.deadline}</span></p>
+          <div className="order-2 md:order-1 md:col-span-1 flex-shrink-0 space-y-4 overflow-y-auto pr-1">
+            <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4">
+              <p className="font-semibold text-purple-200 mb-2 tracking-wide">{task.description}</p>
+              <div className="grid grid-cols-1 gap-1 text-sm">
+                <p className="text-gray-400">ID: <span className="text-gray-100">{task.id}</span></p>
+                <p className="text-gray-400">Status: <span className={taskStatus==='TELAH DIKONIFIRMASI'? 'text-green-400' : taskStatus?.startsWith('DIPROSES') ? 'text-blue-400' : taskStatus==='DIBATALKAN' ? 'text-red-400' : 'text-yellow-300'}>{taskStatus||'MENUNGGU KONFIRMASI'}</span></p>
+                <p className="text-gray-400">Berangkat: <span className="text-gray-100">{task.from}</span></p>
+                <p className="text-gray-400">Destinasi: <span className="text-gray-100">{task.to}</span></p>
+                <p className="text-gray-400">Deadline: <span className="text-red-400">{task.deadline}</span></p>
                 {taskStatus === 'SELESAI' && (() => {
                   const completionTime = getTaskCompletionTime(task);
                   return completionTime ? (
-                    <p className="text-sm text-gray-400">Waktu Penyelesaian: <span className="text-green-400">{completionTime}</span></p>
+                    <p className="text-gray-400">Waktu Penyelesaian: <span className="text-green-400">{completionTime}</span></p>
                   ) : null;
                 })()}
                 {taskStatus === 'DIBATALKAN' && (() => {
                   const cancellationTime = getTaskCancellationTime(task);
                   return cancellationTime ? (
-                    <p className="text-sm text-gray-400">Waktu Dibatalkan: <span className="text-red-400">{cancellationTime}</span></p>
+                    <p className="text-gray-400">Waktu Dibatalkan: <span className="text-red-400">{cancellationTime}</span></p>
                   ) : null;
                 })()}
               </div>
-              <div className="mt-3">
-                <p className="text-sm text-gray-400 mb-1">Driver:</p>
-                <div className="flex flex-wrap gap-1">
-                  {task.drivers?.map(id=>{
-                    const acc=accounts[id];
-                    return <span key={id} className="bg-purple-700/60 px-2 py-0.5 rounded text-xs">{acc?`${acc.nama} (${acc.bk})`:id}</span>;
-                  })}
-                </div>
+            </div>
+            <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4">
+              <p className="text-sm text-gray-400 mb-2">Driver</p>
+              <div className="flex flex-wrap gap-1.5">
+                {task.drivers?.map(id=>{
+                  const acc=accounts[id];
+                  return <span key={id} className="text-white inline-flex items-center gap-1 bg-purple-700/40 border border-purple-500/20 px-2 py-0.5 rounded-md text-xs">{acc?`${acc.nama} (${acc.bk})`:id}</span>;
+                })}
               </div>
             </div>
-            <div>
-              <p className="text-sm text-gray-400 mb-2">List Berhenti Driver:</p>
+            <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4">
+              <p className="text-sm text-gray-400 mb-2">List Berhenti Driver</p>
               {stopViolations?.length ? (
                 <div className="space-y-2">
                   {stopViolations.map((violation,i)=>{
                     const stopInfo = getStopViolationInfo(violation);
                     return (
-                      <div key={i} className="bg-red-900/30 border border-red-700 rounded p-2">
+                      <div key={i} className="bg-red-950/40 border border-red-700/60 rounded-lg p-3">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">
-                            {violation.violationNumber}
-                          </span>
-                          <span className="text-red-400 text-sm font-medium">
-                            {violation.driverName}
-                          </span>
+                          <span className="bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">{violation.violationNumber}</span>
+                          <span className="text-red-300 text-sm font-medium">{violation.driverName}</span>
                         </div>
-                        <p className="text-xs text-gray-300">
-                          Durasi Limit Berhenti: {stopInfo.limitDuration}
-                        </p>
-                        <p className="text-xs text-gray-300">
-                          Waktu kembali jalan: <span className={stopInfo.hasResumed ? 'text-green-400' : 'text-yellow-400'}>
-                            {stopInfo.resumeTime}
-                          </span>
-                        </p>
-                        <p className="text-xs text-gray-300">
-                          Durasi berhenti: <span className={stopInfo.hasResumed ? 'text-blue-400' : 'text-yellow-400'}>
-                            {stopInfo.actualDuration}
-                          </span>
-                        </p>
-                        <p className="text-xs text-gray-300">
-                          Koordinat: {violation.lat.toFixed(5)}, {violation.lng.toFixed(5)}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          Mulai berhenti: {stopInfo.startTime}
-                        </p>
+                        <p className="text-xs text-gray-300">Durasi Limit Berhenti: {stopInfo.limitDuration}</p>
+                        <p className="text-xs text-gray-300">Waktu kembali jalan: <span className={stopInfo.hasResumed ? 'text-green-400' : 'text-yellow-400'}>{stopInfo.resumeTime}</span></p>
+                        <p className="text-xs text-gray-300">Durasi berhenti: <span className={stopInfo.hasResumed ? 'text-blue-400' : 'text-yellow-400'}>{stopInfo.actualDuration}</span></p>
+                        <p className="text-xs text-gray-300">Koordinat: {violation.lat.toFixed(5)}, {violation.lng.toFixed(5)}</p>
+                        <p className="text-xs text-gray-400">Mulai berhenti: {stopInfo.startTime}</p>
                       </div>
                     );
                   })}
@@ -435,20 +417,20 @@ const TaskDetailModal:React.FC<Props> = ({task, accounts, onClose})=>{
               )}
             </div>
             {photoReq?.length ? (
-              <div>
-                <p className="text-sm text-gray-400 mb-2">Syarat Foto:</p>
+              <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4">
+                <p className="text-sm text-gray-400 mb-2">Syarat Foto</p>
                 <ul className="list-disc list-inside text-sm text-gray-100 space-y-1">
                   {photoReq.map((f,i)=>{
                     const done = photoDone?.includes(f);
-                    return <li key={i}>{done?'✔️ ':''}{f}</li>;
+                    return <li key={i} className={done? 'text-green-300' : ''}>{done?'✔️ ':''}{f}</li>;
                   })}
                 </ul>
               </div>
             ):null}
           </div>
           {/* Desktop: Info left, Map right */}
-          <div className="order-1 md:order-2 w-full h-80 md:h-full md:flex-1">
-            <div ref={mapContainer} className="w-full h-full rounded border border-purple-800" />
+          <div className="order-1 md:order-2 md:col-span-2 w-full h-72 md:h-full">
+            <div ref={mapContainer} className="w-full h-full rounded-xl border border-purple-800/60 shadow-inner bg-zinc-900" />
           </div>
         </div>
       </div>

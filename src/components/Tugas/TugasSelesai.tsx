@@ -250,34 +250,34 @@ const TugasSelesai: React.FC = () => {
   };
 
   return (
-    <div className="h-full rounded-lg bg-black p-4 text-white border border-purple-900 flex flex-col gap-2 overflow-auto">
-      <h3 className="text-lg font-semibold mb-2 text-center">TUGAS SELESAI</h3>
-      <div className="flex flex-wrap items-center mb-2 gap-2">
+    <div className="h-full rounded-xl bg-gradient-to-b from-zinc-950 to-black p-4 text-white border border-zinc-800 shadow-xl/20 flex flex-col gap-3 overflow-auto">
+      <h3 className="text-lg md:text-xl font-semibold tracking-wide text-purple-200 mb-1 text-center">TUGAS SELESAI</h3>
+      <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 rounded-lg border border-zinc-800/80 bg-black/60 backdrop-blur p-2">
         <input
           type="text"
           value={search}
           onChange={(e)=>setSearch(e.target.value)}
           placeholder="Cari tugas, lokasi, atau status (selesai, dibatalkan)..."
-          className="px-2 py-1 rounded bg-zinc-800 text-white text-xs flex-grow md:flex-grow-0 md:w-1/2"
+          className="h-9 px-3 py-2 rounded-md bg-zinc-900/70 text-white placeholder-zinc-500 text-xs border border-zinc-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 outline-none transition flex-grow md:flex-grow-0 md:w-1/2"
         />
         <input
           type="date"
           value={dateFilter}
           onChange={(e)=>setDateFilter(e.target.value)}
-          className="px-2 py-1 rounded bg-zinc-800 text-white text-xs"
+          className="h-9 px-3 py-2 rounded-md bg-zinc-900/70 text-white placeholder-zinc-500 text-xs border border-zinc-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 outline-none transition"
         />
         <select
           value={driverFilter}
           onChange={(e)=>setDriverFilter(e.target.value)}
-          className="px-2 py-1 rounded bg-zinc-800 text-white text-xs"
+          className="h-9 px-3 py-2 rounded-md bg-zinc-900/70 text-white text-xs border border-zinc-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 outline-none transition"
         >
           <option value="all">Semua Driver</option>
           {Object.values(accounts).map(a=>(
             <option key={a.deviceId} value={a.deviceId}>{a.nama}</option>
           ))}
         </select>
-        <button onClick={clearFilters} className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 text-xs">Clear</button>
-        <button onClick={refreshData} className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 text-xs">Refresh</button>
+        <button onClick={clearFilters} className="h-9 px-3 py-2 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition">Clear</button>
+        <button onClick={refreshData} className="h-9 px-3 py-2 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition">Refresh</button>
       </div>
       {filteredTasks.length===0 && !loading && <p className="text-gray-500 text-sm text-center">Tidak ada tugas selesai</p>}
       {filteredTasks.map(t=>{
@@ -286,11 +286,11 @@ const TugasSelesai: React.FC = () => {
           const createdStr = t.createdAt ? new Date(t.createdAt).toLocaleString('id-ID',{ day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}).replace('.',':') : '-';
           const clr = statusColor(t.status);
           return (
-            <div key={t.id} className={`bg-black rounded-lg p-4 mb-3 shadow-lg border ${clr.border}`}>
+            <div key={t.id} className={`bg-zinc-900/60 rounded-xl p-4 mb-3 border ${clr.border} hover:border-purple-500/40 shadow-sm hover:shadow-md transition-all duration-200`}>
               <div className="flex items-start justify-between mb-2">
-                <h4 className="font-semibold text-purple-300 text-base truncate max-w-[60%]">{t.description}</h4>
+                <h4 className="font-semibold text-purple-200 text-base truncate max-w-[60%] tracking-wide">{t.description}</h4>
                 <div className="text-right flex flex-col items-end">
-                  <span className={`text-xs font-semibold inline-block px-2 py-0.5 rounded-lg backdrop-blur-sm ${clr.text} ${clr.bg}`}>{t.status}</span>
+                  <span className={`text-xs font-semibold inline-block px-2 py-0.5 rounded-md border border-white/10 ${clr.text} ${clr.bg}`}>{t.status}</span>
                   <span className="text-xs text-gray-400">#{t.id}</span>
                 </div>
               </div>
@@ -300,8 +300,8 @@ const TugasSelesai: React.FC = () => {
                   <div className="flex flex-wrap gap-1 items-start">
                     <span className="text-gray-400 mr-1">Driver:</span>
                     {(t.drivers||[]).map(id=>{ const acc=accounts[id]; return (
-                      <span key={id} className="text-white inline-flex items-center gap-1 bg-purple-700/60 px-2 py-0.5 rounded-md">
-                        <span className={`w-2 h-2 rounded-full ${statuses[id]==='online'?'bg-green-400':statuses[id]==='disconnected'?'bg-red-500':'bg-gray-500'}`}></span>
+                      <span key={id} className="text-white inline-flex items-center gap-1 bg-purple-700/40 border border-purple-500/20 px-2 py-0.5 rounded-md">
+                        <span className={`w-2 h-2 rounded-full shadow-inner ${statuses[id]==='online'?'bg-green-400':statuses[id]==='disconnected'?'bg-red-500':'bg-gray-500'}`}></span>
                         {acc?`${acc.nama} (${acc.bk})`:id}
                       </span>
                     ); })}
@@ -351,28 +351,28 @@ const TugasSelesai: React.FC = () => {
                     setHasMore(true);
                     loadInitial();
                   }}
-                  className="mt-2 px-3 py-2 rounded-lg bg-red-600/30 hover:bg-red-500/40 text-white transition-colors backdrop-blur-sm"
+                  className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-red-700/30 bg-red-600/20 hover:bg-red-600/30 text-white transition-colors"
                   title="Hapus Tugas"
                 >
                   <FaTrash size={14} />
                 </button>
                 <button
                   onClick={()=>setDetailTask(t)}
-                  className="mt-2 px-3 py-2 rounded-lg bg-blue-600/30 hover:bg-blue-500/40 text-white transition-colors backdrop-blur-sm"
+                  className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-blue-700/30 bg-blue-600/20 hover:bg-blue-600/30 text-white transition-colors"
                   title="Lihat Detail"
                 >
                   <FaEye size={14} />
                 </button>
                 <button
                   onClick={()=>setImagesTask(t)}
-                  className="mt-2 px-3 py-2 rounded-lg bg-green-600/30 hover:bg-green-500/40 text-white transition-colors backdrop-blur-sm"
+                  className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-green-700/30 bg-green-600/20 hover:bg-green-600/30 text-white transition-colors"
                   title="Lihat Gambar"
                 >
                   <FaImages size={14} />
                 </button>
                 <button
                   onClick={()=>handleDownload(t.id)}
-                  className="mt-2 px-3 py-2 rounded-lg bg-purple-600/30 hover:bg-purple-500/40 text-white transition-colors backdrop-blur-sm"
+                  className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-purple-700/30 bg-purple-600/20 hover:bg-purple-600/30 text-white transition-colors"
                   title="Download"
                 >
                   <FaDownload size={14} />
@@ -380,7 +380,7 @@ const TugasSelesai: React.FC = () => {
                 {t.status === 'SELESAI' && (
                   <button
                     onClick={()=>setPlaybackTask(t)}
-                    className="mt-2 px-3 py-2 rounded-lg bg-orange-600/30 hover:bg-orange-500/40 text-white transition-colors backdrop-blur-sm"
+                    className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-orange-700/30 bg-orange-600/20 hover:bg-orange-600/30 text-white transition-colors"
                     title="Tracking Playback"
                   >
                     <FaPlay size={14} />
@@ -397,7 +397,7 @@ const TugasSelesai: React.FC = () => {
           <button
             onClick={loadMore}
             disabled={loading}
-            className="px-6 py-3 rounded-lg bg-purple-600 hover:bg-purple-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold transition-colors"
+            className="px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 disabled:from-zinc-700 disabled:to-zinc-700 disabled:cursor-not-allowed text-white font-semibold shadow-md transition-colors"
           >
             {loading ? 'Loading...' : 'LOAD MORE'}
           </button>

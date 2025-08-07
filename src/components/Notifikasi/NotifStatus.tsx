@@ -181,30 +181,30 @@ const NotifStatus: React.FC = () => {
   }
 
   return (
-    <div className="h-full rounded-lg bg-black p-4 text-white border border-purple-900 flex flex-col overflow-auto">
+    <div className="h-full rounded-lg bg-black p-4 text-white border border-purple-900 flex flex-col overflow-hidden">
       <h3 className="text-lg font-semibold mb-2 text-center">STATUS</h3>
 
       {/* Filters */}
       <div className="mb-3">
         {/* Input fields */}
-        <div className="flex flex-col sm:flex-row gap-2 mb-2">
+        <div className="flex flex-col sm:flex-row gap-2 mb-2 min-w-0">
           <input
             type="text"
             value={search}
             onChange={e=>setSearch(e.target.value)}
             placeholder="Cari..."
-            className="flex-1 px-2 py-1 rounded bg-gray-800 border border-gray-600 text-sm"
+            className="flex-1 px-2 py-1 rounded bg-gray-800 border border-gray-600 text-sm min-w-0"
           />
           <input
             type="date"
             value={filterDate}
             onChange={e=>setFilterDate(e.target.value)}
-            className="flex-1 px-2 py-1 rounded bg-gray-800 border border-gray-600 text-sm"
+            className="flex-1 px-2 py-1 rounded bg-gray-800 border border-gray-600 text-sm min-w-0"
           />
         </div>
 
         {/* Buttons - 3 columns on mobile, inline on desktop */}
-        <div className="grid grid-cols-3 gap-2 sm:flex sm:gap-2">
+        <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-2">
           <button
             onClick={clearFilters}
             className="px-3 py-1 rounded bg-red-600/30 hover:bg-red-500/40 text-white transition-colors backdrop-blur-sm text-sm"
@@ -236,7 +236,7 @@ const NotifStatus: React.FC = () => {
           {search || filterDate ? 'Tidak ada notifikasi yang sesuai filter' : 'Belum ada notifikasi status hari ini'}
         </p>
       ) : (
-        <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+        <div className="flex-1 overflow-y-auto space-y-3 pr-2 min-w-0">
           {filtered.map((n, idx) => {
             const rowBase = idx % 2 === 0 ? 'bg-gray-800' : 'bg-gray-900';
             const isUnread = unreadIds.has(n.timestamp + n.deviceId);
@@ -245,18 +245,18 @@ const NotifStatus: React.FC = () => {
             const badge = (text: string, state: 'on' | 'off' | 'online' | 'offline' | 'disconnected') => {
               const clr = state === 'on' || state === 'online' ? 'green' : state==='disconnected'? 'yellow' : 'red';
               return (
-                <span className={`px-2 py-1 rounded-md text-sm font-medium bg-${clr}-600 text-black min-w-[80px] text-center`}>{text}</span>
+                <span className={`px-2 py-1 rounded-md text-sm font-medium bg-${clr}-600 text-black min-w-[80px] text-center shrink-0`}>{text}</span>
               );
             };
 
             let messageElem: React.ReactNode = null;
             if (n.type === 'status') {
               messageElem = (
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 max-w-full">
                   <span className="font-medium">Status Perubahan</span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 max-w-full">
                     {badge(n.from ?? '', n.from as any)}
-                    <span className="text-lg">➔</span>
+                    <span className="text-lg shrink-0">➔</span>
                     {badge(n.to ?? '', n.to as any)}
                     <button
                       onClick={() => alert('Kemungkinan Jaringan terputus atau HP Dimatikan')}
@@ -272,11 +272,11 @@ const NotifStatus: React.FC = () => {
               const fromLabel = n.from === 'on' ? 'Aktif' : 'Mati';
               const toLabel = n.to === 'on' ? 'Aktif' : 'Mati';
               messageElem = (
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 max-w-full">
                   <span className="font-medium">GPS Perubahan</span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 max-w-full">
                     {badge(fromLabel, n.from as any)}
-                    <span className="text-lg">➔</span>
+                    <span className="text-lg shrink-0">➔</span>
                     {badge(toLabel, n.to as any)}
                     <button
                       onClick={() => alert('Kemungkinan besar settingan GPS Diubah Driver')}
@@ -290,10 +290,10 @@ const NotifStatus: React.FC = () => {
               );
             } else if (n.type === 'battery') {
               messageElem = (
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 max-w-full">
                   <span className="font-medium">Status Baterai</span>
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-1 rounded-md text-sm font-medium bg-red-600 text-black min-w-[120px] text-center">Baterai Rendah</span>
+                  <div className="flex flex-wrap items-center gap-2 max-w-full">
+                    <span className="px-2 py-1 rounded-md text-sm font-medium bg-red-600 text-black min-w-[120px] text-center shrink-0">Baterai Rendah</span>
                     <span className="text-sm">({n.level}%)</span>
                     <button
                       onClick={() => alert('Kondisi Battery HP Driver dibawah 25%')}
@@ -308,17 +308,17 @@ const NotifStatus: React.FC = () => {
             }
 
             return (
-              <div key={idx} className={`p-4 rounded-xl ${rowCls} shadow-md hover:shadow-lg transition-shadow`}>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="w-full sm:w-1/4">
+              <div key={idx} className={`p-4 rounded-xl ${rowCls} shadow-md hover:shadow-lg transition-shadow overflow-hidden`}>
+                <div className="flex flex-col sm:flex-row sm:flex-nowrap flex-wrap items-start sm:items-center justify-between gap-4 min-w-0">
+                  <div className="w-full sm:w-1/4 min-w-0">
                     <span className="font-medium text-purple-400">Waktu:</span>
-                    <p className="text-base">{new Date(n.timestamp).toLocaleString('id-ID')}</p>
+                    <p className="text-base break-words whitespace-normal">{new Date(n.timestamp).toLocaleString('id-ID')}</p>
                   </div>
-                  <div className="w-full sm:w-1/4">
+                  <div className="w-full sm:w-1/4 min-w-0">
                     <span className="font-medium text-purple-400">Driver:</span>
-                    <p className="text-base">{n.nama}</p>
+                    <p className="text-base break-words whitespace-normal">{n.nama}</p>
                   </div>
-                  <div className="w-full sm:w-1/2">
+                  <div className="w-full sm:w-1/2 min-w-0">
                     {messageElem}
                   </div>
                 </div>
