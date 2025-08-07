@@ -492,48 +492,48 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-lg w-full max-w-6xl h-full max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      <div className="bg-zinc-950/80 border border-zinc-800 rounded-xl w-full max-w-6xl h-full max-h-[90vh] flex flex-col text-zinc-200 backdrop-blur-sm">
         {/* Header */}
-        <div className="flex justify-between items-center p-4 border-b border-gray-700">
-          <h2 className="text-xl font-semibold text-white">
+        <div className="flex justify-between items-center p-4 border-b border-zinc-800 bg-zinc-900/60">
+          <h2 className="text-xl font-semibold text-zinc-200">
             Tracking Playback - {task.description}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-zinc-400 hover:text-zinc-200 transition-colors"
           >
             <FaTimes size={20} />
           </button>
         </div>
 
         {/* Time Range Controls */}
-        <div className="p-4 border-b border-gray-700 bg-gray-800">
+        <div className="p-4 border-b border-zinc-800 bg-zinc-900/60">
           <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 items-start sm:items-center overflow-x-auto">
             <div className="flex items-center gap-2">
-              <label className="text-white text-xs sm:text-sm break-words">From:</label>
+              <label className="text-zinc-300 text-xs sm:text-sm break-words">From:</label>
               <input
                 type="datetime-local"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="px-2 py-1 rounded bg-gray-700 text-white text-sm"
+                className="px-2 py-1 rounded bg-zinc-900/80 border border-zinc-800 text-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600/40"
               />
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-white text-xs sm:text-sm break-words">To:</label>
+              <label className="text-zinc-300 text-xs sm:text-sm break-words">To:</label>
               <input
                 type="datetime-local"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="px-2 py-1 rounded bg-gray-700 text-white text-sm"
+                className="px-2 py-1 rounded bg-zinc-900/80 border border-zinc-800 text-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600/40"
               />
             </div>
-            <div className="text-white text-xs sm:text-sm break-words">
+            <div className="text-zinc-300 text-xs sm:text-sm break-words">
               Track Points: {filteredTrack.length}
             </div>
             {filteredTrack.length > 0 ? (
               <>
-                <div className="text-white text-xs sm:text-sm break-words">
+                <div className="text-zinc-300 text-xs sm:text-sm break-words">
                   Duration: {(() => {
                     const durationMs = filteredTrack[filteredTrack.length - 1]?.ts - filteredTrack[0]?.ts;
                     const totalSeconds = Math.floor(durationMs / 1000);
@@ -549,15 +549,15 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
                     return parts.join(' ');
                   })()}
                 </div>
-                <div className="text-gray-300 text-xs">
+                <div className="text-zinc-300 text-xs">
                   Range: {formatDisplayTime(filteredTrack[0].ts)} - {formatDisplayTime(filteredTrack[filteredTrack.length - 1].ts)}
                 </div>
-                <div className="text-gray-400 text-xs hidden md:block">
+                <div className="text-zinc-400 text-xs hidden md:block">
                   Debug: Start={startTime}, End={endTime}
                 </div>
               </>
             ) : (
-              <div className="text-yellow-400 text-sm">
+              <div className="text-amber-400 text-sm">
                 No tracking data available for selected time range
               </div>
             )}
@@ -568,18 +568,18 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
         <div className="flex-1 relative">
           <div ref={mapContainer} className="w-full h-full" />
           {!mapLoaded && (
-            <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
-              <div className="text-white text-lg">Loading map...</div>
+            <div className="absolute inset-0 bg-zinc-900/60 flex items-center justify-center">
+              <div className="text-zinc-200 text-lg">Loading map...</div>
             </div>
           )}
         </div>
 
         {/* Playback Controls */}
-        <div className="p-4 border-t border-gray-700 bg-gray-800">
+        <div className="p-4 border-t border-zinc-800 bg-zinc-900/60">
           <div className="flex flex-col gap-3">
             {/* Progress Bar */}
             <div
-              className="progress-bar w-full bg-gray-600 rounded-full h-2 cursor-pointer select-none relative"
+              className="progress-bar w-full bg-zinc-700 rounded-full h-2 cursor-pointer select-none relative"
               onMouseDown={handleMouseDown}
               onClick={(e) => {
                 if (!isDragging) {
@@ -589,12 +589,12 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
               }}
             >
               <div
-                className="bg-purple-600 h-2 rounded-full transition-all duration-200 pointer-events-none relative"
+                className="bg-blue-600 h-2 rounded-full transition-all duration-200 pointer-events-none relative"
                 style={{ width: `${progress}%` }}
               >
                 {/* Scrubber handle */}
                 <div
-                  className="absolute right-0 top-1/2 transform translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-white border-2 border-purple-600 rounded-full shadow-lg cursor-pointer"
+                  className="absolute right-0 top-1/2 transform translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-white border-2 border-blue-600 rounded-full shadow-lg cursor-pointer"
                   style={{
                     opacity: filteredTrack.length > 0 ? 1 : 0,
                     transition: 'opacity 0.2s'
@@ -611,7 +611,7 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
                   setProgress(0);
                   setIsPlaying(false);
                 }}
-                className="p-2 rounded bg-gray-700 hover:bg-gray-600 text-white"
+                className="p-2 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200"
                 title="Reset to Start"
                 disabled={filteredTrack.length === 0}
               >
@@ -620,7 +620,7 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
 
               <button
                 onClick={() => setPlaybackSpeed(Math.max(0.25, playbackSpeed - 0.25))}
-                className="p-2 rounded bg-gray-700 hover:bg-gray-600 text-white"
+                className="p-2 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200"
                 title="Slower"
               >
                 <FaFastBackward size={16} />
@@ -628,7 +628,7 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
 
               <button
                 onClick={() => setIsPlaying(!isPlaying)}
-                className="p-3 rounded bg-purple-600 hover:bg-purple-500 text-white"
+                className="p-3 rounded bg-blue-600 hover:bg-blue-500 text-white"
                 disabled={filteredTrack.length === 0}
               >
                 {isPlaying ? <FaPause size={20} /> : <FaPlay size={20} />}
@@ -636,7 +636,7 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
 
               <button
                 onClick={() => setPlaybackSpeed(Math.min(4, playbackSpeed + 0.25))}
-                className="p-2 rounded bg-gray-700 hover:bg-gray-600 text-white"
+                className="p-2 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200"
                 title="Faster"
               >
                 <FaFastForward size={16} />
@@ -648,23 +648,23 @@ const TrackingPlaybackModal: React.FC<TrackingPlaybackModalProps> = ({
                   setProgress(100);
                   setIsPlaying(false);
                 }}
-                className="p-2 rounded bg-gray-700 hover:bg-gray-600 text-white"
+                className="p-2 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200"
                 title="Jump to End"
                 disabled={filteredTrack.length === 0}
               >
                 ⏭
               </button>
 
-              <div className="text-white text-xs sm:text-sm break-words">
+              <div className="text-zinc-200 text-xs sm:text-sm break-words">
                 Speed: {playbackSpeed}x
               </div>
 
-              <div className="text-white text-xs sm:text-sm break-words">
+              <div className="text-zinc-200 text-xs sm:text-sm break-words">
                 {currentIndex + 1} / {filteredTrack.length}
               </div>
 
               {filteredTrack[currentIndex] && (
-                <div className="text-white text-xs sm:text-sm break-words">
+                <div className="text-zinc-200 text-xs sm:text-sm break-words">
                   Time: {formatDisplayTime(filteredTrack[currentIndex].ts)}
                 </div>
               )}

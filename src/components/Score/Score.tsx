@@ -59,22 +59,22 @@ const Score: React.FC = () => {
   };
 
   return (
-    <div className="h-full rounded-2xl bg-slate-900 p-6 text-white flex flex-col gap-6 overflow-hidden">
-      <h3 className="text-2xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+    <div className="h-full rounded-xl bg-zinc-950/80 p-6 text-white flex flex-col gap-6 overflow-hidden border border-zinc-800">
+      <h3 className="text-2xl font-bold text-center text-zinc-200">
         LEADERBOARD DRIVER
       </h3>
       
       {loading ? (
         <div className="flex justify-center items-center h-full">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-zinc-500"></div>
         </div>
       ) : sorted.length === 0 ? (
-        <p className="text-center text-lg text-gray-500 mt-8">Tidak ada data driver</p>
+        <p className="text-center text-lg text-zinc-500 mt-8">Tidak ada data driver</p>
       ) : (
         <>
           <div className="flex justify-end mb-2">
             <button
-              className="px-3 py-1 bg-slate-700 hover:bg-purple-600 rounded-lg flex items-center gap-2 text-sm"
+              className="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 rounded-lg flex items-center gap-2 text-sm"
               onClick={() => setAscending(p => !p)}
             >
               {ascending ? <FaSortAmountUp className="text-yellow-400" /> : <FaSortAmountDown className="text-yellow-400" />}
@@ -83,20 +83,20 @@ const Score: React.FC = () => {
           </div>
           <div className="overflow-y-auto w-full -mr-4 pr-4">
           <table className="min-w-full text-base">
-            <thead className="sticky top-0 bg-slate-900 z-10">
+            <thead className="sticky top-0 bg-zinc-950/80 z-10">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold text-purple-300">#</th>
-                <th className="px-4 py-3 text-left font-semibold text-purple-300">Nama Driver</th>
-                <th className="px-4 py-3 text-left font-semibold text-purple-300">Rating</th>
-                <th className="px-4 py-3 text-center font-semibold text-purple-300">Atur Rating</th>
+                <th className="px-4 py-3 text-left font-semibold text-zinc-300">#</th>
+                <th className="px-4 py-3 text-left font-semibold text-zinc-300">Nama Driver</th>
+                <th className="px-4 py-3 text-left font-semibold text-zinc-300">Rating</th>
+                <th className="px-4 py-3 text-center font-semibold text-zinc-300">Atur Rating</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800">
+            <tbody className="divide-y divide-zinc-800">
               {sorted.map((acc, idx) => (
-                <tr key={acc.deviceId} className="hover:bg-slate-800/60 transition-colors duration-200">
+                <tr key={acc.deviceId} className="hover:bg-zinc-900/60 transition-colors duration-200">
                   <td className="px-4 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
-                      <span className={`font-bold text-xl w-8 text-center ${idx > 2 ? 'text-slate-500' : ''}`}>
+                      <span className={`font-bold text-xl w-8 text-center ${idx > 2 ? 'text-zinc-500' : ''}`}>
                         {idx < 3 ? <FaTrophy className={getRankColor(idx + 1)} /> : idx + 1}
                       </span>
                     </div>
@@ -105,15 +105,15 @@ const Score: React.FC = () => {
                   <td className="px-4 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       {[...Array(5)].map((_, i) => (
-                        <FaStar key={i} className={i < getRating(acc.deviceId) ? 'text-yellow-400' : 'text-gray-600'} />
+                        <FaStar key={i} className={i < getRating(acc.deviceId) ? 'text-yellow-400' : 'text-zinc-600'} />
                       ))}
-                      <span className="ml-2 text-gray-400 text-sm">({getRating(acc.deviceId).toFixed(1)})</span>
+                      <span className="ml-2 text-zinc-400 text-sm">({getRating(acc.deviceId).toFixed(1)})</span>
                     </div>
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
                     <div className="flex items-center justify-center gap-2">
                       <button 
-                        className="p-2 bg-slate-700 hover:bg-red-500 rounded-full text-white transition-colors duration-200 disabled:opacity-50"
+                        className="p-2 bg-zinc-800 hover:bg-rose-600 rounded-full text-white transition-colors duration-200 disabled:opacity-50"
                         onClick={() => handleRatingChange(acc.deviceId, -Number(adjust[acc.deviceId] || 0.1))}
                         disabled={getRating(acc.deviceId) <= 1}
                       >
@@ -127,10 +127,10 @@ const Score: React.FC = () => {
                           const v = e.target.value.replace(/[^0-9.]/g, '');
                           if(parseFloat(v) >= 0) setAdjust(prev => ({ ...prev, [acc.deviceId]: v }));
                         }} 
-                        className="w-20 px-2 py-1 rounded-lg bg-slate-700 text-center font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                        className="w-20 px-2 py-1 rounded-lg bg-zinc-900/80 border border-zinc-800 text-center font-semibold focus:outline-none focus:ring-2 focus:ring-purple-600/40" 
                       />
                       <button 
-                        className="p-2 bg-slate-700 hover:bg-green-500 rounded-full text-white transition-colors duration-200 disabled:opacity-50"
+                        className="p-2 bg-zinc-800 hover:bg-emerald-600 rounded-full text-white transition-colors duration-200 disabled:opacity-50"
                         onClick={() => handleRatingChange(acc.deviceId, Number(adjust[acc.deviceId] || 0.1))}
                         disabled={getRating(acc.deviceId) >= 5}
                       >
