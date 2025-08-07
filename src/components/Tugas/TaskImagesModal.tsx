@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { getTaskCompletionTime } from "../../utils/timeUtils";
 
 interface Task { id:string; description:string; from:string; to:string; deadline:string; status?:string; photoReq?:string[]; startTimestamp?:string; endTimestamp?:string; completionTimeMs?:number; }
@@ -18,23 +18,33 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
   const [previewImages, setPreviewImages] = useState<PreviewImage[]>([]);
   const [photoReq, setPhotoReq] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"all"|"done"|"pending">("all");
+  const [showPreviewOnly, setShowPreviewOnly] = useState(false);
+  const [sortBy, setSortBy] = useState<"newest"|"oldest"|"label">("oldest");
+  const [viewerIdx, setViewerIdx] = useState<number|null>(null);
+  const [viewerRotation, setViewerRotation] = useState<number>(0);
 
-  useEffect(()=>{
-    const load = async ()=>{
-      setLoading(true);
-      try{
-        const res = await fetch(`/api/tasks/${task.id}`);
-        if(res.ok){
-          const data = await res.json();
-          setImages(data.images || []);
-          setPreviewImages(data.previewImages || []);
-          setPhotoReq(data.photoReq || []);
-        }
-      }catch{}
-      setLoading(false);
-    };
-    load();
+  const openViewer = (index: number) => {
+    setViewerIdx(index);
+    setViewerRotation(0);
+  };
+
+  const reload = useCallback(async ()=>{
+    setLoading(true);
+    try{
+      const res = await fetch(`/api/tasks/${task.id}`);
+      if(res.ok){
+        const data = await res.json();
+        setImages(data.images || []);
+        setPreviewImages(data.previewImages || []);
+        setPhotoReq(data.photoReq || []);
+      }
+    }catch{}
+    setLoading(false);
   },[task.id]);
+
+  useEffect(()=>{ reload(); },[reload]);
 
   // helper normalize
   const norm = (s:string)=> decodeURIComponent(s).toLowerCase().replace(/[^a-z0-9]/g,'');
@@ -52,6 +62,7 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
       }
       return false;
     });
+ 
 
     let isPreview = false;
     // If not found in final images, check preview images and get the NEWEST one
@@ -89,6 +100,47 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
     ...images.map(i=>({label:i.split('_').slice(2,-1).join(' ')||i, file:i, isPreview: false})), 
     ...getUniqueNewestPreviews(previewImages).map(pi=>({label:pi.label, file:pi.path, isPreview: true}))
   ];
+
+  // Build gallery with metadata for toolbar controls
+  const parseTs = (file?: string): number | null => {
+    if (!file) return null;
+    const fname = file.split('/').pop() || file;
+    const parts = fname.split('_');
+    const firstNum = parts.find(p => /^\d{13}$/.test(p));
+    const lastPart = parts[parts.length - 1].split('.')[0];
+    const numStr = firstNum || (/^\d{13}$/.test(lastPart) ? lastPart : null);
+    return numStr ? Number(numStr) : null;
+  };
+
+  const gallery = useMemo(() => mapped.map(m => ({
+    label: m.label,
+    file: m.file,
+    isPreview: m.isPreview,
+    done: Boolean(m.file),
+    ts: parseTs(m.file),
+  })), [mapped]);
+
+  const filteredGallery = useMemo(() => {
+    let list = gallery;
+    if (filter === 'done') list = list.filter(i => i.done);
+    if (filter === 'pending') list = list.filter(i => !i.done);
+    if (showPreviewOnly) list = list.filter(i => i.isPreview);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(i => i.label.toLowerCase().includes(q));
+    }
+    switch (sortBy) {
+      case 'label':
+        list = [...list].sort((a, b) => a.label.localeCompare(b.label));
+        break;
+      case 'oldest':
+        list = [...list].sort((a, b) => (a.ts || 0) - (b.ts || 0));
+        break;
+      default:
+        list = [...list].sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    }
+    return list;
+  }, [gallery, filter, showPreviewOnly, search, sortBy]);
 
   // Helper function to get only the newest preview image for each label
   function getUniqueNewestPreviews(previews: PreviewImage[]): PreviewImage[] {
@@ -158,7 +210,7 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
     );
   };
 
-  const card = (label: string, file?: string, isPreview = false) => {
+  const card = (label: string, file?: string, isPreview = false, index?: number) => {
     let ts = '-';
     if (file) {
       const fname = file.split('/').pop() || file;
@@ -169,18 +221,23 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
       if (numStr) ts = fmtDate(Number(numStr));
     }
     return (
-      <div key={label} className="flex flex-col bg-zinc-900/60 rounded-xl overflow-hidden border border-zinc-800 shadow-sm relative">
+      <div key={label+String(index)} className="group flex flex-col bg-zinc-900/60 rounded-xl overflow-hidden border border-zinc-800 shadow-sm relative">
         {/* Preview badge */}
         {isPreview && (
           <div className="absolute top-2 left-2 z-10 bg-amber-500/90 text-white text-[10px] px-2 py-0.5 rounded-full font-semibold border border-amber-400/60">
             PREVIEW
           </div>
         )}
-        {file ? (
-          <ImageWithLoader src={`/task-images/${file}`} alt={label} />
-        ) : (
-          <div className="w-full h-60 bg-zinc-900 flex items-center justify-center text-zinc-500 text-sm">Tidak ada gambar</div>
-        )}
+        <button onClick={()=> typeof index==='number' && openViewer(index)} className="text-left">
+          {file ? (
+            <div className="relative">
+              <ImageWithLoader src={`/task-images/${file}`} alt={label} />
+              <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+          ) : (
+            <div className="w-full h-60 bg-zinc-900 flex items-center justify-center text-zinc-500 text-sm">Tidak ada gambar</div>
+          )}
+        </button>
         <div className="p-2 border-t border-zinc-800 text-center text-xs text-zinc-200">
           <p className="truncate" title={label}>{label}</p>
           <p className="text-zinc-400 mt-1">{ts}</p>
@@ -195,9 +252,32 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
       <div className="relative w-full max-w-6xl bg-zinc-950/95 border border-zinc-800 rounded-2xl shadow-2xl max-h-full flex flex-col overflow-hidden">
-        <div className="sticky top-0 z-10 flex items-center justify-between px-5 py-3 bg-zinc-900/70 backdrop-blur-md border-b border-zinc-800">
-          <h4 className="text-lg md:text-xl font-semibold text-zinc-200">Detail Tugas & Foto – #{task.id}</h4>
-          <button onClick={onClose} className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300">✕</button>
+        <div className="sticky top-0 z-10 flex flex-col gap-2 md:flex-row md:items-center md:justify-between px-5 py-3 bg-zinc-900/70 backdrop-blur-md border-b border-zinc-800">
+          <div className="flex items-center gap-3">
+            <h4 className="text-lg md:text-xl font-semibold text-zinc-200">Detail Tugas & Foto – #{task.id}</h4>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] border border-zinc-700 text-zinc-300">
+              {(gallery.filter(g=>g.done).length)}/{gallery.length} selesai
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Cari label..." className="w-40 md:w-52 rounded-lg bg-zinc-900/80 border border-zinc-800 text-xs px-7 py-1.5 text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-purple-600/40" />
+              <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[11px] text-zinc-500">⌕</span>
+            </div>
+            <select value={filter} onChange={e=>setFilter(e.target.value as any)} className="rounded-lg bg-zinc-900/80 border border-zinc-800 text-xs px-2 py-1.5">
+              <option value="all">Semua</option>
+              <option value="done">Selesai</option>
+              <option value="pending">Belum</option>
+            </select>
+            <select value={sortBy} onChange={e=>setSortBy(e.target.value as any)} className="rounded-lg bg-zinc-900/80 border border-zinc-800 text-xs px-2 py-1.5">
+              <option value="newest">Terbaru</option>
+              <option value="oldest">Terlama</option>
+              <option value="label">Label</option>
+            </select>
+            <label className="inline-flex items-center gap-1 text-xs text-zinc-300"><input type="checkbox" className="accent-purple-600" checked={showPreviewOnly} onChange={e=>setShowPreviewOnly(e.target.checked)} /> Preview saja</label>
+            <button onClick={reload} className="inline-flex items-center gap-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 text-xs">↻ Refresh</button>
+            <button onClick={onClose} className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300">✕</button>
+          </div>
         </div>
 
         {loading ? (
@@ -249,8 +329,8 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
 
               {/* Right images grid */}
               <div className="flex-1 overflow-auto p-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 auto-rows-max">
-                {mapped.length===0 && <p className="col-span-full text-center text-zinc-500">Belum ada gambar</p>}
-                {mapped.map(({label,file,isPreview})=> card(label,file,isPreview))}
+                {filteredGallery.length===0 && <p className="col-span-full text-center text-zinc-500">Tidak ada hasil</p>}
+                {filteredGallery.map((it, idx)=> card(it.label, it.file, it.isPreview, idx))}
               </div>
             </div>
 
@@ -258,8 +338,8 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
             <div className="flex md:hidden flex-col flex-1 overflow-hidden">
               {/* Top images grid */}
               <div className="flex-1 overflow-auto p-4 grid gap-4 grid-cols-1 sm:grid-cols-2 auto-rows-max">
-                {mapped.length===0 && <p className="col-span-full text-center text-zinc-500">Belum ada gambar</p>}
-                {mapped.map(({label,file,isPreview})=> card(label,file,isPreview))}
+                {filteredGallery.length===0 && <p className="col-span-full text-center text-zinc-500">Tidak ada hasil</p>}
+                {filteredGallery.map((it, idx)=> card(it.label, it.file, it.isPreview, idx))}
               </div>
 
               {/* Bottom info panel */}
@@ -306,6 +386,31 @@ const TaskImagesModal: React.FC<Props> = ({ task, onClose }) => {
           </div>
         )}
       </div>
+      {/* Lightbox Viewer */}
+      {viewerIdx!==null && filteredGallery[viewerIdx] && (
+        <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={()=>setViewerIdx(null)}>
+          <div className="relative max-w-[95vw] max-h-[90vh]" onClick={e=>e.stopPropagation()}>
+            <div className="max-w-[95vw] max-h-[90vh] overflow-auto grid place-items-center">
+              <img
+                src={`/task-images/${filteredGallery[viewerIdx].file}`}
+                className="max-w-[95vw] max-h-[90vh] rounded-xl border border-zinc-800 transition-transform"
+                style={{ transform: `rotate(${viewerRotation}deg)` }}
+              />
+            </div>
+            <div className="absolute -top-10 left-0 right-0 flex items-center justify-between text-zinc-200 text-sm">
+              <span className="truncate">{filteredGallery[viewerIdx].label}</span>
+              <div className="flex items-center gap-2">
+                <button onClick={()=>setViewerRotation(r=> (r-90+360)%360)} className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700">↺ Rotate</button>
+                <button onClick={()=>setViewerRotation(r=> (r+90)%360)} className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700">↻ Rotate</button>
+                <a href={`/task-images/${filteredGallery[viewerIdx].file}`} download className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700">Download</a>
+                <button onClick={()=>setViewerIdx(null)} className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700">Close</button>
+              </div>
+            </div>
+            <button disabled={viewerIdx<=0} onClick={()=>{setViewerIdx(p=> (p??0)-1); setViewerRotation(0);}} className="absolute left-0 top-1/2 -translate-y-1/2 px-3 py-6 bg-black/40 hover:bg-black/60 rounded-r-xl text-zinc-200">◀</button>
+            <button disabled={viewerIdx>=filteredGallery.length-1} onClick={()=>{setViewerIdx(p=> (p??0)+1); setViewerRotation(0);}} className="absolute right-0 top-1/2 -translate-y-1/2 px-3 py-6 bg-black/40 hover:bg-black/60 rounded-l-xl text-zinc-200">▶</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
