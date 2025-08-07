@@ -25,6 +25,45 @@ const parseDeadline = (str:string):Date|null=>{
   return isNaN(d.getTime())?null:d;
 };
 
+// Determine the task's submission date based on status/end/cancel timestamps
+const getTaskSubmissionDate = (t: Task): Date | null => {
+  let dateStr: string | undefined;
+  if (t.status === 'SELESAI' && t.endTimestamp) {
+    dateStr = t.endTimestamp;
+  } else if (t.status === 'DIBATALKAN' && t.cancelledTimestamp) {
+    dateStr = t.cancelledTimestamp;
+  } else if (t.createdAt) {
+    dateStr = t.createdAt;
+  }
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? null : d;
+};
+
+// Map a submission date into a checkpoint label
+// - Today: no header
+// - Yesterday: "Semalam"
+// - Within last 7 days: "Seminggu Lalu"
+// - Within last 30 days: "Sebulan Lalu"
+// - Older: no header
+const getCheckpointLabel = (date: Date | null): string | null => {
+  if (!date) return null;
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfYesterday = new Date(startOfToday);
+  startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+  const startOfLastWeek = new Date(startOfToday);
+  startOfLastWeek.setDate(startOfLastWeek.getDate() - 7);
+  const startOfLastMonth = new Date(startOfToday);
+  startOfLastMonth.setMonth(startOfLastMonth.getMonth() - 1);
+
+  if (date >= startOfToday) return null; // Today → no header
+  if (date >= startOfYesterday) return 'Semalam';
+  if (date >= startOfLastWeek) return 'Seminggu Lalu';
+  if (date >= startOfLastMonth) return 'Sebulan Lalu';
+  return null;
+};
+
 const TugasSelesai: React.FC = () => {
   const [tasks,setTasks]=useState<Task[]>([]);
   const [accounts,setAccounts]=useState<Record<string,Account>>({});
@@ -280,116 +319,132 @@ const TugasSelesai: React.FC = () => {
         <button onClick={refreshData} className="h-9 px-3 py-2 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition">Refresh</button>
       </div>
       {filteredTasks.length===0 && !loading && <p className="text-gray-500 text-sm text-center">Tidak ada tugas selesai</p>}
-      {filteredTasks.map(t=>{
+      {(() => {
+        let lastLabel: string | null = null;
+        return filteredTasks.map(t=>{
+          const submissionDate = getTaskSubmissionDate(t);
+          const headerLabel = getCheckpointLabel(submissionDate);
+          const showHeader = !!headerLabel && headerLabel !== lastLabel;
+          if (headerLabel) lastLabel = headerLabel;
           const dParsed = parseDeadline(t.deadline);
           const dstr = dParsed ? dParsed.toLocaleString('id-ID',{ day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}).replace('.',':') : t.deadline;
           const createdStr = t.createdAt ? new Date(t.createdAt).toLocaleString('id-ID',{ day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}).replace('.',':') : '-';
           const clr = statusColor(t.status);
           return (
-            <div key={t.id} className={`bg-zinc-900/60 rounded-xl p-4 mb-3 border ${clr.border} hover:border-purple-500/40 shadow-sm hover:shadow-md transition-all duration-200`}>
-              <div className="flex items-start justify-between mb-2">
-                <h4 className="font-semibold text-purple-200 text-base truncate max-w-[60%] tracking-wide">{t.description}</h4>
-                <div className="text-right flex flex-col items-end">
-                  <span className={`text-xs font-semibold inline-block px-2 py-0.5 rounded-md border border-white/10 ${clr.text} ${clr.bg}`}>{t.status}</span>
-                  <span className="text-xs text-gray-400">#{t.id}</span>
+            <React.Fragment key={t.id}>
+              {showHeader && (
+                <div className="mt-3 mb-1 flex items-center gap-3 text-xs uppercase tracking-wider text-zinc-400">
+                  <div className="h-px bg-zinc-800 flex-1" />
+                  <span className="px-2 py-0.5 rounded-md bg-zinc-900/80 border border-zinc-800 text-purple-200">{headerLabel}</span>
+                  <div className="h-px bg-zinc-800 flex-1" />
                 </div>
-              </div>
-              <div className="flex flex-col md:flex-row flex-wrap justify-between gap-2 text-sm">
-                {/* Left side - Driver and Location Info */}
-                <div className="space-y-1 flex-1 min-w-0 pr-4">
-                  <div className="flex flex-wrap gap-1 items-start">
-                    <span className="text-gray-400 mr-1">Driver:</span>
-                    {(t.drivers||[]).map(id=>{ const acc=accounts[id]; return (
-                      <span key={id} className="text-white inline-flex items-center gap-1 bg-purple-700/40 border border-purple-500/20 px-2 py-0.5 rounded-md">
-                        <span className={`w-2 h-2 rounded-full shadow-inner ${statuses[id]==='online'?'bg-green-400':statuses[id]==='disconnected'?'bg-red-500':'bg-gray-500'}`}></span>
-                        {acc?`${acc.nama} (${acc.bk})`:id}
-                      </span>
-                    ); })}
+              )}
+              <div className={`bg-zinc-900/60 rounded-xl p-4 mb-3 border ${clr.border} hover:border-purple-500/40 shadow-sm hover:shadow-md transition-all duration-200`}>
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-semibold text-purple-200 text-base truncate max-w-[60%] tracking-wide">{t.description}</h4>
+                  <div className="text-right flex flex-col items-end">
+                    <span className={`text-xs font-semibold inline-block px-2 py-0.5 rounded-md border border-white/10 ${clr.text} ${clr.bg}`}>{t.status}</span>
+                    <span className="text-xs text-gray-400">#{t.id}</span>
                   </div>
-                  <div className="flex gap-1"><span className="text-gray-400">Berangkat:</span><span className="text-white flex-1 truncate">{t.from}</span></div>
-                  <div className="flex gap-1"><span className="text-gray-400">Destinasi:</span><span className="text-white flex-1 truncate">{t.to}</span></div>
                 </div>
+                <div className="flex flex-col md:flex-row flex-wrap justify-between gap-2 text-sm">
+                  {/* Left side - Driver and Location Info */}
+                  <div className="space-y-1 flex-1 min-w-0 pr-4">
+                    <div className="flex flex-wrap gap-1 items-start">
+                      <span className="text-gray-400 mr-1">Driver:</span>
+                      {(t.drivers||[]).map(id=>{ const acc=accounts[id]; return (
+                        <span key={id} className="text-white inline-flex items-center gap-1 bg-purple-700/40 border border-purple-500/20 px-2 py-0.5 rounded-md">
+                          <span className={`w-2 h-2 rounded-full shadow-inner ${statuses[id]==='online'?'bg-green-400':statuses[id]==='disconnected'?'bg-red-500':'bg-gray-500'}`}></span>
+                          {acc?`${acc.nama} (${acc.bk})`:id}
+                        </span>
+                      ); })}
+                    </div>
+                    <div className="flex gap-1"><span className="text-gray-400">Berangkat:</span><span className="text-white flex-1 truncate">{t.from}</span></div>
+                    <div className="flex gap-1"><span className="text-gray-400">Destinasi:</span><span className="text-white flex-1 truncate">{t.to}</span></div>
+                  </div>
 
-                {/* Right side - Date and Time Info */}
-                <div className="space-y-1 text-left lg:text-right mt-2 lg:mt-0 w-full lg:w-56 flex-shrink-0">
-                  {/* Created date */}
-                  <div className="text-gray-400 text-xs">Tanggal Dibuat: <span className="text-white">{createdStr}</span></div>
-                  {/* Submitted date (driver menekan selesai / dibatalkan) */}
-                  {t.status==='SELESAI' && (() => {
-                    const submittedAt = t.endTimestamp || null;
-                    if(!submittedAt) return null;
-                    const submitStr = new Date(submittedAt).toLocaleString('id-ID', {
-                      day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-                    }).replace('.', ':');
-                    return (
-                      <div className="text-gray-400 text-xs">Tanggal diSubmit: <span className="text-blue-400">{submitStr}</span></div>
-                    );
-                  })()}
-                  <div className="text-gray-400 text-xs">Deadline: <span className="text-red-400">{dstr}</span></div>
-                  {t.status === 'SELESAI' && (() => {
-                    const completionTime = getTaskCompletionTime(t);
-                    return completionTime ? (
-                      <div className="text-gray-400 text-xs">Waktu Penyelesaian: <span className="text-green-400">{completionTime}</span></div>
-                    ) : null;
-                  })()}
-                  {t.status === 'DIBATALKAN' && (() => {
-                    const cancellationTime = getTaskCancellationTime(t);
-                    return cancellationTime ? (
-                      <div className="text-gray-400 text-xs">Waktu Dibatalkan: <span className="text-red-400">{cancellationTime}</span></div>
-                    ) : null;
-                  })()}
+                  {/* Right side - Date and Time Info */}
+                  <div className="space-y-1 text-left lg:text-right mt-2 lg:mt-0 w-full lg:w-56 flex-shrink-0">
+                    {/* Created date */}
+                    <div className="text-gray-400 text-xs">Tanggal Dibuat: <span className="text-white">{createdStr}</span></div>
+                    {/* Submitted date (driver menekan selesai / dibatalkan) */}
+                    {t.status==='SELESAI' && (() => {
+                      const submittedAt = t.endTimestamp || null;
+                      if(!submittedAt) return null;
+                      const submitStr = new Date(submittedAt).toLocaleString('id-ID', {
+                        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                      }).replace('.', ':');
+                      return (
+                        <div className="text-gray-400 text-xs">Tanggal diSubmit: <span className="text-blue-400">{submitStr}</span></div>
+                      );
+                    })()}
+                    <div className="text-gray-400 text-xs">Deadline: <span className="text-red-400">{dstr}</span></div>
+                    {t.status === 'SELESAI' && (() => {
+                      const completionTime = getTaskCompletionTime(t);
+                      return completionTime ? (
+                        <div className="text-gray-400 text-xs">Waktu Penyelesaian: <span className="text-green-400">{completionTime}</span></div>
+                      ) : null;
+                    })()}
+                    {t.status === 'DIBATALKAN' && (() => {
+                      const cancellationTime = getTaskCancellationTime(t);
+                      return cancellationTime ? (
+                        <div className="text-gray-400 text-xs">Waktu Dibatalkan: <span className="text-red-400">{cancellationTime}</span></div>
+                      ) : null;
+                    })()}
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 flex-wrap">
+                  <button
+                    onClick={async()=>{
+                      if(!confirm('Hapus tugas ini secara permanen?')) return;
+                      await fetch(`/api/tasks/${t.id}`,{method:'DELETE'});
+                      // Reset and reload from beginning after deletion
+                      setTasks([]);
+                      setOffset(0);
+                      setHasMore(true);
+                      loadInitial();
+                    }}
+                    className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-red-700/30 bg-red-600/20 hover:bg-red-600/30 text-white transition-colors"
+                    title="Hapus Tugas"
+                  >
+                    <FaTrash size={14} />
+                  </button>
+                  <button
+                    onClick={()=>setDetailTask(t)}
+                    className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-blue-700/30 bg-blue-600/20 hover:bg-blue-600/30 text-white transition-colors"
+                    title="Lihat Detail"
+                  >
+                    <FaEye size={14} />
+                  </button>
+                  <button
+                    onClick={()=>setImagesTask(t)}
+                    className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-green-700/30 bg-green-600/20 hover:bg-green-600/30 text-white transition-colors"
+                    title="Lihat Gambar"
+                  >
+                    <FaImages size={14} />
+                  </button>
+                  <button
+                    onClick={()=>handleDownload(t.id)}
+                    className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-purple-700/30 bg-purple-600/20 hover:bg-purple-600/30 text-white transition-colors"
+                    title="Download"
+                  >
+                    <FaDownload size={14} />
+                  </button>
+                  {t.status === 'SELESAI' && (
+                    <button
+                      onClick={()=>setPlaybackTask(t)}
+                      className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-orange-700/30 bg-orange-600/20 hover:bg-orange-600/30 text-white transition-colors"
+                      title="Tracking Playback"
+                    >
+                      <FaPlay size={14} />
+                    </button>
+                  )}
                 </div>
               </div>
-              <div className="flex justify-end gap-2 flex-wrap">
-                <button
-                  onClick={async()=>{
-                    if(!confirm('Hapus tugas ini secara permanen?')) return;
-                    await fetch(`/api/tasks/${t.id}`,{method:'DELETE'});
-                    // Reset and reload from beginning after deletion
-                    setTasks([]);
-                    setOffset(0);
-                    setHasMore(true);
-                    loadInitial();
-                  }}
-                  className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-red-700/30 bg-red-600/20 hover:bg-red-600/30 text-white transition-colors"
-                  title="Hapus Tugas"
-                >
-                  <FaTrash size={14} />
-                </button>
-                <button
-                  onClick={()=>setDetailTask(t)}
-                  className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-blue-700/30 bg-blue-600/20 hover:bg-blue-600/30 text-white transition-colors"
-                  title="Lihat Detail"
-                >
-                  <FaEye size={14} />
-                </button>
-                <button
-                  onClick={()=>setImagesTask(t)}
-                  className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-green-700/30 bg-green-600/20 hover:bg-green-600/30 text-white transition-colors"
-                  title="Lihat Gambar"
-                >
-                  <FaImages size={14} />
-                </button>
-                <button
-                  onClick={()=>handleDownload(t.id)}
-                  className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-purple-700/30 bg-purple-600/20 hover:bg-purple-600/30 text-white transition-colors"
-                  title="Download"
-                >
-                  <FaDownload size={14} />
-                </button>
-                {t.status === 'SELESAI' && (
-                  <button
-                    onClick={()=>setPlaybackTask(t)}
-                    className="mt-2 h-9 w-9 inline-flex items-center justify-center rounded-md border border-orange-700/30 bg-orange-600/20 hover:bg-orange-600/30 text-white transition-colors"
-                    title="Tracking Playback"
-                  >
-                    <FaPlay size={14} />
-                  </button>
-                )}
-              </div>
-            </div>
+            </React.Fragment>
           );
-        })}
+        });
+      })()}
 
       {/* Load More Button - only show if there's more data AND we have loaded some tasks */}
       {hasMore && tasks.length > 0 && (
