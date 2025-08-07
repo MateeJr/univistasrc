@@ -181,8 +181,8 @@ const NotifStatus: React.FC = () => {
   }
 
   return (
-    <div className="h-full rounded-lg bg-black p-4 text-white border border-purple-900 flex flex-col overflow-hidden">
-      <h3 className="text-lg font-semibold mb-2 text-center">STATUS</h3>
+    <div className="h-full rounded-xl bg-zinc-950/80 p-4 text-white border border-zinc-800 flex flex-col overflow-hidden">
+      <h3 className="text-lg font-semibold mb-3 text-center text-zinc-200">STATUS</h3>
 
       {/* Filters */}
       <div className="mb-3">
@@ -193,13 +193,13 @@ const NotifStatus: React.FC = () => {
             value={search}
             onChange={e=>setSearch(e.target.value)}
             placeholder="Cari..."
-            className="flex-1 px-2 py-1 rounded bg-gray-800 border border-gray-600 text-sm min-w-0"
+            className="flex-1 px-3 py-2 rounded-lg bg-zinc-900/80 border border-zinc-800 text-sm min-w-0 placeholder:text-zinc-500"
           />
           <input
             type="date"
             value={filterDate}
             onChange={e=>setFilterDate(e.target.value)}
-            className="flex-1 px-2 py-1 rounded bg-gray-800 border border-gray-600 text-sm min-w-0"
+            className="flex-1 px-3 py-2 rounded-lg bg-zinc-900/80 border border-zinc-800 text-sm min-w-0"
           />
         </div>
 
@@ -207,19 +207,19 @@ const NotifStatus: React.FC = () => {
         <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-2">
           <button
             onClick={clearFilters}
-            className="px-3 py-1 rounded bg-red-600/30 hover:bg-red-500/40 text-white transition-colors backdrop-blur-sm text-sm"
+            className="px-3 py-1 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-white transition-colors backdrop-blur-sm text-sm"
           >
             Clear
           </button>
           <button
             onClick={deleteAll}
-            className="px-3 py-1 rounded bg-purple-700/30 hover:bg-purple-800/40 text-white transition-colors backdrop-blur-sm text-sm"
+            className="px-3 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white transition-colors backdrop-blur-sm text-sm"
           >
             Hapus Semua
           </button>
           <button
             onClick={() => setShowRiwayat(true)}
-            className="px-3 py-1 rounded bg-blue-600/30 hover:bg-blue-500/40 text-white transition-colors backdrop-blur-sm text-sm"
+            className="px-3 py-1 rounded-lg bg-blue-600/30 hover:bg-blue-600/40 text-white transition-colors backdrop-blur-sm text-sm"
           >
             Semua Riwayat
           </button>
@@ -228,19 +228,19 @@ const NotifStatus: React.FC = () => {
 
       {!dataReady || (isLoading && list.length === 0) ? (
         <div className="flex flex-col items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mb-2"></div>
-          <p className="text-gray-400 text-sm">Loading notifications...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-zinc-500 mb-2"></div>
+          <p className="text-zinc-400 text-sm">Loading notifications...</p>
         </div>
       ) : filtered.length === 0 ? (
-        <p className="text-gray-500 text-sm text-center">
+        <p className="text-zinc-500 text-sm text-center">
           {search || filterDate ? 'Tidak ada notifikasi yang sesuai filter' : 'Belum ada notifikasi status hari ini'}
         </p>
       ) : (
         <div className="flex-1 overflow-y-auto space-y-3 pr-2 min-w-0">
           {filtered.map((n, idx) => {
-            const rowBase = idx % 2 === 0 ? 'bg-gray-800' : 'bg-gray-900';
+            const rowBase = idx % 2 === 0 ? 'bg-zinc-900/70' : 'bg-zinc-900/50';
             const isUnread = unreadIds.has(n.timestamp + n.deviceId);
-            const rowCls = isUnread ? 'animate-pulse bg-yellow-900/50' : rowBase;
+            const rowCls = isUnread ? 'animate-pulse bg-amber-900/40' : rowBase;
 
             const badge = (text: string, state: 'on' | 'off' | 'online' | 'offline' | 'disconnected') => {
               const clr = state === 'on' || state === 'online' ? 'green' : state==='disconnected'? 'yellow' : 'red';
@@ -260,7 +260,7 @@ const NotifStatus: React.FC = () => {
                     {badge(n.to ?? '', n.to as any)}
                     <button
                       onClick={() => alert('Kemungkinan Jaringan terputus atau HP Dimatikan')}
-                      className="text-purple-300 hover:text-purple-200"
+                      className="text-zinc-300 hover:text-white"
                       title="Info"
                     >
                       <FiInfo size={16} />
@@ -311,11 +311,11 @@ const NotifStatus: React.FC = () => {
               <div key={idx} className={`p-4 rounded-xl ${rowCls} shadow-md hover:shadow-lg transition-shadow overflow-hidden`}>
                 <div className="flex flex-col sm:flex-row sm:flex-nowrap flex-wrap items-start sm:items-center justify-between gap-4 min-w-0">
                   <div className="w-full sm:w-1/4 min-w-0">
-                    <span className="font-medium text-purple-400">Waktu:</span>
+                    <span className="font-medium text-zinc-400">Waktu:</span>
                     <p className="text-base break-words whitespace-normal">{new Date(n.timestamp).toLocaleString('id-ID')}</p>
                   </div>
                   <div className="w-full sm:w-1/4 min-w-0">
-                    <span className="font-medium text-purple-400">Driver:</span>
+                    <span className="font-medium text-zinc-400">Driver:</span>
                     <p className="text-base break-words whitespace-normal">{n.nama}</p>
                   </div>
                   <div className="w-full sm:w-1/2 min-w-0">

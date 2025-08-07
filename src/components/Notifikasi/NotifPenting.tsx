@@ -252,31 +252,31 @@ const NotifPenting: React.FC = () => {
   }
 
   return (
-    <div className="h-full rounded-lg bg-black p-4 text-white border border-purple-900 flex flex-col overflow-auto">
-      <h3 className="text-lg font-semibold mb-2 text-center">PENTING</h3>
+    <div className="h-full rounded-xl bg-zinc-950/80 p-4 text-white border border-zinc-800 flex flex-col overflow-auto">
+      <h3 className="text-lg font-semibold mb-3 text-center text-zinc-200">PENTING</h3>
 
       <div className="mb-3">
         {/* Input fields */}
         <div className="flex flex-col sm:flex-row gap-2 mb-2">
-          <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari..." className="flex-1 px-2 py-1 rounded bg-gray-800 border border-gray-600 text-sm" />
-          <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className="flex-1 px-2 py-1 rounded bg-gray-800 border border-gray-600 text-sm" />
+          <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari..." className="flex-1 px-3 py-2 rounded-lg bg-zinc-900/80 border border-zinc-800 text-sm placeholder:text-zinc-500" />
+          <input type="date" value={filterDate} onChange={e => setFilterDate(e.target.value)} className="flex-1 px-3 py-2 rounded-lg bg-zinc-900/80 border border-zinc-800 text-sm" />
         </div>
 
         {/* Buttons - 3 columns on mobile, inline on desktop */}
         <div className="grid grid-cols-3 gap-2 sm:flex sm:gap-2">
-          <button onClick={clearInputs} className="px-3 py-1 rounded bg-red-600/30 hover:bg-red-500/40 text-white transition-colors backdrop-blur-sm text-sm">Clear</button>
-          <button onClick={deleteAll} className="px-3 py-1 rounded bg-purple-700/30 hover:bg-purple-800/40 text-white transition-colors backdrop-blur-sm text-sm">Hapus Semua</button>
-          <button onClick={() => setShowRiwayat(true)} className="px-3 py-1 rounded bg-blue-600/30 hover:bg-blue-500/40 text-white transition-colors backdrop-blur-sm text-sm">Semua Riwayat</button>
+          <button onClick={clearInputs} className="px-3 py-1 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-white transition-colors backdrop-blur-sm text-sm">Clear</button>
+          <button onClick={deleteAll} className="px-3 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white transition-colors backdrop-blur-sm text-sm">Hapus Semua</button>
+          <button onClick={() => setShowRiwayat(true)} className="px-3 py-1 rounded-lg bg-blue-600/30 hover:bg-blue-600/40 text-white transition-colors backdrop-blur-sm text-sm">Semua Riwayat</button>
         </div>
       </div>
 
       {!dataReady || (isLoading && list.length === 0) ? (
         <div className="flex flex-col items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mb-2"></div>
-          <p className="text-gray-400 text-sm">Loading notifications...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-zinc-500 mb-2"></div>
+          <p className="text-zinc-400 text-sm">Loading notifications...</p>
         </div>
       ) : filtered.length === 0 ? (
-        <p className="text-gray-500 text-sm text-center">
+        <p className="text-zinc-500 text-sm text-center">
           {search || filterDate ? 'Tidak ada notifikasi yang sesuai filter' : 'Belum ada notifikasi penting hari ini'}
         </p>
       ) : (
@@ -294,26 +294,26 @@ const NotifPenting: React.FC = () => {
             };
             const msg = getMsg(n.type);
             const isUnread = unreadIds.has(n.timestamp + n.deviceId);
-            const rowCls = isUnread ? 'animate-pulse bg-yellow-600 text-black' : 'bg-gray-800/70';
+            const rowCls = isUnread ? 'animate-pulse bg-amber-700/70 text-black' : 'bg-zinc-900/60';
             const streetKey = `${n.timestamp}-${n.deviceId}`;
             const streetName = streetNames.get(streetKey);
             
             return (
-              <div key={idx} className={`${rowCls} border border-red-600 rounded px-2 py-1 text-sm`}>
+              <div key={idx} className={`${rowCls} border border-zinc-800 rounded-lg px-2 py-1 text-sm`}>
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-400 text-xs shrink-0 w-40 inline-block">{formatTs(n.timestamp)}</span>
-                  <span className="flex-1"><span className={`font-semibold mr-1 ${isUnread ? 'text-black' : 'text-red-400'}`}>{n.nama}</span>{msg}</span>
+                  <span className="text-zinc-400 text-xs shrink-0 w-40 inline-block">{formatTs(n.timestamp)}</span>
+                  <span className="flex-1"><span className={`font-semibold mr-1 ${isUnread ? 'text-black' : 'text-zinc-200'}`}>{n.nama}</span>{msg}</span>
                   {n.taskId && (
-                    <button onClick={() => openDetail(n)} className="shrink-0 px-2 py-0.5 text-xs rounded bg-blue-600 hover:bg-blue-500 text-white">Detail</button>
+                    <button onClick={() => openDetail(n)} className="shrink-0 px-2 py-0.5 text-xs rounded bg-zinc-800 hover:bg-zinc-700 text-white">Detail</button>
                   )}
                 </div>
                 {n.type === 'stop' && n.lat && n.lng && (
-                  <div className="mt-1 text-xs text-gray-300 ml-40">
-                    <span className="text-gray-500">📍 Lokasi: </span>
+                  <div className="mt-1 text-xs text-zinc-300 ml-40">
+                    <span className="text-zinc-500">📍 Lokasi: </span>
                     {streetName ? (
                       <span className="text-blue-300">{streetName}</span>
                     ) : (
-                      <span className="text-gray-400">Memuat alamat...</span>
+                      <span className="text-zinc-400">Memuat alamat...</span>
                     )}
                   </div>
                 )}
