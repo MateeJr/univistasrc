@@ -37,7 +37,7 @@ function SidebarItem({ href, label, Icon, highlight, highlightDanger }: NavItem 
           ? "animate-pulse bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg shadow-red-600/50"
           : highlight
           ? "animate-pulse bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-lg shadow-yellow-600/50"
-          : "text-gray-400 hover:bg-purple-800/50 hover:text-white hover:scale-105")
+          : "text-zinc-400 hover:bg-zinc-800/60 hover:text-white hover:scale-105")
       }
     >
       <Icon className="pointer-events-none" />
@@ -49,8 +49,8 @@ function SidebarItem({ href, label, Icon, highlight, highlightDanger }: NavItem 
         left-full ml-4 
         whitespace-nowrap 
         rounded-lg 
-        bg-gray-800/95 backdrop-blur-sm
-        border border-gray-700/50
+        bg-zinc-900/95 backdrop-blur-sm
+        border border-zinc-800/50
         px-3 py-1.5 
         text-sm font-medium
         opacity-0 scale-95
@@ -175,10 +175,10 @@ export default function PageSwitcher() {
             gap-1.5
             px-2 py-1.5
             /* Floating appearance */
-            bg-gray-900/95 backdrop-blur-xl
-            border border-purple-800/30
+            bg-zinc-950/80 backdrop-blur-xl
+            border border-zinc-800
             rounded-full
-            shadow-2xl shadow-purple-900/20
+            shadow-2xl shadow-black/40
             /* Animation */
             transition-all duration-300
           "
@@ -210,10 +210,10 @@ export default function PageSwitcher() {
           gap-2
           px-3 py-4
           /* Floating appearance */
-          bg-gray-900/95 backdrop-blur-xl
-          border border-purple-800/30
+          bg-zinc-950/80 backdrop-blur-xl
+          border border-zinc-800
           rounded-2xl
-          shadow-2xl shadow-purple-900/20
+          shadow-2xl shadow-black/40
           /* Animation */
           transition-all duration-300
         "

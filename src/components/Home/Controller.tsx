@@ -4,13 +4,13 @@ import React, { useState, useEffect } from "react";
 import { useMap } from "@/components/Home/MapContext";
 import { FiPlus, FiMinus, FiNavigation, FiCompass, FiRotateCw, FiRotateCcw, FiMap, FiSun, FiMoon } from "react-icons/fi";
 
-const IconBtn: React.FC<{ title: string; onClick: () => void; icon: React.ReactNode; active?: boolean }> = ({ title, onClick, icon, active }) => (
+  const IconBtn: React.FC<{ title: string; onClick: () => void; icon: React.ReactNode; active?: boolean }> = ({ title, onClick, icon, active }) => (
   <button
     onClick={onClick}
     className={`group relative flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-300 transform hover:scale-105 ${
       active 
         ? 'bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg shadow-purple-500/25 text-white' 
-        : 'bg-slate-800/50 hover:bg-slate-700/70 text-slate-300 hover:text-white backdrop-blur-sm border border-slate-600/30 hover:border-purple-500/30'
+        : 'bg-zinc-900/60 hover:bg-zinc-900 text-zinc-300 hover:text-white backdrop-blur-sm border border-zinc-800 hover:border-purple-600/40'
     }`}
   >
     <span className="flex items-center justify-center">
@@ -59,11 +59,11 @@ const Controller: React.FC<ControllerProps> = ({ selected }) => {
   };
 
   return (
-    <div className="h-full rounded-2xl bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 p-6 text-white border border-purple-500/30 shadow-2xl backdrop-blur-xl flex flex-col gap-6 overflow-hidden">
+    <div className="h-full rounded-xl bg-zinc-950/80 p-6 text-white border border-zinc-800 shadow-2xl backdrop-blur-xl flex flex-col gap-6 overflow-hidden">
       {/* Header */}
       <div className="relative flex-shrink-0">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-xl blur-sm"></div>
-        <h3 className="relative text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent text-center">
+        <div className="absolute inset-0 bg-zinc-900/40 rounded-xl blur-sm"></div>
+        <h3 className="relative text-xl font-bold text-zinc-200 text-center">
           MAP CONTROLS
         </h3>
       </div>
@@ -72,7 +72,7 @@ const Controller: React.FC<ControllerProps> = ({ selected }) => {
       <div className="flex-1 overflow-y-auto min-h-0">
         <div className="space-y-6">
           {/* Control Buttons Grid */}
-          <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-3">
             <IconBtn title="Zoom In" onClick={zoomIn} icon={<FiPlus className="w-5 h-5" />} />
             <IconBtn title="Zoom Out" onClick={zoomOut} icon={<FiMinus className="w-5 h-5" />} />
             <IconBtn title="Rotate ↺" onClick={rotateLeft} icon={<FiRotateCcw className="w-5 h-5" />} />
@@ -85,7 +85,7 @@ const Controller: React.FC<ControllerProps> = ({ selected }) => {
 
           {/* Map Style Selector */}
           <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-slate-300 text-center">Map Style</h4>
+            <h4 className="text-sm font-semibold text-zinc-300 text-center">Map Style</h4>
             <div className="grid grid-cols-3 gap-2">
               {styles.map((s, idx) => (
                 <button
@@ -93,7 +93,7 @@ const Controller: React.FC<ControllerProps> = ({ selected }) => {
                   className={`relative flex flex-col items-center gap-2 p-3 rounded-xl transition-all duration-300 transform hover:scale-105 ${
                     idx===styleIdx 
                       ? 'bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg shadow-purple-500/25 text-white' 
-                      : 'bg-slate-800/50 hover:bg-slate-700/70 text-slate-300 hover:text-white backdrop-blur-sm border border-slate-600/30 hover:border-purple-500/30'
+                      : 'bg-zinc-900/60 hover:bg-zinc-900 text-zinc-300 hover:text-white backdrop-blur-sm border border-zinc-800 hover:border-purple-600/40'
                   }`}
                   onClick={() => setStyle(idx)}
                 >
@@ -111,7 +111,7 @@ const Controller: React.FC<ControllerProps> = ({ selected }) => {
 
           {/* Navigation Status */}
           {selected!=='MASTER' && navigate && (
-            <div className="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/30 backdrop-blur-sm">
+            <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 backdrop-blur-sm">
               <div className="flex items-center justify-center gap-2">
                 <FiNavigation className="w-4 h-4 text-emerald-400 animate-pulse" />
                 <span className="text-emerald-400 font-semibold text-sm">Navigation Active</span>

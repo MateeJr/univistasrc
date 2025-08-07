@@ -104,35 +104,35 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
 
   if (!deviceId || deviceId==='MASTER') {
     return (
-      <div className="h-full rounded-2xl bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 p-6 text-white border border-purple-500/30 shadow-2xl backdrop-blur-xl flex flex-col items-center justify-center">
+      <div className="h-full rounded-xl bg-zinc-950/80 p-6 text-white border border-zinc-800 shadow-2xl backdrop-blur-xl flex flex-col items-center justify-center">
         <div className="relative mb-6">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-xl blur-sm"></div>
-          <h3 className="relative text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent text-center">
+          <div className="absolute inset-0 bg-zinc-900/40 rounded-xl blur-sm"></div>
+          <h3 className="relative text-xl font-bold text-zinc-200 text-center">
             INFO PERANGKAT
           </h3>
         </div>
-        <div className="w-16 h-16 mb-4 rounded-full bg-gradient-to-r from-purple-600/20 to-blue-600/20 flex items-center justify-center">
+        <div className="w-16 h-16 mb-4 rounded-full bg-zinc-900/80 border border-zinc-800 flex items-center justify-center">
           <FiSmartphone className="w-8 h-8 text-purple-400" />
         </div>
-        <p className="text-slate-400 text-lg">Pilih driver</p>
-        <p className="text-slate-500 text-sm mt-1">Pilih dari daftar driver untuk melihat informasi perangkat</p>
+        <p className="text-zinc-400 text-lg">Pilih driver</p>
+        <p className="text-zinc-500 text-sm mt-1">Pilih dari daftar driver untuk melihat informasi perangkat</p>
       </div>
     );
   }
 
   if (!info) {
     return (
-      <div className="h-full rounded-2xl bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 p-6 text-white border border-purple-500/30 shadow-2xl backdrop-blur-xl flex flex-col items-center justify-center">
+      <div className="h-full rounded-xl bg-zinc-950/80 p-6 text-white border border-zinc-800 shadow-2xl backdrop-blur-xl flex flex-col items-center justify-center">
         <div className="relative mb-6">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-xl blur-sm"></div>
-          <h3 className="relative text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent text-center">
+          <div className="absolute inset-0 bg-zinc-900/40 rounded-xl blur-sm"></div>
+          <h3 className="relative text-xl font-bold text-zinc-200 text-center">
             INFO PERANGKAT
           </h3>
         </div>
-        <div className="w-16 h-16 mb-4 rounded-full bg-gradient-to-r from-purple-600/30 to-blue-600/30 flex items-center justify-center animate-pulse">
+        <div className="w-16 h-16 mb-4 rounded-full bg-zinc-900/80 border border-zinc-800 flex items-center justify-center animate-pulse">
           <FiActivity className="w-8 h-8 text-purple-400 animate-spin" />
         </div>
-        <p className="text-slate-400 text-lg">Memuat...</p>
+        <p className="text-zinc-400 text-lg">Memuat...</p>
       </div>
     );
   }
@@ -162,16 +162,16 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
 
   return (
     <>
-    <div className="h-full rounded-2xl bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 p-6 text-white border border-purple-500/30 shadow-2xl backdrop-blur-xl overflow-auto scrollbar-thin scrollbar-track-slate-800 scrollbar-thumb-purple-600">
+    <div className="h-full rounded-xl bg-zinc-950/80 p-6 text-white border border-zinc-800 shadow-2xl backdrop-blur-xl overflow-auto scrollbar-thin scrollbar-track-zinc-900 scrollbar-thumb-zinc-700">
       {/* Header */}
       <div className="relative mb-6">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-xl blur-sm"></div>
+        <div className="absolute inset-0 bg-zinc-900/40 rounded-xl blur-sm"></div>
         <div className="relative">
-          <h3 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent text-center mb-3">
+          <h3 className="text-xl font-bold text-zinc-200 text-center mb-3">
             INFO PERANGKAT
           </h3>
           <div className="text-center">
-            <span className="inline-block px-4 py-2 rounded-xl bg-gradient-to-r from-red-600/40 to-red-500/40 backdrop-blur-sm border border-red-500/30 font-semibold">
+            <span className="inline-block px-4 py-2 rounded-xl bg-zinc-900/80 border border-zinc-800 font-semibold">
               {info.nama} ({info.bk})
             </span>
           </div>
@@ -181,7 +181,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
       {info.track ? (
         <div className="space-y-4">
           {isOffline && (
-            <div className="p-4 rounded-xl bg-red-500/20 border border-red-500/40 backdrop-blur-sm">
+            <div className="p-4 rounded-xl bg-red-500/15 border border-red-500/30 backdrop-blur-sm">
               <div className="flex items-center justify-center gap-2">
                 <HiStatusOffline className="w-5 h-5 text-red-400" />
                 <span className="text-red-400 font-bold text-lg">TERPUTUS (OFFLINE)</span>
@@ -333,10 +333,10 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
 
               return rows;
             })().map((row) => (
-              <div key={row.label} className="flex items-center justify-between p-3 rounded-xl bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 hover:border-purple-500/30 transition-all duration-300">
+              <div key={row.label} className="flex items-center justify-between p-3 rounded-xl bg-zinc-900/60 backdrop-blur-sm border border-zinc-800 hover:border-purple-600/40 transition-all duration-300">
                 <div className="flex items-center gap-3 flex-shrink-0">
                   <span className="text-purple-400">{row.icon}</span>
-                  <span className="text-slate-400 font-medium">{row.label}</span>
+                  <span className="text-zinc-400 font-medium">{row.label}</span>
                 </div>
                 <span className={`font-semibold text-right flex-shrink-0 ${row.color ?? 'text-white'}`}>{row.value}</span>
               </div>
@@ -364,18 +364,18 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
           </div>
 
           {/* Vehicle Type Section */}
-          <div className="p-4 rounded-xl bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 hover:border-purple-500/30 transition-all duration-300">
+          <div className="p-4 rounded-xl bg-zinc-900/60 backdrop-blur-sm border border-zinc-800 hover:border-purple-600/40 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <FiSettings className="w-4 h-4 text-purple-400" />
-                <span className="text-slate-400 font-medium">Jenis Kendaraan</span>
+                <span className="text-zinc-400 font-medium">Jenis Kendaraan</span>
               </div>
               {editingIcon ? (
                 <div className="flex items-center gap-2">
                   <select 
                     value={iconSelection} 
                     onChange={e=>setIconSelection(e.target.value)} 
-                    className="bg-slate-700 text-white text-sm px-3 py-1 rounded-lg border border-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="bg-zinc-900/80 text-white text-sm px-3 py-1 rounded-lg border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-purple-600/50"
                   >
                     <option value="">-</option>
                     {iconLabels.map(label=> <option key={label} value={label}>{label}</option>)}
@@ -403,7 +403,7 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
                   </button>
                   <button 
                     onClick={()=>{setEditingIcon(false); setIconSelection(info.icon||'');}} 
-                    className="px-3 py-1 rounded-lg bg-red-600/20 text-red-400 hover:bg-red-600/30 transition-all duration-200 text-sm font-medium"
+                    className="px-3 py-1 rounded-lg bg-rose-600/20 text-rose-400 hover:bg-rose-600/30 transition-all duration-200 text-sm font-medium"
                   >
                     Batal
                   </button>
@@ -424,11 +424,11 @@ const DriverInfo: React.FC<DriverInfoProps> = ({ deviceId }) => {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-12">
-          <div className="w-16 h-16 mb-4 rounded-full bg-gradient-to-r from-purple-600/20 to-blue-600/20 flex items-center justify-center">
+          <div className="w-16 h-16 mb-4 rounded-full bg-zinc-900/80 border border-zinc-800 flex items-center justify-center">
             <FiMapPin className="w-8 h-8 text-purple-400" />
           </div>
-          <p className="text-slate-400 text-lg">Tidak ada data tracking</p>
-          <p className="text-slate-500 text-sm mt-1">Menunggu perangkat mengirim data lokasi</p>
+          <p className="text-zinc-400 text-lg">Tidak ada data tracking</p>
+          <p className="text-zinc-500 text-sm mt-1">Menunggu perangkat mengirim data lokasi</p>
         </div>
       )}
     </div>

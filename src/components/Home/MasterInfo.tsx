@@ -32,7 +32,7 @@ const MasterInfo: React.FC<MasterInfoProps> = ({ onBack }) => {
 
   if (drivers.length === 0) {
     return (
-      <div className="h-full w-full flex items-center justify-center text-white">
+      <div className="h-full w-full flex items-center justify-center text-zinc-200">
         Memuat daftar driver...
       </div>
     );
@@ -43,7 +43,7 @@ const MasterInfo: React.FC<MasterInfoProps> = ({ onBack }) => {
       <div className="mb-2">
         <button
           onClick={onBack}
-          className="bg-purple-700 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded flex items-center gap-2"
+          className="bg-purple-700 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded-lg flex items-center gap-2"
         >
           <FiArrowLeft size={18}/> Back
         </button>

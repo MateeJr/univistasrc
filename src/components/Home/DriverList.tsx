@@ -75,12 +75,12 @@ const DriverList: React.FC<DriverListProps> = ({ onSelect, selectedId, onDeleted
   }, [open]);
 
   return (
-    <div className="relative h-full rounded-2xl bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 p-6 text-white border border-purple-500/30 shadow-2xl backdrop-blur-xl flex flex-col">
+    <div className="relative h-full rounded-xl bg-zinc-950/80 p-6 text-white border border-zinc-800 shadow-2xl backdrop-blur-xl flex flex-col">
       {/* Header with gradient background */}
       <div className="relative mb-6">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/20 rounded-xl blur-sm"></div>
+        <div className="absolute inset-0 bg-zinc-900/40 rounded-xl blur-sm"></div>
         <div className="relative flex items-center justify-between">
-          <h3 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+          <h3 className="text-xl font-bold text-zinc-200">
             DRIVER DASHBOARD
           </h3>
           <button
@@ -104,11 +104,11 @@ const DriverList: React.FC<DriverListProps> = ({ onSelect, selectedId, onDeleted
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search drivers..."
-          className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-800/50 text-white placeholder-slate-400 border border-purple-500/30 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent backdrop-blur-sm transition-all duration-300"
+          className="w-full pl-12 pr-4 py-3 rounded-xl bg-zinc-900/80 text-white placeholder-zinc-500 border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-purple-600/50 focus:border-transparent backdrop-blur-sm transition-all duration-300"
         />
       </div>
 
-      <div className="flex-1 space-y-4 overflow-y-auto scrollbar-thin scrollbar-track-slate-800 scrollbar-thumb-purple-600">
+      <div className="flex-1 space-y-4 overflow-y-auto scrollbar-thin scrollbar-track-zinc-900 scrollbar-thumb-zinc-700">
         {/* Master buttons redesigned */}
         <div className="grid grid-cols-2 gap-2 sm:gap-3">
           <button
@@ -157,8 +157,8 @@ const DriverList: React.FC<DriverListProps> = ({ onSelect, selectedId, onDeleted
             .map((d) => (
               <div key={d.deviceId} className={`group relative rounded-xl transition-all duration-300 transform hover:scale-[1.02] ${
                 selectedId===d.deviceId
-                  ? 'bg-gradient-to-r from-purple-600/40 to-blue-600/40 shadow-lg shadow-purple-500/20 ring-2 ring-purple-400/50'
-                  : 'bg-slate-800/30 hover:bg-slate-700/40 backdrop-blur-sm'
+                  ? 'bg-gradient-to-r from-purple-600/30 to-blue-600/30 shadow-lg shadow-purple-500/20 ring-2 ring-purple-400/40'
+                  : 'bg-zinc-900/60 hover:bg-zinc-900 border border-zinc-800 backdrop-blur-sm'
               }`}>
                 <div className="flex items-center justify-between p-4">
                   <button 
@@ -180,7 +180,7 @@ const DriverList: React.FC<DriverListProps> = ({ onSelect, selectedId, onDeleted
                     </div>
 
                     {/* Rating with stars */}
-                    <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-gradient-to-r from-yellow-500/20 to-orange-500/20 backdrop-blur-sm">
+                    <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/15 backdrop-blur-sm border border-amber-500/20">
                       <FaStar className="text-yellow-400" size={14} />
                       <span className="text-sm font-semibold text-yellow-300">{ratings[d.deviceId] ?? 5}</span>
                     </div>
@@ -190,7 +190,7 @@ const DriverList: React.FC<DriverListProps> = ({ onSelect, selectedId, onDeleted
                       <span className="font-bold text-white block truncate text-lg">
                         {d.nama}
                       </span>
-                      <span className="text-slate-400 text-sm">ID: {d.bk}</span>
+                      <span className="text-zinc-400 text-sm">ID: {d.bk}</span>
                     </div>
                   </button>
 
@@ -210,11 +210,11 @@ const DriverList: React.FC<DriverListProps> = ({ onSelect, selectedId, onDeleted
           
           {drivers.length === 0 && (
             <div className="text-center py-12">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-purple-600/20 to-blue-600/20 flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-zinc-900/80 border border-zinc-800 flex items-center justify-center">
                 <FiPlus className="w-8 h-8 text-purple-400" />
               </div>
-              <p className="text-slate-400 text-lg">No drivers available</p>
-              <p className="text-slate-500 text-sm mt-1">Add your first driver to get started</p>
+              <p className="text-zinc-400 text-lg">No drivers available</p>
+              <p className="text-zinc-500 text-sm mt-1">Add your first driver to get started</p>
             </div>
           )}
         </div>
