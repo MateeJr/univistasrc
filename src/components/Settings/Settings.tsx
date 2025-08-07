@@ -583,7 +583,7 @@ const Settings: React.FC = () => {
   useEffect(()=>{loadGroups();},[]);
 
   return (
-    <div className="p-4">
+    <div className="h-full rounded-xl bg-zinc-950/80 p-4 md:p-6 text-white overflow-y-auto">
       {/* Page Navigation with Glow Effect */}
       <div className="relative mb-6">
         {/* Glow effect behind active button */}
@@ -622,7 +622,7 @@ const Settings: React.FC = () => {
                 ${
                   page === nav.key 
                     ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-700/50 scale-105 border border-purple-500/30' 
-                    : 'bg-gray-800/80 hover:bg-gray-700/80 text-gray-300 hover:text-white border border-gray-700/50 hover:scale-105'
+                    : 'bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-300 hover:text-white border border-zinc-700/50 hover:scale-105'
                 }
                 backdrop-blur-sm
               `}
@@ -642,10 +642,10 @@ const Settings: React.FC = () => {
         </div>
       </div>
       {/* Container for all setting panels */}
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-4 text-zinc-200">
 
         {/* ---------- Panel: Jenis Laporan ---------- */}
-        <div hidden={page !== 'DATA'} className="relative rounded-lg bg-gray-900/90 backdrop-blur-sm p-4 text-gray-200 border border-purple-800/50 w-full max-w-sm h-96 flex flex-col shadow-xl shadow-purple-900/20 overflow-hidden">
+        <div hidden={page !== 'DATA'} className="relative rounded-xl bg-zinc-900/60 backdrop-blur-sm p-4 text-zinc-200 border border-zinc-800 w-full max-w-sm h-96 flex flex-col shadow-sm overflow-hidden">
           {/* Subtle glow effect */}
           <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-600/10 rounded-full blur-3xl" />
           <h2 className="text-xl font-semibold mb-4">Pengaturan Jenis Laporan</h2>
@@ -654,7 +654,7 @@ const Settings: React.FC = () => {
           <form onSubmit={addJenis} className="flex flex-wrap gap-2 mb-6 items-center">
             <input
               type="text"
-              className="flex-grow rounded-md px-3 py-2 bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600"
+              className="flex-grow rounded-lg px-3 py-2 bg-zinc-900/80 border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-purple-600/50"
               placeholder="Jenis laporan baru"
               value={newJenis}
               onChange={(e) => setNewJenis(e.target.value)}
@@ -668,14 +668,14 @@ const Settings: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 rounded-md bg-purple-700 hover:bg-purple-800 disabled:opacity-50"
+              className="px-4 py-2 rounded-lg bg-purple-700 hover:bg-purple-600 disabled:opacity-50"
             >
               Tambah
             </button>
             <button
               type="button"
               onClick={deleteAllJenis}
-              className="px-4 py-2 rounded-md bg-red-700 hover:bg-red-800 text-white"
+              className="px-4 py-2 rounded-lg bg-rose-600/90 hover:bg-rose-600 text-white"
             >
               Hapus Semua
             </button>
@@ -684,12 +684,12 @@ const Settings: React.FC = () => {
           {/* List */}
           <div className="w-full space-y-2 flex-1 overflow-y-auto pr-1">
             {list.length === 0 ? (
-              <p className="text-center text-gray-400">Belum ada jenis laporan</p>
+              <p className="text-center text-zinc-400">Belum ada jenis laporan</p>
             ) : (
               list.map((j) => (
                 <div
                   key={j.name}
-                  className="flex items-center justify-between bg-gray-800 px-4 py-2 rounded-md border border-gray-700"
+                  className="flex items-center justify-between bg-zinc-900/80 px-4 py-2 rounded-lg border border-zinc-800"
                 >
                   <span className="flex items-center gap-2">
                     <span
@@ -711,7 +711,7 @@ const Settings: React.FC = () => {
                     />
                     <button
                       onClick={() => deleteJenis(j.name)}
-                      className="text-red-400 hover:text-red-500 p-1"
+                      className="text-rose-400 hover:text-rose-300 p-1"
                       aria-label="Hapus"
                     >
                       <FiTrash2 size={18} />
@@ -724,7 +724,7 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Pengaturan Jenis Foto ---------- */}
-        <div hidden={page !== 'DATA'} className="relative rounded-lg bg-gray-900/90 backdrop-blur-sm p-4 text-gray-200 border border-purple-800/50 w-full max-w-sm h-96 flex flex-col shadow-xl shadow-purple-900/20 overflow-hidden">
+        <div hidden={page !== 'DATA'} className="relative rounded-xl bg-zinc-900/60 backdrop-blur-sm p-4 text-zinc-200 border border-zinc-800 w-full max-w-sm h-96 flex flex-col shadow-sm overflow-hidden">
           {/* Subtle glow effect */}
           <div className="absolute -top-20 -left-20 w-40 h-40 bg-blue-600/10 rounded-full blur-3xl" />
           <h2 className="text-xl font-semibold mb-4">Pengaturan Jenis Foto</h2>
@@ -733,7 +733,7 @@ const Settings: React.FC = () => {
           <form onSubmit={addFoto} className="flex w-full flex-wrap gap-2 mb-6 items-center">
             <input
               type="text"
-              className="flex-grow rounded-md px-3 py-2 bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-600"
+              className="flex-grow rounded-lg px-3 py-2 bg-zinc-900/80 border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-purple-600/50"
               placeholder="Jenis foto baru"
               value={newFoto}
               onChange={(e) => setNewFoto(e.target.value)}
@@ -741,14 +741,14 @@ const Settings: React.FC = () => {
             <button
               type="submit"
               disabled={loadingFoto}
-              className="px-4 py-2 rounded-md bg-purple-700 hover:bg-purple-800 disabled:opacity-50"
+              className="px-4 py-2 rounded-lg bg-purple-700 hover:bg-purple-600 disabled:opacity-50"
             >
               Tambah
             </button>
             <button
               type="button"
               onClick={deleteAllFoto}
-              className="px-4 py-2 rounded-md bg-red-700 hover:bg-red-800 text-white"
+              className="px-4 py-2 rounded-lg bg-rose-600/90 hover:bg-rose-600 text-white"
             >
               Hapus Semua
             </button>
@@ -757,17 +757,17 @@ const Settings: React.FC = () => {
           {/* List */}
           <div className="w-full space-y-2 flex-1 overflow-y-auto pr-1">
             {fotoList.length === 0 ? (
-              <p className="text-center text-gray-400">Belum ada jenis foto</p>
+              <p className="text-center text-zinc-400">Belum ada jenis foto</p>
             ) : (
               fotoList.map((name) => (
                 <div
                   key={name}
-                  className="flex items-center justify-between bg-gray-800 px-4 py-2 rounded-md border border-gray-700"
+                  className="flex items-center justify-between bg-zinc-900/80 px-4 py-2 rounded-lg border border-zinc-800"
                 >
                   <span>{name}</span>
                   <button
                     onClick={() => deleteFoto(name)}
-                    className="text-red-400 hover:text-red-500 p-1"
+                    className="text-rose-400 hover:text-rose-300 p-1"
                     aria-label="Hapus"
                   >
                     <FiTrash2 size={18} />
@@ -779,7 +779,7 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Pengaturan Radius ---------- */}
-        <div hidden={page !== 'RADIUS'} className="relative rounded-lg bg-gray-900/90 backdrop-blur-sm p-4 text-gray-200 border border-purple-800/50 w-full max-w-sm h-96 flex flex-col shadow-xl shadow-purple-900/20 overflow-hidden">
+        <div hidden={page !== 'RADIUS'} className="relative rounded-xl bg-zinc-900/60 backdrop-blur-sm p-4 text-zinc-200 border border-zinc-800 w-full max-w-sm h-96 flex flex-col shadow-sm overflow-hidden">
           {/* Subtle glow effect */}
           <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-purple-600/10 rounded-full blur-3xl" />
           <h2 className="text-xl font-semibold mb-4">Pengaturan Radius</h2>
@@ -792,7 +792,7 @@ const Settings: React.FC = () => {
                 type="number"
                 value={radiusCfg.targetRadius}
                 onChange={e => setRadiusCfg({ ...radiusCfg, targetRadius: Number(e.target.value) })}
-                className="w-24 px-2 py-1 rounded bg-gray-800 border border-gray-700 focus:outline-none"
+                className="w-24 px-2 py-1 rounded-lg bg-zinc-900/80 border border-zinc-800 focus:outline-none"
                 min={0}
               />
               <span>meter</span>
@@ -805,7 +805,7 @@ const Settings: React.FC = () => {
                 type="number"
                 value={radiusCfg.keluarJalurRadius}
                 onChange={e => setRadiusCfg({ ...radiusCfg, keluarJalurRadius: Number(e.target.value) })}
-                className="w-24 px-2 py-1 rounded bg-gray-800 border border-gray-700 focus:outline-none"
+                className="w-24 px-2 py-1 rounded-lg bg-zinc-900/80 border border-zinc-800 focus:outline-none"
                 min={0}
               />
               <span>meter</span>
@@ -819,7 +819,7 @@ const Settings: React.FC = () => {
                   type="number"
                   value={radiusCfg.berhentiRadius}
                   onChange={e => setRadiusCfg({ ...radiusCfg, berhentiRadius: Number(e.target.value) })}
-                  className="w-24 px-2 py-1 rounded bg-gray-800 border border-gray-700 focus:outline-none"
+                  className="w-24 px-2 py-1 rounded-lg bg-zinc-900/80 border border-zinc-800 focus:outline-none"
                   min={0}
                 />
                 <span>meter +</span>
@@ -827,13 +827,13 @@ const Settings: React.FC = () => {
                   type="number"
                   value={radiusCfg.berhentiDurasi}
                   onChange={e => setRadiusCfg({ ...radiusCfg, berhentiDurasi: Number(e.target.value) })}
-                  className="w-20 px-2 py-1 rounded bg-gray-800 border border-gray-700 focus:outline-none"
+                  className="w-20 px-2 py-1 rounded-lg bg-zinc-900/80 border border-zinc-800 focus:outline-none"
                   min={0}
                 />
                 <select
                   value={radiusCfg.berhentiUnit}
                   onChange={e => setRadiusCfg({ ...radiusCfg, berhentiUnit: e.target.value as 'Jam' | 'Menit' })}
-                  className="px-2 py-1 rounded bg-gray-800 border border-gray-700 focus:outline-none"
+                  className="px-2 py-1 rounded-lg bg-zinc-900/80 border border-zinc-800 focus:outline-none"
                 >
                   <option value="Jam">Jam</option>
                   <option value="Menit">Menit</option>
@@ -848,7 +848,7 @@ const Settings: React.FC = () => {
                 type="number"
                 value={radiusCfg.speedLimit}
                 onChange={e => setRadiusCfg({ ...radiusCfg, speedLimit: Number(e.target.value) })}
-                className="w-24 px-2 py-1 rounded bg-gray-800 border border-gray-700 focus:outline-none"
+                className="w-24 px-2 py-1 rounded-lg bg-zinc-900/80 border border-zinc-800 focus:outline-none"
                 min={0}
               />
               <span>Km/Jam</span>
@@ -861,7 +861,7 @@ const Settings: React.FC = () => {
                 type="number"
                 value={radiusCfg.oilReminder}
                 onChange={e => setRadiusCfg({ ...radiusCfg, oilReminder: Number(e.target.value) })}
-                className="w-24 px-2 py-1 rounded bg-gray-800 border border-gray-700 focus:outline-none"
+                className="w-24 px-2 py-1 rounded-lg bg-zinc-900/80 border border-zinc-800 focus:outline-none"
                 min={0}
               />
               <span>Km</span>
@@ -873,7 +873,7 @@ const Settings: React.FC = () => {
             <button
               onClick={saveRadiusCfg}
               disabled={loadingRadius}
-              className="w-full py-2 rounded-md bg-purple-700 hover:bg-purple-800 disabled:opacity-50"
+              className="w-full py-2 rounded-lg bg-purple-700 hover:bg-purple-600 disabled:opacity-50"
             >
               Simpan
             </button>
@@ -881,7 +881,7 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Pengaturan Notifikasi ---------- */}
-        <div hidden={page !== 'NOTIFIKASI'} className="relative rounded-lg bg-gray-900/90 backdrop-blur-sm p-4 text-gray-200 border border-purple-800/50 w-full max-w-sm h-96 flex flex-col shadow-xl shadow-purple-900/20 overflow-hidden">
+        <div hidden={page !== 'NOTIFIKASI'} className="relative rounded-xl bg-zinc-900/60 backdrop-blur-sm p-4 text-zinc-200 border border-zinc-800 w-full max-w-sm h-96 flex flex-col shadow-sm overflow-hidden">
           {/* Subtle glow effect */}
           <div className="absolute -top-20 -left-20 w-40 h-40 bg-green-600/10 rounded-full blur-3xl" />
           <h2 className="text-xl font-semibold mb-4">Pengaturan Notifikasi</h2>
@@ -915,7 +915,7 @@ const Settings: React.FC = () => {
             <button
               onClick={saveNotifCfg}
               disabled={loadingNotif}
-              className="w-full py-2 rounded-md bg-purple-700 hover:bg-purple-800 disabled:opacity-50"
+              className="w-full py-2 rounded-lg bg-purple-700 hover:bg-purple-600 disabled:opacity-50"
             >
               Simpan
             </button>
@@ -923,13 +923,13 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Whatsapp API ---------- */}
-        <div hidden={page !== 'NOTIFIKASI'} className="relative rounded-lg bg-gray-900/90 backdrop-blur-sm p-4 text-gray-200 border border-purple-800/50 w-full max-w-sm h-96 flex flex-col shadow-xl shadow-purple-900/20 overflow-hidden">
+        <div hidden={page !== 'NOTIFIKASI'} className="relative rounded-xl bg-zinc-900/60 backdrop-blur-sm p-4 text-zinc-200 border border-zinc-800 w-full max-w-sm h-96 flex flex-col shadow-sm overflow-hidden">
           {/* Subtle glow effect */}
           <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-green-600/10 rounded-full blur-3xl" />
           <h2 className="text-xl font-semibold mb-4">Whatsapp API</h2>
 
           {/* gear icon */}
-          <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-200" onClick={() => setShowWaCfg(true)}>
+          <button className="absolute top-2 right-2 text-zinc-400 hover:text-zinc-200" onClick={() => setShowWaCfg(true)}>
             <FiSettings />
           </button>
 
@@ -950,7 +950,7 @@ const Settings: React.FC = () => {
             ) : qrUrl ? (
               <img src={qrUrl} alt="WA QR" className="w-40 h-40 object-contain rounded" />
             ) : (
-              <div className="w-40 h-40 bg-black rounded-md flex items-center justify-center text-gray-500 text-sm select-none">
+              <div className="w-40 h-40 bg-zinc-900/80 rounded-md flex items-center justify-center text-zinc-500 text-sm select-none">
                 QR
               </div>
             )}
@@ -959,7 +959,7 @@ const Settings: React.FC = () => {
           <div className="flex gap-2 pt-3">
             {!waConnected && (
               <button
-                className="flex-1 py-2 rounded-md bg-purple-700 hover:bg-purple-800 disabled:opacity-50"
+                className="flex-1 py-2 rounded-lg bg-purple-700 hover:bg-purple-600 disabled:opacity-50"
                 onClick={fetchQr}
                 disabled={loadingQr}
               >
@@ -967,7 +967,7 @@ const Settings: React.FC = () => {
               </button>
             )}
             <button
-              className="flex-1 py-2 rounded-md bg-red-700 hover:bg-red-800"
+              className="flex-1 py-2 rounded-lg bg-rose-600/90 hover:bg-rose-600"
               onClick={async () => {
                 if (!confirm('Reset sesi Whatsapp?')) return;
                 setLoadingQr(true);
@@ -987,7 +987,7 @@ const Settings: React.FC = () => {
         </div>
 
         {/* ---------- Panel: Notifikasi Whatsapp ---------- */}
-        <div hidden={page !== 'NOTIFIKASI'} className="relative rounded-lg bg-gray-900/90 backdrop-blur-sm p-4 text-gray-200 border border-purple-800/50 w-full max-w-sm h-96 flex flex-col shadow-xl shadow-purple-900/20 overflow-hidden">
+        <div hidden={page !== 'NOTIFIKASI'} className="relative rounded-xl bg-zinc-900/60 backdrop-blur-sm p-4 text-zinc-200 border border-zinc-800 w-full max-w-sm h-96 flex flex-col shadow-sm overflow-hidden">
           {/* Subtle glow effect */}
           <div className="absolute -top-20 -right-20 w-40 h-40 bg-green-600/10 rounded-full blur-3xl" />
           <h2 className="text-xl font-semibold mb-4">Notifikasi Whatsapp</h2>
@@ -999,19 +999,19 @@ const Settings: React.FC = () => {
               placeholder="Masukkan nomor WA untuk dikirim notifikasi"
               value={newWa}
               onChange={e => setNewWa(e.target.value)}
-              className="flex-grow rounded-md px-3 py-2 bg-gray-800 border border-gray-700 focus:outline-none"
+              className="flex-grow rounded-lg px-3 py-2 bg-zinc-900/80 border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-purple-600/50"
             />
             <button
               type="submit"
               disabled={loadingWa}
-              className="px-4 py-2 rounded-md bg-purple-700 hover:bg-purple-800 disabled:opacity-50"
+              className="px-4 py-2 rounded-lg bg-purple-700 hover:bg-purple-600 disabled:opacity-50"
             >
               Tambah
             </button>
             <button
               type="button"
               onClick={deleteAllWa}
-              className="px-4 py-2 rounded-md bg-red-700 hover:bg-red-800 text-white"
+              className="px-4 py-2 rounded-lg bg-rose-600/90 hover:bg-rose-600 text-white"
             >
               Hapus Semua
             </button>
@@ -1020,14 +1020,14 @@ const Settings: React.FC = () => {
           {/* List numbers */}
           <div className="flex-1 overflow-y-auto pr-1 space-y-2">
             {waList.length === 0 ? (
-              <p className="text-center text-gray-400">Belum ada nomor</p>
+              <p className="text-center text-zinc-400">Belum ada nomor</p>
             ) : (
               waList.map(num => (
-                <div key={num} className="flex items-center justify-between bg-gray-800 px-3 py-2 rounded-md border border-gray-700">
+                <div key={num} className="flex items-center justify-between bg-zinc-900/80 px-3 py-2 rounded-lg border border-zinc-800">
                   <span>{num}</span>
                   <button
                     onClick={() => deleteWa(num)}
-                    className="text-red-400 hover:text-red-500 p-1"
+                    className="text-rose-400 hover:text-rose-300 p-1"
                   >
                     <FiTrash2 size={18} />
                   </button>
@@ -1041,7 +1041,7 @@ const Settings: React.FC = () => {
             <button
               onClick={sendTestWa}
               disabled={loadingWaTest}
-              className="w-full py-2 rounded-md bg-green-700 hover:bg-green-800 disabled:opacity-50"
+              className="w-full py-2 rounded-lg bg-emerald-600/90 hover:bg-emerald-600 disabled:opacity-50"
             >
               {loadingWaTest ? 'Sending...' : 'TEST'}
             </button>
@@ -1049,12 +1049,12 @@ const Settings: React.FC = () => {
 
           {/* Group modal trigger */}
           <div className="mt-4 text-center">
-            <button onClick={()=>{loadGroups();setShowGroupCfg(true);}} className="px-3 py-1 rounded bg-purple-700 hover:bg-purple-800">Kelola Group</button>
+            <button onClick={()=>{loadGroups();setShowGroupCfg(true);}} className="px-3 py-1 rounded-lg bg-purple-700 hover:bg-purple-600">Kelola Group</button>
           </div>
         </div>
 
         {/* ---------- Panel: Server Health ---------- */}
-        <div hidden={page !== 'SERVER'} className="relative rounded-lg bg-gray-900/90 backdrop-blur-sm p-4 text-gray-200 border border-purple-800/50 w-full max-w-sm h-96 flex flex-col shadow-xl shadow-purple-900/20 overflow-hidden">
+        <div hidden={page !== 'SERVER'} className="relative rounded-xl bg-zinc-900/60 backdrop-blur-sm p-4 text-zinc-200 border border-zinc-800 w-full max-w-sm h-96 flex flex-col shadow-sm overflow-hidden">
           {/* Subtle glow effect */}
           <div className="absolute -top-20 -left-20 w-40 h-40 bg-blue-600/10 rounded-full blur-3xl" />
           <h2 className="text-xl font-semibold mb-4">Server Health</h2>
@@ -1067,7 +1067,7 @@ const Settings: React.FC = () => {
                   <span>CPU Usage</span>
                   <span>{(stats.cpuUsage * 100).toFixed(1)}%</span>
                 </div>
-                <div className="w-full bg-gray-700 rounded h-2">
+                 <div className="w-full bg-zinc-800 rounded h-2">
                   <div
                     className="bg-purple-600 h-2 rounded"
                     style={{ width: `${stats.cpuUsage * 100}%` }}
@@ -1081,7 +1081,7 @@ const Settings: React.FC = () => {
                   <span>Memory Usage</span>
                   <span>{(stats.memUsage * 100).toFixed(1)}%</span>
                 </div>
-                <div className="w-full bg-gray-700 rounded h-2">
+                 <div className="w-full bg-zinc-800 rounded h-2">
                   <div
                     className="bg-green-600 h-2 rounded"
                     style={{ width: `${stats.memUsage * 100}%` }}
@@ -1125,18 +1125,18 @@ const Settings: React.FC = () => {
 
               {/* Last Update */}
               {lastUpdate && (
-                <div className="text-right text-xs text-gray-400">
+                <div className="text-right text-xs text-zinc-400">
                   Terakhir diperbarui: {formatDateTime(lastUpdate)}
                 </div>
               )}
             </div>
           ) : (
-            <p className="text-center text-gray-400 flex-1 flex items-center justify-center">Loading...</p>
+            <p className="text-center text-zinc-400 flex-1 flex items-center justify-center">Loading...</p>
           )}
         </div>
 
         {/* ---------- Panel: Backup Data ---------- */}
-        <div hidden={page !== 'DATA'} className="relative rounded-lg bg-gray-900/90 backdrop-blur-sm p-4 text-gray-200 border border-purple-800/50 w-full max-w-sm h-96 flex flex-col shadow-xl shadow-purple-900/20 overflow-hidden">
+        <div hidden={page !== 'DATA'} className="relative rounded-xl bg-zinc-900/60 backdrop-blur-sm p-4 text-zinc-200 border border-zinc-800 w-full max-w-sm h-96 flex flex-col shadow-sm overflow-hidden">
           {/* Subtle glow effect */}
           <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-purple-600/10 rounded-full blur-3xl" />
           <h2 className="text-xl font-semibold mb-4">Backup Data</h2>
@@ -1148,27 +1148,27 @@ const Settings: React.FC = () => {
                 startBackup();
               }}
               disabled={isBackingUp}
-              className="w-full py-2 rounded-md bg-purple-700 hover:bg-purple-800 disabled:opacity-50"
+              className="w-full py-2 rounded-lg bg-purple-700 hover:bg-purple-600 disabled:opacity-50"
             >
               BACKUP SEMUA DATA
             </button>
 
             {/* Progress bar */}
-            <div className="w-full mt-4 bg-gray-700 h-3 rounded">
+            <div className="w-full mt-4 bg-zinc-800 h-3 rounded">
               <div
                 className="bg-green-600 h-3 rounded"
                 style={{ width: `${backupProgress}%` }}
               />
             </div>
-            {isBackingUp && <span className="text-xs mt-2 text-gray-400">{Math.round(backupProgress)}%</span>}
+            {isBackingUp && <span className="text-xs mt-2 text-zinc-400">{Math.round(backupProgress)}%</span>}
           </div>
         </div>
 
       </div>
 
       {showWaCfg && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-900 border border-purple-800 rounded-lg p-6 w-80 max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-zinc-900/90 border border-zinc-800 rounded-xl p-6 w-80 max-h-[90vh] flex flex-col text-zinc-200">
             <h2 className="text-lg font-semibold mb-4">Pengaturan Notifikasi Whatsapp</h2>
             <div className="flex-1 overflow-y-auto pr-1 space-y-2">
               {(
@@ -1197,22 +1197,22 @@ const Settings: React.FC = () => {
               ))}
             </div>
             <div className="pt-4 flex gap-2">
-              <button onClick={() => setShowWaCfg(false)} className="flex-1 py-2 rounded-md bg-gray-700 hover:bg-gray-800">Batal</button>
-              <button onClick={saveWaNotifCfg} disabled={loadingWaCfg} className="flex-1 py-2 rounded-md bg-purple-700 hover:bg-purple-800 disabled:opacity-50">Simpan</button>
+              <button onClick={() => setShowWaCfg(false)} className="flex-1 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700">Batal</button>
+              <button onClick={saveWaNotifCfg} disabled={loadingWaCfg} className="flex-1 py-2 rounded-lg bg-purple-700 hover:bg-purple-600 disabled:opacity-50">Simpan</button>
             </div>
           </div>
         </div>
       )}
 
       {showGroupCfg && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-900 border border-purple-800 rounded-lg p-6 w-80 max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-zinc-900/90 border border-zinc-800 rounded-xl p-6 w-80 max-h-[90vh] flex flex-col text-zinc-200">
             <h2 className="text-lg font-semibold mb-4 flex justify-between items-center">Daftar Group
               <button onClick={loadGroups} className="text-xs text-purple-400 hover:text-purple-200">Refresh</button>
             </h2>
-            <div className="flex-1 overflow-y-auto pr-1 space-y-2 text-sm border border-gray-700 rounded p-2">
-              {loadingGroups? <p className="text-center text-gray-400">Loading...</p>:
-                groupList.length===0? <p className="text-center text-gray-400">Bot tidak memiliki group</p>:
+            <div className="flex-1 overflow-y-auto pr-1 space-y-2 text-sm border border-zinc-800 rounded p-2">
+              {loadingGroups? <p className="text-center text-zinc-400">Loading...</p>:
+                groupList.length===0? <p className="text-center text-zinc-400">Bot tidak memiliki group</p>:
                 groupList.map(g=>(
                   <label key={g.id} className="flex items-center gap-2">
                     <input type="checkbox" checked={g.selected} onChange={e=>setGroupList(prev=>prev.map(p=>p.id===g.id?{...p,selected:e.target.checked}:p))} />
@@ -1221,8 +1221,8 @@ const Settings: React.FC = () => {
                 ))}
             </div>
             <div className="pt-4 flex gap-2">
-              <button onClick={()=>setShowGroupCfg(false)} className="flex-1 py-2 rounded bg-gray-700 hover:bg-gray-800">Batal</button>
-              <button onClick={()=>{saveGroups();setShowGroupCfg(false);}} className="flex-1 py-2 rounded bg-purple-700 hover:bg-purple-800">Simpan</button>
+              <button onClick={()=>setShowGroupCfg(false)} className="flex-1 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700">Batal</button>
+              <button onClick={()=>{saveGroups();setShowGroupCfg(false);}} className="flex-1 py-2 rounded-lg bg-purple-700 hover:bg-purple-600">Simpan</button>
             </div>
           </div>
         </div>

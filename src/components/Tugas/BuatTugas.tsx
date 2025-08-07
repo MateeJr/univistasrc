@@ -533,19 +533,18 @@ const BuatTugas = forwardRef<BuatTugasHandle, { onFavoriteSaved?: () => void }>(
   }));
 
   return (
-    <div className="h-full rounded-lg bg-black p-4 text-white border border-purple-900 flex flex-col gap-2 overflow-auto">
-      {/* Driver selector */}
-      <div className="relative w-full sm:max-w-sm md:max-w-none" ref={selectorRef}>
-        <label className="block mb-1 text-sm font-semibold text-gray-300">Pilih Driver</label>
+    <div className="h-full rounded-xl bg-zinc-950/80 p-4 md:p-6 text-white overflow-y-auto space-y-4">
+      <div className="relative w-full sm:max-w-none rounded-xl border border-zinc-800 bg-zinc-900/60 p-4" ref={selectorRef}>
+        <label className="block mb-2 text-sm font-medium text-zinc-200">Pilih Driver</label>
         <input
           type="text"
           readOnly
           value={selected.length ? `${selected.length} driver dipilih` : "Klik untuk memilih"}
           onClick={() => setOpen((o)=>!o)}
-          className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-600"
+          className="w-full bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-600/50"
         />
         {open && (
-          <div className="absolute z-10 mt-1 w-full max-h-52 overflow-auto bg-gray-900 border border-gray-700 rounded shadow-lg">
+          <div className="absolute z-10 mt-2 w-full max-h-56 overflow-auto bg-zinc-950/95 border border-zinc-800 rounded-lg shadow-xl">
             {drivers.map((d)=>{
               const isSel = selected.some(s=>s.deviceId===d.deviceId);
               return (
@@ -558,72 +557,69 @@ const BuatTugas = forwardRef<BuatTugasHandle, { onFavoriteSaved?: () => void }>(
                       return [...prev, d];
                     });
                   }}
-                  className={`px-3 py-2 text-sm flex items-center gap-2 cursor-pointer ${isSel?'bg-purple-700':'hover:bg-purple-600'}`}
+                  className={`px-3 py-2 text-sm flex items-center gap-2 cursor-pointer ${isSel?'bg-purple-700/40':'hover:bg-zinc-800/80'}`}
                 >
-                  <span className={`w-3 h-3 rounded-full ${statuses[d.deviceId]==='online'?'bg-green-400':statuses[d.deviceId]==='disconnected'?'bg-red-500':'bg-gray-500'}`}></span>
-                  <span className="flex-1">{d.nama}</span>
-                  <span className="text-gray-400">{d.bk}</span>
+                  <span className={`w-3 h-3 rounded-full ${statuses[d.deviceId]==='online'?'bg-green-400':statuses[d.deviceId]==='disconnected'?'bg-red-500':'bg-zinc-500'}`}></span>
+                  <span className="flex-1 text-zinc-100">{d.nama}</span>
+                  <span className="text-zinc-400">{d.bk}</span>
                 </div>
               );
             })}
-            {drivers.length===0 && <div className="px-3 py-2 text-gray-500 text-sm">Tidak ada driver</div>}
+            {drivers.length===0 && <div className="px-3 py-2 text-zinc-500 text-sm">Tidak ada driver</div>}
+          </div>
+        )}
+
+        {selected.length>0 && (
+          <div className="flex flex-wrap gap-1 mt-2 max-h-32 overflow-auto overflow-x-auto">
+            {selected.map((d)=>(
+              <span key={d.deviceId} className="flex items-center bg-purple-700/30 border border-purple-700/40 px-2 py-1 rounded-md text-xs gap-1 whitespace-nowrap">
+                {d.nama}
+                <button onClick={()=>setSelected(prev=>prev.filter(p=>p.deviceId!==d.deviceId))} className="text-[10px] text-zinc-300 hover:text-white">✕</button>
+              </span>
+            ))}
           </div>
         )}
       </div>
 
-      {/* Selected chips */}
-      {selected.length>0 && (
-        <div className="flex flex-wrap gap-1 mt-2 max-h-32 overflow-auto overflow-x-auto">
-          {selected.map((d)=>(
-            <span key={d.deviceId} className="flex items-center bg-purple-800 px-2 py-1 rounded text-sm gap-1 whitespace-nowrap">
-              {d.nama}
-              <button onClick={()=>setSelected(prev=>prev.filter(p=>p.deviceId!==d.deviceId))} className="text-xs">✕</button>
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* Deskripsi Tugas section */}
-      <div className="w-full sm:max-w-sm md:max-w-none mt-3">
-        <label className="block mb-1 text-sm font-semibold text-gray-300">Deskripsi Tugas</label>
+      <div className="w-full sm:max-w-none rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
+        <label className="block mb-2 text-sm font-medium text-zinc-200">Deskripsi Tugas</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Tuliskan deskripsi tugas di sini..."
-          className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 h-32 resize-y text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600"
+          className="w-full bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 h-32 resize-y text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-purple-600/50"
         />
       </div>
 
-      {/* Berangkat Dari */}
-      <div className="w-full sm:max-w-sm md:max-w-none mt-2">
-        <label className="block mb-1 text-sm font-semibold text-gray-300">Berangkat Dari</label>
+      <div className="w-full sm:max-w-none rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
+        <label className="block mb-2 text-sm font-medium text-zinc-200">Berangkat Dari</label>
         <div className="flex gap-2">
           <input
             type="text"
             value={from}
             onChange={(e)=>setFrom(e.target.value)}
             placeholder="Lokasi keberangkatan"
-            className="flex-1 bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600"
+            className="flex-1 bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-purple-600/50"
           />
           <button
             type="button"
             onClick={() => {
               if(from.trim()) window.open(`https://www.google.com/maps/search/${encodeURIComponent(from)}`, '_blank');
             }}
-            className="w-full sm:w-24 h-10 rounded bg-green-600 hover:bg-green-500 text-white flex items-center justify-center"
+            className="w-full sm:w-24 h-10 rounded-lg bg-emerald-600/90 hover:bg-emerald-600 text-white flex items-center justify-center"
           >
             <FiSearch className="inline sm:hidden" />
             <span className="hidden sm:inline">Cari</span>
           </button>
         </div>
-        <label className="block mt-2 mb-1 text-sm font-semibold text-gray-300">Koordinat</label>
+        <label className="block mt-3 mb-2 text-sm font-medium text-zinc-200">Koordinat</label>
         <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             value={fromCoord}
             onChange={(e)=>setFromCoord(e.target.value)}
             placeholder="Lat,Lng"
-            className="flex-1 min-w-0 bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600"
+            className="flex-1 min-w-0 bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-purple-600/50"
           />
           <button
             type="button"
@@ -641,7 +637,6 @@ const BuatTugas = forwardRef<BuatTugasHandle, { onFavoriteSaved?: () => void }>(
                 setFromCoord(`${lat.toFixed(5)},${lng.toFixed(5)}`);
               }
 
-              // remove previous marker
               fromMarkerRef.current?.remove();
               fromMarkerRef.current = new mapboxgl.Marker({ color: '#3b82f6' })
                 .setLngLat([lng, lat])
@@ -649,7 +644,7 @@ const BuatTugas = forwardRef<BuatTugasHandle, { onFavoriteSaved?: () => void }>(
               map.flyTo({ center: [lng, lat], zoom: 14 });
               setFromSet(true);
             }}
-            className="w-full sm:w-24 h-10 rounded bg-purple-700 hover:bg-purple-600 text-white flex items-center justify-center"
+            className="w-full sm:w-24 h-10 rounded-lg bg-purple-700 hover:bg-purple-600 text-white flex items-center justify-center"
           >
             Set
           </button>
@@ -660,7 +655,7 @@ const BuatTugas = forwardRef<BuatTugasHandle, { onFavoriteSaved?: () => void }>(
               alert('Klik pada peta untuk memilih titik keberangkatan');
               setPinMode('from');
             }}
-            className="w-full sm:w-24 h-10 rounded bg-pink-700 hover:bg-pink-600 text-white flex items-center justify-center"
+            className="w-full sm:w-24 h-10 rounded-lg bg-pink-700 hover:bg-pink-600 text-white flex items-center justify-center"
           >
             <GoPin className="inline" />
             <span className="hidden sm:inline ml-1">Pin</span>
@@ -668,36 +663,35 @@ const BuatTugas = forwardRef<BuatTugasHandle, { onFavoriteSaved?: () => void }>(
         </div>
       </div>
 
-      {/* Destinasi */}
-      <div className="w-full sm:max-w-sm md:max-w-none mt-2">
-        <label className="block mb-1 text-sm font-semibold text-gray-300">Destinasi</label>
+      <div className="w-full sm:max-w-none rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
+        <label className="block mb-2 text-sm font-medium text-zinc-200">Destinasi</label>
         <div className="flex gap-2">
           <input
             type="text"
             value={to}
             onChange={(e)=>setTo(e.target.value)}
             placeholder="Lokasi tujuan"
-            className="flex-1 bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600"
+            className="flex-1 bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-purple-600/50"
           />
           <button
             type="button"
             onClick={() => {
               if(to.trim()) window.open(`https://www.google.com/maps/search/${encodeURIComponent(to)}`, '_blank');
             }}
-            className="w-full sm:w-24 h-10 rounded bg-green-600 hover:bg-green-500 text-white flex items-center justify-center"
+            className="w-full sm:w-24 h-10 rounded-lg bg-emerald-600/90 hover:bg-emerald-600 text-white flex items-center justify-center"
           >
             <FiSearch className="inline sm:hidden" />
             <span className="hidden sm:inline">Cari</span>
           </button>
         </div>
-        <label className="block mt-2 mb-1 text-sm font-semibold text-gray-300">Koordinat</label>
+        <label className="block mt-3 mb-2 text-sm font-medium text-zinc-200">Koordinat</label>
         <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             value={toCoord}
             onChange={(e)=>setToCoord(e.target.value)}
             placeholder="Lat,Lng"
-            className="flex-1 min-w-0 bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600"
+            className="flex-1 min-w-0 bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-purple-600/50"
           />
           <button
             type="button"
@@ -722,7 +716,7 @@ const BuatTugas = forwardRef<BuatTugasHandle, { onFavoriteSaved?: () => void }>(
               map.flyTo({ center: [lng, lat], zoom: 14 });
               setToSet(true);
             }}
-            className="w-full sm:w-24 h-10 rounded bg-purple-700 hover:bg-purple-600 text-white flex items-center justify-center"
+            className="w-full sm:w-24 h-10 rounded-lg bg-purple-700 hover:bg-purple-600 text-white flex items-center justify-center"
           >
             Set
           </button>
@@ -733,7 +727,7 @@ const BuatTugas = forwardRef<BuatTugasHandle, { onFavoriteSaved?: () => void }>(
               alert('Klik pada peta untuk memilih titik destinasi');
               setPinMode('to');
             }}
-            className="w-full sm:w-24 h-10 rounded bg-pink-700 hover:bg-pink-600 text-white flex items-center justify-center"
+            className="w-full sm:w-24 h-10 rounded-lg bg-pink-700 hover:bg-pink-600 text-white flex items-center justify-center"
           >
             <GoPin className="inline" />
             <span className="hidden sm:inline ml-1">Pin</span>
@@ -741,35 +735,35 @@ const BuatTugas = forwardRef<BuatTugasHandle, { onFavoriteSaved?: () => void }>(
         </div>
       </div>
 
-      {/* Batas Deadline */}
-      <div className="w-full sm:max-w-sm md:max-w-none mt-2 flex gap-2 items-end">
-        <div className="flex-1">
-          <label className="block mb-1 text-sm font-semibold text-gray-300">Tanggal Deadline</label>
-          <input
-            type="date"
-            placeholder="DD/MM/YYYY"
-            value={deadlineDate}
-            pattern="\\d{2}/\\d{2}/\\d{4}"
-            onChange={(e)=>setDeadlineDate(e.target.value)}
-            className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600"
-          />
-        </div>
-        <div className="flex-1">
-          <label className="block mb-1 text-sm font-semibold text-gray-300">Waktu</label>
-          <input
-            type="time"
-            value={deadlineTime}
-            onChange={(e)=>setDeadlineTime(e.target.value)}
-            className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-600"
-          />
+      <div className="w-full sm:max-w-none rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label className="block mb-2 text-sm font-medium text-zinc-200">Tanggal Deadline</label>
+            <input
+              type="date"
+              placeholder="DD/MM/YYYY"
+              value={deadlineDate}
+              pattern="\\d{2}/\\d{2}/\\d{4}"
+              onChange={(e)=>setDeadlineDate(e.target.value)}
+              className="w-full bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-purple-600/50"
+            />
+          </div>
+          <div>
+            <label className="block mb-2 text-sm font-medium text-zinc-200">Waktu</label>
+            <input
+              type="time"
+              value={deadlineTime}
+              onChange={(e)=>setDeadlineTime(e.target.value)}
+              className="w-full bg-zinc-900/80 border border-zinc-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-600/50"
+            />
+          </div>
         </div>
       </div>
 
-      {/* Syarat Foto */}
       {photoTypes.length>0 && (
-        <div className="w-full sm:max-w-sm md:max-w-none mt-3">
-          <div className="flex items-center justify-between mb-1">
-            <label className="text-sm font-semibold text-gray-300">Syarat Foto</label>
+        <div className="w-full sm:max-w-none rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium text-zinc-200">Syarat Foto</label>
             <button
               type="button"
               onClick={() => {
@@ -778,12 +772,12 @@ const BuatTugas = forwardRef<BuatTugasHandle, { onFavoriteSaved?: () => void }>(
                 photoTypes.forEach(pt => newState[pt] = !allChecked);
                 setPhotoReq(newState);
               }}
-              className="px-3 py-1 text-xs rounded bg-purple-600 hover:bg-purple-500 text-white transition-colors"
+              className="px-3 py-1 text-xs rounded-lg bg-purple-600 hover:bg-purple-500 text-white transition-colors"
             >
               {photoTypes.every(pt => photoReq[pt]) ? 'Hapus Semua' : 'Pilih Semua'}
             </button>
           </div>
-          <div className="flex flex-col gap-1 max-h-32 overflow-auto border border-gray-700 rounded p-2">
+          <div className="flex flex-col gap-1 max-h-32 overflow-auto border border-zinc-800 rounded-lg p-2 bg-zinc-950/40">
             {photoTypes.map(pt => (
               <label key={pt} className="inline-flex items-center gap-2 text-sm">
                 <input
@@ -799,10 +793,9 @@ const BuatTugas = forwardRef<BuatTugasHandle, { onFavoriteSaved?: () => void }>(
         </div>
       )}
 
-      {/* Syarat Perjalanan */}
-      <div className="w-full sm:max-w-sm md:max-w-none mt-3">
-        <label className="block mb-1 text-sm font-semibold text-gray-300">Syarat Perjalanan</label>
-        <div className="flex flex-col gap-1 border border-gray-700 rounded p-2">
+      <div className="w-full sm:max-w-none rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
+        <label className="block mb-2 text-sm font-medium text-zinc-200">Syarat Perjalanan</label>
+        <div className="flex flex-col gap-1 border border-zinc-800 rounded-lg p-2 bg-zinc-950/40">
           {[
             {key:'areaLarangan',label:'Area Larangan'},
             {key:'keluarJalur',label:'Batas Keluar Jalur'},
@@ -816,101 +809,100 @@ const BuatTugas = forwardRef<BuatTugasHandle, { onFavoriteSaved?: () => void }>(
         </div>
       </div>
 
-      {/* Additional UI for task creation can go here */}
       {distanceKm!=null && (
-        <div className="mt-2 text-sm text-purple-300">Jarak estimasi: <span className="font-semibold text-white">{distanceKm} km</span> &nbsp; | &nbsp; Estimasi waktu: <span className="font-semibold text-white">{etaMin} menit</span></div>
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 text-sm text-zinc-300">
+          Jarak estimasi: <span className="font-semibold text-white">{distanceKm} km</span> | Estimasi waktu: <span className="font-semibold text-white">{etaMin} menit</span>
+        </div>
       )}
 
-      {/* Action buttons */}
-      <div className="w-full sm:max-w-sm md:max-w-none mt-4 flex gap-2">
+      <div className="w-full sm:max-w-none rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 flex flex-col gap-2">
+        <div className="flex gap-2">
+          <button
+            type="button"
+            disabled={!isValid}
+            onClick={async () => {
+              try {
+                const selectedFoto = Object.entries(photoReq).filter(([_,v])=>v).map(([k])=>k);
+                const body = {
+                  drivers: selected.map(d=>d.deviceId),
+                  description,
+                  from, fromCoord,
+                  to, toCoord,
+                  deadline: `${deadlineDate} ${deadlineTime}`,
+                  photoReq: selectedFoto,
+                  travelReq,
+                  keluarJalurRadius,
+                  targetRadius,
+                  distanceKm,
+                  etaMin,
+                  waypoints,
+                };
+                await fetch('/api/tasks', {
+                  method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+                });
+                alert('Task created');
+                setSelected([]); setDescription(''); setFrom(''); setFromCoord(''); setTo(''); setToCoord(''); setDeadlineDate(formatToday()); setDeadlineTime(''); setFromSet(false); setToSet(false); setWaypoints([]);
+                fromMarkerRef.current?.remove(); fromMarkerRef.current=null; toMarkerRef.current?.remove(); toMarkerRef.current=null;
+                if(map){ if(map.getLayer('route-line-layer')) map.removeLayer('route-line-layer'); if(map.getSource('route-line')) map.removeSource('route-line'); }
+              } catch(err){ alert('Failed create task'); }
+            }}
+            className={`flex-1 py-2 rounded-lg text-white font-semibold ${isValid ? 'bg-purple-700 hover:bg-purple-600' : 'bg-zinc-800 cursor-not-allowed opacity-60'}`}
+          >
+            Buat Tugas
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setSelected([]);
+              setDescription("");
+              setFrom("");
+              setFromCoord("");
+              setTo("");
+              setToCoord("");
+              setDeadlineDate(formatToday());
+              setDeadlineTime("");
+              setFromSet(false);
+              setToSet(false);
+              setWaypoints([]);
+
+              fromMarkerRef.current?.remove();
+              fromMarkerRef.current = null;
+              toMarkerRef.current?.remove();
+              toMarkerRef.current = null;
+              if(map){
+                if(map.getLayer('route-line-layer')) map.removeLayer('route-line-layer');
+                if(map.getSource('route-line')) map.removeSource('route-line');
+              }
+              routeAddedRef.current=false;
+            }}
+            className="flex-1 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white"
+          >
+            Bersihkan
+          </button>
+        </div>
+
         <button
           type="button"
-          disabled={!isValid}
+          disabled={!from.trim() || !fromCoord.trim() || !to.trim() || !toCoord.trim()}
           onClick={async () => {
             try {
-              const selectedFoto = Object.entries(photoReq).filter(([_,v])=>v).map(([k])=>k);
-              const body = {
-                drivers: selected.map(d=>d.deviceId),
-                description,
-                from, fromCoord,
-                to, toCoord,
-                deadline: `${deadlineDate} ${deadlineTime}`,
-                photoReq: selectedFoto,
-                travelReq,
-                keluarJalurRadius,
-                targetRadius,
-                distanceKm,
-                etaMin,
-                waypoints,
-              };
-              await fetch('/api/tasks', {
-                method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
-              });
-              alert('Task created');
-              // clear
-              setSelected([]); setDescription(''); setFrom(''); setFromCoord(''); setTo(''); setToCoord(''); setDeadlineDate(formatToday()); setDeadlineTime(''); setFromSet(false); setToSet(false); setWaypoints([]);
-              fromMarkerRef.current?.remove(); fromMarkerRef.current=null; toMarkerRef.current?.remove(); toMarkerRef.current=null;
-              if(map){ if(map.getLayer('route-line-layer')) map.removeLayer('route-line-layer'); if(map.getSource('route-line')) map.removeSource('route-line'); }
-            } catch(err){ alert('Failed create task'); }
-          }}
-          className={`flex-1 py-2 rounded text-white font-semibold ${isValid ? 'bg-purple-700 hover:bg-purple-600' : 'bg-gray-700 cursor-not-allowed opacity-50'}`}
-        >
-          Buat Tugas
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setSelected([]);
-            setDescription("");
-            setFrom("");
-            setFromCoord("");
-            setTo("");
-            setToCoord("");
-            setDeadlineDate(formatToday());
-            setDeadlineTime("");
-            setFromSet(false);
-            setToSet(false);
-            setWaypoints([]);
-
-            // remove markers and route
-            fromMarkerRef.current?.remove();
-            fromMarkerRef.current = null;
-            toMarkerRef.current?.remove();
-            toMarkerRef.current = null;
-            if(map){
-              if(map.getLayer('route-line-layer')) map.removeLayer('route-line-layer');
-              if(map.getSource('route-line')) map.removeSource('route-line');
-            }
-            routeAddedRef.current=false;
-          }}
-          className="flex-1 py-2 rounded bg-gray-700 hover:bg-gray-600 text-white"
-        >
-          Bersihkan
-        </button>
-      </div>
-
-      {/* Save to Favorite */}
-      <button
-        type="button"
-        disabled={!from.trim() || !fromCoord.trim() || !to.trim() || !toCoord.trim()}
-        onClick={async () => {
-          try {
-            const body = { from, fromCoord, to, toCoord };
-            const res = await fetch('/api/favorites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-            if (res.ok) {
-              alert('Disimpan ke favorite');
-              onFavoriteSaved && onFavoriteSaved();
-            } else {
+              const body = { from, fromCoord, to, toCoord };
+              const res = await fetch('/api/favorites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+              if (res.ok) {
+                alert('Disimpan ke favorite');
+                onFavoriteSaved && onFavoriteSaved();
+              } else {
+                alert('Gagal menyimpan favorite');
+              }
+            } catch {
               alert('Gagal menyimpan favorite');
             }
-          } catch {
-            alert('Gagal menyimpan favorite');
-          }
-        }}
-        className={`mt-2 px-3 py-2 rounded text-white font-semibold ${from.trim() && fromCoord.trim() && to.trim() && toCoord.trim() ? 'bg-yellow-600 hover:bg-yellow-500' : 'bg-gray-700 cursor-not-allowed opacity-50'}`}
-      >
-        Simpan koordinat ke Favorite
-      </button>
+          }}
+          className={`px-3 py-2 rounded-lg text-white font-semibold ${from.trim() && fromCoord.trim() && to.trim() && toCoord.trim() ? 'bg-amber-600 hover:bg-amber-500' : 'bg-zinc-800 cursor-not-allowed opacity-60'}`}
+        >
+          Simpan koordinat ke Favorite
+        </button>
+      </div>
     </div>
   );
 });

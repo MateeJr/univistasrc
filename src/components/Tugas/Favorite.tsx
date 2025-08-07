@@ -49,24 +49,24 @@ const Favorite: React.FC<Props> = ({ onSelect, refreshTrigger }) => {
   }, [list, query]);
 
   return (
-    <div className="h-full rounded-lg bg-black text-white border border-purple-900 p-3 flex flex-col overflow-hidden">
+    <div className="h-full rounded-xl bg-zinc-950/80 text-white border border-zinc-800 p-3 md:p-4 flex flex-col overflow-hidden">
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-          <h3 className="text-sm font-bold tracking-wider text-purple-300">FAVORITES</h3>
+          <h3 className="text-sm font-bold tracking-wider text-zinc-200">FAVORITES</h3>
         </div>
         <div className="relative w-1/2 min-w-[140px]">
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search from/to..."
-            className="w-full rounded-md bg-gray-900/80 border border-gray-700 text-xs px-7 py-1.5 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+            className="w-full rounded-lg bg-zinc-900/80 border border-zinc-800 text-xs px-7 py-1.5 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-purple-600/50 focus:border-transparent"
           />
-          <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[11px] text-gray-500">⌕</span>
+          <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[11px] text-zinc-500">⌕</span>
           {query && (
             <button
               onClick={() => setQuery("")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-gray-400 hover:text-gray-200"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-zinc-400 hover:text-zinc-200"
               aria-label="Clear search"
             >
               ×
@@ -84,15 +84,15 @@ const Favorite: React.FC<Props> = ({ onSelect, refreshTrigger }) => {
         </div>
       ) : list.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center">
-          <div className="w-12 h-12 rounded-full bg-gray-800/50 border border-gray-700 flex items-center justify-center mb-2">
-            <span className="text-gray-500 text-xl">★</span>
+          <div className="w-12 h-12 rounded-full bg-zinc-900/60 border border-zinc-800 flex items-center justify-center mb-2">
+            <span className="text-zinc-500 text-xl">★</span>
           </div>
-          <p className="text-center text-gray-500 text-xs">No favorites saved yet</p>
+          <p className="text-center text-zinc-500 text-xs">No favorites saved yet</p>
         </div>
       ) : (
-        <div className="flex-1 overflow-auto scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-purple-600">
+        <div className="flex-1 overflow-auto scrollbar-thin scrollbar-track-zinc-900 scrollbar-thumb-zinc-700">
           {filtered.length === 0 ? (
-            <div className="h-full w-full flex items-center justify-center text-xs text-gray-500">
+            <div className="h-full w-full flex items-center justify-center text-xs text-zinc-500">
               No results for "{query}"
             </div>
           ) : (
@@ -100,7 +100,7 @@ const Favorite: React.FC<Props> = ({ onSelect, refreshTrigger }) => {
               {filtered.map((f, index) => (
                 <div
                   key={f.id}
-                  className="relative bg-gradient-to-b from-gray-900/80 to-gray-800/60 hover:from-gray-800/90 hover:to-gray-700/70 rounded-lg border border-gray-700/50 hover:border-purple-600/40 transition-all duration-200"
+                  className="relative rounded-lg border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-900 transition-colors duration-200 hover:border-purple-600/40"
                 >
                   <button
                     onClick={() => onSelect(f)}
@@ -118,12 +118,12 @@ const Favorite: React.FC<Props> = ({ onSelect, refreshTrigger }) => {
                           <span className="text-[11px] font-semibold text-green-300 truncate" title={f.from}>
                             {f.from}
                           </span>
-                          <span className="shrink-0 text-[10px] text-gray-500 font-mono">#{index + 1}</span>
+                          <span className="shrink-0 text-[10px] text-zinc-500 font-mono">#{index + 1}</span>
                         </div>
                         <div className="mt-1 text-[11px] font-medium text-red-300 truncate" title={f.to}>
                           {f.to}
                         </div>
-                        <div className="mt-1 text-[10px] text-gray-400 truncate">
+                        <div className="mt-1 text-[10px] text-zinc-400 truncate">
                           {new Date(f.createdAt).toLocaleDateString("id-ID", {
                             day: "2-digit",
                             month: "short",
