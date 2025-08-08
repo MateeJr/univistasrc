@@ -94,18 +94,43 @@ const Maps: React.FC<Props> = ({ selected, showTraffic }) => {
 
           let marker = masterMarkers.current[acc.deviceId];
           if (!marker) {
-            // Marker element: 32x32 icon with a label absolutely positioned above it.
+            // Build a square wrapper exactly the size of the icon and anchor to its center.
             const size = scaledSize(32, acc.icon);
-            const el = document.createElement("div");
-            el.style.display = 'flex';
-            el.style.flexDirection = 'column';
-            el.style.alignItems = 'center';
-            el.style.pointerEvents = 'none';
-            el.innerHTML = `
-              <span style="background:rgba(0,0,0,0.6);color:white;padding:2px 6px;border-radius:6px;font-size:11px;white-space:nowrap;text-shadow:0 0 2px black;margin-bottom:2px;">${acc.nama}</span>
-              <img src='${getIconPath(acc.icon)}' style='width:${size}px;height:${size}px;${styleIdx===2?"filter:invert(1);":""}' />
-            `;
-            marker = new mapboxgl.Marker({ element: el, anchor: "bottom" })
+
+            const wrapper = document.createElement("div");
+            wrapper.style.position = "relative";
+            wrapper.style.width = `${size}px`;
+            wrapper.style.height = `${size}px`;
+            wrapper.style.pointerEvents = "none";
+
+            // Vehicle image fills the wrapper
+            const img = document.createElement("img");
+            img.src = getIconPath(acc.icon);
+            img.style.position = "absolute";
+            img.style.left = "0";
+            img.style.top = "0";
+            img.style.width = `${size}px`;
+            img.style.height = `${size}px`;
+            if (styleIdx === 2) img.style.filter = "invert(1)";
+            wrapper.appendChild(img);
+
+            // Name label positioned above, outside the wrapper so it doesn't affect anchor
+            const label = document.createElement("span");
+            label.textContent = acc.nama;
+            label.style.position = "absolute";
+            label.style.bottom = "100%"; // place above wrapper
+            label.style.left = "50%";
+            label.style.transform = "translateX(-50%)";
+            label.style.background = "rgba(0,0,0,0.6)";
+            label.style.color = "white";
+            label.style.padding = "2px 6px";
+            label.style.borderRadius = "6px";
+            label.style.fontSize = "11px";
+            label.style.whiteSpace = "nowrap";
+            label.style.textShadow = "0 0 2px black";
+            wrapper.appendChild(label);
+
+            marker = new mapboxgl.Marker({ element: wrapper, anchor: "center" })
               .setLngLat([lon, lat])
               .addTo(map);
             masterMarkers.current[acc.deviceId] = marker;
