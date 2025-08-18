@@ -40,28 +40,23 @@ const getTaskSubmissionDate = (t: Task): Date | null => {
   return isNaN(d.getTime()) ? null : d;
 };
 
-// Map a submission date into a checkpoint label
-// - Today: no header
-// - Yesterday: "Semalam"
-// - Within last 7 days: "Seminggu Lalu"
-// - Within last 30 days: "Sebulan Lalu"
-// - Older: no header
+// Map a submission date into a readable time-ago header
 const getCheckpointLabel = (date: Date | null): string | null => {
   if (!date) return null;
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const startOfYesterday = new Date(startOfToday);
-  startOfYesterday.setDate(startOfYesterday.getDate() - 1);
-  const startOfLastWeek = new Date(startOfToday);
-  startOfLastWeek.setDate(startOfLastWeek.getDate() - 7);
-  const startOfLastMonth = new Date(startOfToday);
-  startOfLastMonth.setMonth(startOfLastMonth.getMonth() - 1);
 
-  if (date >= startOfToday) return null; // Today → no header
-  if (date >= startOfYesterday) return 'Semalam';
-  if (date >= startOfLastWeek) return 'Seminggu Lalu';
-  if (date >= startOfLastMonth) return 'Sebulan Lalu';
-  return null;
+  // Calculate difference in days, ignoring time component
+  const submissionDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const diffTime = startOfToday.getTime() - submissionDate.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays <= 0) return null; // Today or future dates have no header
+  if (diffDays === 1) return 'Kemarin';
+  if (diffDays <= 7) return 'Minggu Ini';
+  if (diffDays <= 14) return 'Minggu Lalu';
+  if (diffDays <= 30) return 'Bulan Ini';
+  return 'Bulan Lalu'; // Older than 30 days
 };
 
 const TugasSelesai: React.FC = () => {
