@@ -13,9 +13,9 @@ interface Step {
 }
 
 const STEPS: Step[] = [
-  { id: "server", label: "Connecting to Server" },
-  { id: "mapbox", label: "Initializing Geo-services" },
-  { id: "next", label: "Preparing Interface" },
+  { id: "server", label: "Menghubungkan ke Server" },
+  { id: "mapbox", label: "Menginisialisasi Layanan Geo" },
+  { id: "next", label: "Mempersiapkan Antarmuka" },
 ];
 
 const CheckmarkIcon = () => (
@@ -155,10 +155,17 @@ export default function InitialLoader({ children }: { children: React.ReactNode 
             className="fixed inset-0 flex flex-col items-center justify-center bg-[#0A0A0A] text-white z-[9999] overflow-hidden"
           >
             {/* Animated background elements */}
-            <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl animate-pulse" />
-              <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-            </div>
+            {errorStep ? (
+              <div className="absolute inset-0 bg-gradient-to-br from-red-950 via-gray-900 to-black opacity-90" />
+            ) : (
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl animate-pulse" />
+                <div
+                  className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl animate-pulse"
+                  style={{ animationDelay: '1s' }}
+                />
+              </div>
+            )}
             
             <motion.div 
               initial={{ y: 20, opacity: 0 }}
@@ -167,27 +174,39 @@ export default function InitialLoader({ children }: { children: React.ReactNode 
               className="relative z-10 flex flex-col items-center"
             >
               {errorStep ? (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }} 
-                  animate={{ opacity: 1, y: 0 }} 
-                  className="text-center p-8 bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-red-500/20"
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="w-[min(90vw,28rem)] text-center p-10 bg-gray-900/60 backdrop-blur-xl rounded-3xl border border-red-500/30 shadow-2xl shadow-red-900/40"
                 >
-                  <div className="w-14 h-14 mx-auto mb-4 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/30">
-                    <svg className="w-8 h-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-red-500/20 flex items-center justify-center">
+                    <svg
+                      className="w-12 h-12 text-red-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
                   </div>
-                  <h2 className="text-xl font-bold text-red-400 mb-2">
-                    {errorStep === "server" ? "Server Connection Failed" : "Failed to Load Resources"}
+                  <h2 className="text-2xl font-extrabold mb-4">
+                    {errorStep === "server" ? "Koneksi Terputus" : "Sumber Daya Tidak Tersedia"}
                   </h2>
-                  <p className="text-gray-400 max-w-xs mx-auto mb-6">
-                    We couldn't connect to our servers. Please check your internet connection and try again.
+                  <p className="text-gray-300 mb-8">
+                    Kami tidak dapat terhubung ke server. Silakan periksa koneksi internet Anda dan coba lagi.
                   </p>
                   <motion.button
-                    whileHover={{ scale: 1.05, background: 'rgba(192, 72, 72, 0.8)' }}
+                    whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleRetry}
-                    className="mt-4 px-6 py-2.5 bg-red-500/80 hover:bg-red-500/90 rounded-full text-sm font-semibold transition-all duration-200 shadow-lg shadow-red-500/20"
+                    className="px-8 py-3 rounded-full bg-gradient-to-r from-red-500 to-pink-500 font-semibold shadow-lg shadow-red-500/30"
                   >
-                    Retry
+                    Coba Lagi
                   </motion.button>
                 </motion.div>
               ) : (
@@ -201,7 +220,7 @@ export default function InitialLoader({ children }: { children: React.ReactNode 
                     </div>
                   </div>
                   <h1 className="text-center text-2xl font-bold text-gray-100 mb-2">Univista</h1>
-                  <p className="text-center text-sm text-gray-400 mb-8">Initializing services, please wait...</p>
+                  <p className="text-center text-sm text-gray-400 mb-8">Menginisialisasi layanan, mohon tunggu...</p>
                   
                   <ul className="space-y-3">
                     {STEPS.map((step, index) => {
