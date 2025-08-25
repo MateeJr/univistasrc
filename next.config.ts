@@ -6,23 +6,23 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://193.70.34.25:20096/api/:path*',
+        destination: 'http://147.135.252.68:20085/api/:path*',
       },
       {
         source: '/laporan-images/:path*',
-        destination: 'http://193.70.34.25:20096/laporan-images/:path*',
+        destination: 'http://147.135.252.68:20085/laporan-images/:path*',
       },
       {
         source: '/task-images/:path*',
-        destination: 'http://193.70.34.25:20096/task-images/:path*',
+        destination: 'http://147.135.252.68:20085/task-images/:path*',
       },
     ];
   },
   // Allow hot-reload / _next asset requests from these additional origins while running `next dev`.
   // See https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
   allowedDevOrigins: [
-    '193.70.34.25:20096',        // your external IP & port
-    '193.70.34.25:20096',          // whatever host is proxying requests (example shown in warning)
+    '147.135.252.68:20085',        // your external IP & port
+    '147.135.252.68:20085',          // whatever host is proxying requests (example shown in warning)
     '*.127.0.0.1.nip.io',          // handy wildcard for tunnelling URLs (optional)
   ],
   // Skip ESLint checks during `next build` so build won\'t fail on lint errors.

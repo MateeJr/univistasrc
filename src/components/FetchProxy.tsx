@@ -4,13 +4,13 @@ import { useEffect } from "react";
 
 /**
  * Patch the global fetch on the client so that any request that still points
- * to the hard-coded backend base URL (http://193.70.34.25:20096) is converted
+ * to the hard-coded backend base URL (http://147.135.252.68:20085) is converted
  * to a same-origin relative URL. This prevents mixed-content errors when the
  * site is served over HTTPS (e.g. on Vercel).
  */
 export default function FetchProxy() {
   useEffect(() => {
-    const BACKEND = "http://193.70.34.25:20096";
+    const BACKEND = "http://147.135.252.68:20085";
 
     // Ensure we only patch once and in browsers.
     if (typeof window === "undefined" || (window as any).__FETCH_PROXY_PATCHED__) {
